@@ -5,6 +5,8 @@ import com.expense.logger.dto.ForgotPasswordRequestDto;
 import com.expense.logger.dto.ResetPasswordRequestDto;
 import com.expense.logger.dto.UserLoginRequestDto;
 import com.expense.logger.dto.UserRegisterRequestDto;
+import com.expense.logger.dto.OtpResendRequestDto;
+import com.expense.logger.dto.OtpVerificationRequestDto;
 import com.expense.logger.dto.UserResponseDto;
 import java.util.Map;
 import com.expense.logger.service.AuthService;
@@ -37,10 +39,32 @@ public class AuthController {
     public ResponseEntity<AuthResponseDto> register(@Valid @RequestBody UserRegisterRequestDto registerDto,
                                                     HttpServletResponse response) {
         AuthResponseDto result = authService.registerUser(registerDto);
-        setRefreshTokenCookie(response, result.getRefreshToken());
+        if (result.getRefreshToken() != null) {
+            setRefreshTokenCookie(response, result.getRefreshToken());
+        }
         // Clean DTO for body response (do not expose refresh token in JSON body)
         result.setRefreshToken(null);
         return ResponseEntity.ok(result);
+    }
+
+    @PostMapping("/verify-otp")
+    public ResponseEntity<AuthResponseDto> verifyOtp(@Valid @RequestBody OtpVerificationRequestDto verifyDto,
+                                                     HttpServletRequest request,
+                                                     HttpServletResponse response) {
+        String userAgent = request.getHeader(HttpHeaders.USER_AGENT);
+        String ipAddress = request.getRemoteAddr();
+        AuthResponseDto result = authService.verifyOtp(verifyDto, userAgent, ipAddress);
+        if (result.getRefreshToken() != null) {
+            setRefreshTokenCookie(response, result.getRefreshToken());
+        }
+        result.setRefreshToken(null);
+        return ResponseEntity.ok(result);
+    }
+
+    @PostMapping("/resend-otp")
+    public ResponseEntity<Map<String, String>> resendOtp(@Valid @RequestBody OtpResendRequestDto resendDto) {
+        authService.resendOtp(resendDto);
+        return ResponseEntity.ok(Map.of("message", "A new verification code has been sent."));
     }
 
     @PostMapping("/login")

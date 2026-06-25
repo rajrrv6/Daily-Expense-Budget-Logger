@@ -51,4 +51,7 @@ public class Expense {
 
     @Column(name = "deleted_at")
     private LocalDateTime deletedAt;
+
+    @Column(name = "receipt_path")
+    private String receiptPath;
 }

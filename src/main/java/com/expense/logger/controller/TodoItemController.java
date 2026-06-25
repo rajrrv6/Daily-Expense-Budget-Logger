@@ -2,6 +2,7 @@ package com.expense.logger.controller;
 
 import com.expense.logger.dto.TodoRequestDto;
 import com.expense.logger.dto.TodoResponseDto;
+import com.expense.logger.dto.TodoCompleteRequestDto;
 import com.expense.logger.exception.ResourceNotFoundException;
 import com.expense.logger.model.User;
 import com.expense.logger.repository.UserRepository;
@@ -59,6 +60,15 @@ public class TodoItemController {
             @PathVariable UUID id) {
         UUID userId = getAuthenticatedUserId(authentication);
         return ResponseEntity.ok(todoItemService.toggleTodo(id, userId));
+    }
+
+    @PatchMapping("/{id}/complete")
+    public ResponseEntity<TodoResponseDto> completeTodo(
+            Authentication authentication,
+            @PathVariable UUID id,
+            @Valid @RequestBody TodoCompleteRequestDto dto) {
+        UUID userId = getAuthenticatedUserId(authentication);
+        return ResponseEntity.ok(todoItemService.completeTodo(id, dto, userId));
     }
 
     @DeleteMapping("/{id}")

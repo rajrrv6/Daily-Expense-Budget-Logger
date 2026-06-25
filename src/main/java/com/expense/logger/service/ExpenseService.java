@@ -14,5 +14,5 @@ public interface ExpenseService {
     ExpenseResponseDto createExpense(ExpenseRequestDto dto, UUID userId);
     ExpenseResponseDto updateExpense(UUID id, ExpenseRequestDto dto, UUID userId);
     void deleteExpense(UUID id, UUID userId);
-    byte[] exportExpensesToCsv(UUID userId, LocalDate startDate, LocalDate endDate);
+    byte[] exportExpensesToPdf(UUID userId, LocalDate startDate, LocalDate endDate, String token);
 }

@@ -102,14 +102,24 @@ public class AdvancedFeaturesTest {
         testUser = User.builder()
                 .username("testuser")
                 .email("testuser@example.com")
+                .firstName("Test")
+                .lastName("User")
+                .phoneNumber("+1234567890")
+                .monthlyIncome(new BigDecimal("5000.00"))
                 .passwordHash(passwordEncoder.encode("password"))
+                .verified(true)
                 .build();
         userRepository.save(testUser);
 
         otherUser = User.builder()
                 .username("otheruser")
                 .email("otheruser@example.com")
+                .firstName("Other")
+                .lastName("User")
+                .phoneNumber("+0987654321")
+                .monthlyIncome(new BigDecimal("4000.00"))
                 .passwordHash(passwordEncoder.encode("password"))
+                .verified(true)
                 .build();
         userRepository.save(otherUser);
 
@@ -339,7 +349,7 @@ public class AdvancedFeaturesTest {
 
     @Test
     @WithMockUser(username = "testuser")
-    public void testSecureCSVExport() throws Exception {
+    public void testSecurePDFExport() throws Exception {
         LocalDate today = LocalDate.now();
 
         // Create standard expense
@@ -352,9 +362,9 @@ public class AdvancedFeaturesTest {
                 .build();
         expenseRepository.save(e1);
 
-        // Create dangerous expense to test CSV Injection Sanitization
+        // Create another expense
         Expense e2 = Expense.builder()
-                .name("=1+1")
+                .name("Other expense")
                 .amount(new BigDecimal("20.00"))
                 .transactionDate(today)
                 .user(testUser)
@@ -373,27 +383,19 @@ public class AdvancedFeaturesTest {
                 .build();
         expenseRepository.save(deleted);
 
-        // Trigger CSV Export
-        String csvContent = mockMvc.perform(get("/api/v1/expenses/export"))
+        // Trigger PDF Export
+        byte[] pdfContent = mockMvc.perform(get("/api/v1/expenses/export"))
                 .andExpect(status().isOk())
-                .andExpect(content().contentType("text/csv; charset=UTF-8"))
-                .andExpect(header().string("Content-Disposition", containsString("filename=\"expenses_export.csv\"")))
-                .andReturn().getResponse().getContentAsString();
+                .andExpect(content().contentType("application/pdf"))
+                .andExpect(header().string("Content-Disposition", containsString("filename=\"expenses_export.pdf\"")))
+                .andReturn().getResponse().getContentAsByteArray();
 
-        // 1. Verify BOM prefix presence (\uFEFF)
-        assertTrue(csvContent.startsWith("\uFEFF"));
-
-        // 2. Verify headers are correct
-        assertTrue(csvContent.contains("Expense ID,Name,Amount,Category,Transaction Date,Created At"));
-
-        // 3. Verify normal expense exists
-        assertTrue(csvContent.contains("Normal expense"));
-
-        // 4. Verify CSV injection protection escaping (name starts with '=' should have prepended single quote)
-        assertTrue(csvContent.contains("'=1+1"));
-
-        // 5. Verify soft-deleted expense is excluded
-        assertFalse(csvContent.contains("Deleted record"));
+        // Verify PDF Magic Bytes Signature (%PDF)
+        assertTrue(pdfContent.length > 4);
+        assertEquals('%', (char) pdfContent[0]);
+        assertEquals('P', (char) pdfContent[1]);
+        assertEquals('D', (char) pdfContent[2]);
+        assertEquals('F', (char) pdfContent[3]);
     }
 
     @Test
@@ -721,6 +723,10 @@ public class AdvancedFeaturesTest {
         com.expense.logger.dto.UserProfileUpdateRequestDto duplicateDto = com.expense.logger.dto.UserProfileUpdateRequestDto.builder()
                 .username("testuser")
                 .email("otheruser@example.com")
+                .firstName("Test")
+                .lastName("User")
+                .phoneNumber("+1234567890")
+                .monthlyIncome(new BigDecimal("5000.00"))
                 .build();
 
         mockMvc.perform(put("/api/v1/users/profile")
@@ -733,6 +739,10 @@ public class AdvancedFeaturesTest {
         com.expense.logger.dto.UserProfileUpdateRequestDto updateDto = com.expense.logger.dto.UserProfileUpdateRequestDto.builder()
                 .username("newtestuser")
                 .email("newtestuser@example.com")
+                .firstName("NewTest")
+                .lastName("NewUser")
+                .phoneNumber("+1999999999")
+                .monthlyIncome(new BigDecimal("7500.00"))
                 .build();
 
         mockMvc.perform(put("/api/v1/users/profile")
@@ -740,12 +750,16 @@ public class AdvancedFeaturesTest {
                         .content(objectMapper.writeValueAsString(updateDto)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.username", is("newtestuser")))
-                .andExpect(jsonPath("$.email", is("newtestuser@example.com")));
+                .andExpect(jsonPath("$.email", is("newtestuser@example.com")))
+                .andExpect(jsonPath("$.phoneNumber", is("+1999999999")))
+                .andExpect(jsonPath("$.monthlyIncome", is(7500.00)));
 
         // Verify database state
         User updatedUser = userRepository.findById(testUser.getId()).orElseThrow();
         assertEquals("newtestuser", updatedUser.getUsername());
         assertEquals("newtestuser@example.com", updatedUser.getEmail());
+        assertEquals("+1999999999", updatedUser.getPhoneNumber());
+        assertEquals(0, new BigDecimal("7500.00").compareTo(updatedUser.getMonthlyIncome()));
     }
 
     @Test
@@ -942,4 +956,314 @@ public class AdvancedFeaturesTest {
             throw new RuntimeException(e);
         }
     }
+
+    @Autowired
+    private com.expense.logger.repository.VerificationOtpRepository verificationOtpRepository;
+
+    @Autowired
+    private com.expense.logger.repository.PendingRegistrationRepository pendingRegistrationRepository;
+
+    @Test
+    public void testOtpVerificationFlow() throws Exception {
+        verificationOtpRepository.deleteAll();
+        pendingRegistrationRepository.deleteAll();
+
+        // 1. Register a new user
+        com.expense.logger.dto.UserRegisterRequestDto registerDto = com.expense.logger.dto.UserRegisterRequestDto.builder()
+                .username("otpuser")
+                .email("otpuser@example.com")
+                .firstName("Otp")
+                .lastName("User")
+                .phoneNumber("+1112223333")
+                .password("SecurePass123!")
+                .build();
+
+        mockMvc.perform(post("/api/v1/auth/register")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(registerDto)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.username", is("otpuser")))
+                .andExpect(jsonPath("$.email", is("otpuser@example.com")))
+                .andExpect(jsonPath("$.accessToken", nullValue()))
+                .andExpect(jsonPath("$.refreshToken", nullValue()));
+
+        // Verify user is NOT yet in main users database table
+        assertFalse(userRepository.findByEmailAndDeletedAtIsNull("otpuser@example.com").isPresent());
+
+        // Verify registration payload is in pending_registrations table
+        List<com.expense.logger.model.PendingRegistration> pendings = pendingRegistrationRepository.findAll();
+        assertEquals(1, pendings.size());
+        com.expense.logger.model.PendingRegistration pending = pendings.get(0);
+        assertEquals("otpuser@example.com", pending.getEmail());
+        assertNotNull(pending.getOtpCode());
+        String initialOtpCode = pending.getOtpCode();
+
+        // 2. Attempt to login as otpuser (should fail because account does not exist/not verified)
+        com.expense.logger.dto.UserLoginRequestDto loginDto = com.expense.logger.dto.UserLoginRequestDto.builder()
+                .usernameOrEmail("otpuser")
+                .password("SecurePass123!")
+                .build();
+
+        mockMvc.perform(post("/api/v1/auth/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(loginDto)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message", containsString("Invalid username or password")));
+
+        // 3. Verify OTP using incorrect code
+        com.expense.logger.dto.OtpVerificationRequestDto invalidVerifyDto = new com.expense.logger.dto.OtpVerificationRequestDto();
+        invalidVerifyDto.setEmail("otpuser@example.com");
+        invalidVerifyDto.setOtpCode("000000"); // wrong code
+
+        mockMvc.perform(post("/api/v1/auth/verify-otp")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(invalidVerifyDto)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message", containsString("Invalid or expired OTP")));
+
+        // 4. Resend OTP code
+        com.expense.logger.dto.OtpResendRequestDto resendDto = new com.expense.logger.dto.OtpResendRequestDto();
+        resendDto.setEmail("otpuser@example.com");
+
+        mockMvc.perform(post("/api/v1/auth/resend-otp")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(resendDto)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.message", containsString("A new verification code has been sent")));
+
+        // Verify new OTP is generated
+        List<com.expense.logger.model.PendingRegistration> allPendings = pendingRegistrationRepository.findAll();
+        assertEquals(1, allPendings.size()); // should overwrite/update
+        com.expense.logger.model.PendingRegistration updatedPending = allPendings.get(0);
+        assertNotEquals(initialOtpCode, updatedPending.getOtpCode());
+
+        // 5. Verify using the new correct OTP code
+        com.expense.logger.dto.OtpVerificationRequestDto correctVerifyDto = new com.expense.logger.dto.OtpVerificationRequestDto();
+        correctVerifyDto.setEmail("otpuser@example.com");
+        correctVerifyDto.setOtpCode(updatedPending.getOtpCode());
+
+        mockMvc.perform(post("/api/v1/auth/verify-otp")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(correctVerifyDto)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.accessToken", notNullValue()))
+                .andExpect(jsonPath("$.username", is("otpuser")));
+
+        // Verify database user status is now verified = true in users table
+        User verifiedUser = userRepository.findByEmailAndDeletedAtIsNull("otpuser@example.com").orElseThrow();
+        assertTrue(verifiedUser.isVerified());
+
+        // 6. Login now succeeds
+        mockMvc.perform(post("/api/v1/auth/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(loginDto)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.accessToken", notNullValue()));
+    }
+
+    @Test
+    public void testHardcodedTestOtpForUserExampleCom() throws Exception {
+        pendingRegistrationRepository.deleteAll();
+
+        // Register user@example.com
+        com.expense.logger.dto.UserRegisterRequestDto registerDto = com.expense.logger.dto.UserRegisterRequestDto.builder()
+                .username("user_test")
+                .email("user@example.com")
+                .firstName("Test")
+                .lastName("User")
+                .phoneNumber("+1112223333")
+                .password("SecurePass123!")
+                .build();
+
+        mockMvc.perform(post("/api/v1/auth/register")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(registerDto)))
+                .andExpect(status().isOk());
+
+        // Verify that the OTP saved is exactly "123456"
+        com.expense.logger.model.PendingRegistration pending = pendingRegistrationRepository
+                .findFirstByEmailOrderByCreatedAtDesc("user@example.com").orElseThrow();
+        assertEquals("123456", pending.getOtpCode());
+
+        // Verify OTP verification with "123456" succeeds
+        com.expense.logger.dto.OtpVerificationRequestDto verifyDto = new com.expense.logger.dto.OtpVerificationRequestDto();
+        verifyDto.setEmail("user@example.com");
+        verifyDto.setOtpCode("123456");
+
+        mockMvc.perform(post("/api/v1/auth/verify-otp")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(verifyDto)))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    @WithMockUser(username = "testuser")
+    public void testPaymentReceiptUploadFlow() throws Exception {
+        // 1. Upload a valid receipt file (PDF)
+        org.springframework.mock.web.MockMultipartFile mockPdf = new org.springframework.mock.web.MockMultipartFile(
+                "file",
+                "receipt.pdf",
+                "application/pdf",
+                "dummy pdf content".getBytes()
+        );
+
+        String uploadResponse = mockMvc.perform(multipart("/api/v1/expenses/receipts")
+                        .file(mockPdf))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.fileName", notNullValue()))
+                .andReturn().getResponse().getContentAsString();
+
+        String fileName = objectMapper.readTree(uploadResponse).get("fileName").asText();
+        assertTrue(fileName.contains("receipt.pdf"));
+
+        // 2. Upload a valid image (JPEG)
+        org.springframework.mock.web.MockMultipartFile mockJpeg = new org.springframework.mock.web.MockMultipartFile(
+                "file",
+                "receipt.jpg",
+                "image/jpeg",
+                "dummy jpeg content".getBytes()
+        );
+
+        mockMvc.perform(multipart("/api/v1/expenses/receipts")
+                        .file(mockJpeg))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.fileName", notNullValue()));
+
+        // 3. Reject an invalid file format (TXT)
+        org.springframework.mock.web.MockMultipartFile mockTxt = new org.springframework.mock.web.MockMultipartFile(
+                "file",
+                "receipt.txt",
+                "text/plain",
+                "dummy plain text content".getBytes()
+        );
+
+        mockMvc.perform(multipart("/api/v1/expenses/receipts")
+                        .file(mockTxt))
+                .andExpect(status().isBadRequest());
+
+        // 4. Create an expense referencing the uploaded PDF
+        com.expense.logger.dto.ExpenseRequestDto expenseDto = com.expense.logger.dto.ExpenseRequestDto.builder()
+                .name("Dinner at Restaurant")
+                .amount(new BigDecimal("150.50"))
+                .transactionDate(LocalDate.now())
+                .categoryId(categoryFood.getId())
+                .receiptPath(fileName)
+                .build();
+
+        String expenseResponse = mockMvc.perform(post("/api/v1/expenses")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(expenseDto)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id", notNullValue()))
+                .andExpect(jsonPath("$.receiptPath", is(fileName)))
+                .andReturn().getResponse().getContentAsString();
+
+        UUID expenseId = UUID.fromString(objectMapper.readTree(expenseResponse).get("id").asText());
+
+        // 5. Download the uploaded receipt and verify content
+        byte[] downloadedContent = mockMvc.perform(get("/api/v1/expenses/receipts/" + fileName))
+                .andExpect(status().isOk())
+                .andExpect(header().string("Content-Type", "application/pdf"))
+                .andReturn().getResponse().getContentAsByteArray();
+
+        assertArrayEquals("dummy pdf content".getBytes(), downloadedContent);
+
+        // 6. Delete the expense and verify receipt file is deleted
+        mockMvc.perform(delete("/api/v1/expenses/" + expenseId))
+                .andExpect(status().isNoContent());
+
+        // Attempting to download the receipt after deletion should return 404
+        mockMvc.perform(get("/api/v1/expenses/receipts/" + fileName))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    @WithMockUser(username = "testuser")
+    public void testChecklistExtendedFieldsAndValidation() throws Exception {
+        LocalDate yesterday = LocalDate.now().minusDays(1);
+        LocalDate today = LocalDate.now();
+
+        // 1. Create with target date before today (yesterday) -> Expect 400 Bad Request
+        TodoRequestDto badDateDto = TodoRequestDto.builder()
+                .name("Buy bread")
+                .targetDate(yesterday)
+                .build();
+
+        mockMvc.perform(post("/api/v1/todos")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(badDateDto)))
+                .andExpect(status().isBadRequest());
+
+        // 2. Create with negative price -> Expect 400 Bad Request
+        TodoRequestDto badPriceDto = TodoRequestDto.builder()
+                .name("Buy bread")
+                .price(new BigDecimal("-5.00"))
+                .build();
+
+        mockMvc.perform(post("/api/v1/todos")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(badPriceDto)))
+                .andExpect(status().isBadRequest());
+
+        // 3. Create with today target date, valid price, and category -> Expect 201 Created
+        TodoRequestDto goodDto = TodoRequestDto.builder()
+                .name("Buy bread")
+                .price(new BigDecimal("45.50"))
+                .categoryId(categoryFood.getId())
+                .targetDate(today)
+                .build();
+
+        mockMvc.perform(post("/api/v1/todos")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(goodDto)))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.name", is("Buy bread")))
+                .andExpect(jsonPath("$.price", is(45.50)))
+                .andExpect(jsonPath("$.categoryId", is(categoryFood.getId().intValue())))
+                .andExpect(jsonPath("$.categoryName", is("Food")))
+                .andExpect(jsonPath("$.targetDate", is(today.toString())));
+    }
+
+    @Test
+    @WithMockUser(username = "testuser")
+    public void testChecklistCompletionAndExpenseSync() throws Exception {
+        // 1. Create checklist item
+        TodoRequestDto createDto = TodoRequestDto.builder()
+                .name("Office Desk")
+                .price(new BigDecimal("1500.00"))
+                .categoryId(categoryBills.getId())
+                .build();
+
+        String response = mockMvc.perform(post("/api/v1/todos")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(createDto)))
+                .andExpect(status().isCreated())
+                .andReturn().getResponse().getContentAsString();
+
+        UUID todoId = UUID.fromString(objectMapper.readTree(response).get("id").asText());
+
+        // 2. Complete checklist item (change price & confirm)
+        com.expense.logger.dto.TodoCompleteRequestDto completeDto = com.expense.logger.dto.TodoCompleteRequestDto.builder()
+                .price(new BigDecimal("1450.00"))
+                .categoryId(categoryBills.getId())
+                .build();
+
+        mockMvc.perform(patch("/api/v1/todos/" + todoId + "/complete")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(completeDto)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.completed", is(true)))
+                .andExpect(jsonPath("$.price", is(1450.00)));
+
+        // 3. Verify that matching Expense was created automatically
+        List<Expense> expenses = expenseRepository.findAllByUserIdAndDeletedAtIsNull(testUser.getId());
+        // Should find 1 expense representing the completed shopping list item
+        boolean expenseCreated = expenses.stream()
+                .anyMatch(e -> e.getName().equals("Office Desk") && 
+                               e.getAmount().compareTo(new BigDecimal("1450.00")) == 0 &&
+                               e.getCategory().getId().equals(categoryBills.getId()));
+        
+        assertTrue(expenseCreated, "Matching expense should be logged automatically in the Expense Tracker");
+    }
 }
+

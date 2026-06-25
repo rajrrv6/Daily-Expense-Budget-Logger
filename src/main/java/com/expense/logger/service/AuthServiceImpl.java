@@ -16,6 +16,10 @@ import com.expense.logger.repository.AuditLogRepository;
 import com.expense.logger.repository.PasswordResetTokenRepository;
 import com.expense.logger.repository.RefreshTokenRepository;
 import com.expense.logger.repository.UserRepository;
+import com.expense.logger.repository.VerificationOtpRepository;
+import com.expense.logger.model.VerificationOtp;
+import com.expense.logger.model.PendingRegistration;
+import com.expense.logger.repository.PendingRegistrationRepository;
 import com.expense.logger.security.JwtTokenProvider;
 import lombok.extern.slf4j.Slf4j;
 import java.util.List;
@@ -48,6 +52,9 @@ public class AuthServiceImpl implements AuthService {
     private final AuthenticationManager authenticationManager;
     private final JwtTokenProvider tokenProvider;
     private final PasswordResetTokenRepository passwordResetTokenRepository;
+    private final VerificationOtpRepository verificationOtpRepository;
+    private final PendingRegistrationRepository pendingRegistrationRepository;
+    private final EmailService emailService;
 
     @Value("${app.jwt.accessTokenExpirationMs}")
     private long accessTokenExpirationMs;
@@ -61,7 +68,10 @@ public class AuthServiceImpl implements AuthService {
                            PasswordEncoder passwordEncoder,
                            AuthenticationManager authenticationManager,
                            JwtTokenProvider tokenProvider,
-                           PasswordResetTokenRepository passwordResetTokenRepository) {
+                           PasswordResetTokenRepository passwordResetTokenRepository,
+                           VerificationOtpRepository verificationOtpRepository,
+                           PendingRegistrationRepository pendingRegistrationRepository,
+                           EmailService emailService) {
         this.userRepository = userRepository;
         this.refreshTokenRepository = refreshTokenRepository;
         this.auditLogRepository = auditLogRepository;
@@ -69,10 +79,40 @@ public class AuthServiceImpl implements AuthService {
         this.authenticationManager = authenticationManager;
         this.tokenProvider = tokenProvider;
         this.passwordResetTokenRepository = passwordResetTokenRepository;
+        this.verificationOtpRepository = verificationOtpRepository;
+        this.pendingRegistrationRepository = pendingRegistrationRepository;
+        this.emailService = emailService;
     }
 
     @Override
     public AuthResponseDto registerUser(UserRegisterRequestDto registerDto) {
+        // If the email is the testing email 'user@example.com', we allow recreating it multiple times
+        if ("user@example.com".equalsIgnoreCase(registerDto.getEmail())) {
+            userRepository.findByEmailAndDeletedAtIsNull("user@example.com").ifPresent(user -> {
+                userRepository.deleteRefreshTokensByUserId(user.getId());
+                userRepository.deletePasswordResetTokensByUserId(user.getId());
+                userRepository.deleteExpensesByUserId(user.getId());
+                userRepository.deleteBudgetsByUserId(user.getId());
+                userRepository.deleteTodoItemsByUserId(user.getId());
+                userRepository.deleteNotificationsByUserId(user.getId());
+                userRepository.deleteNotificationPreferencesByUserId(user.getId());
+                userRepository.nullifyAuditLogsByUserId(user.getId());
+                userRepository.delete(user);
+            });
+            userRepository.findByUsernameAndDeletedAtIsNull(registerDto.getUsername()).ifPresent(user -> {
+                userRepository.deleteRefreshTokensByUserId(user.getId());
+                userRepository.deletePasswordResetTokensByUserId(user.getId());
+                userRepository.deleteExpensesByUserId(user.getId());
+                userRepository.deleteBudgetsByUserId(user.getId());
+                userRepository.deleteTodoItemsByUserId(user.getId());
+                userRepository.deleteNotificationsByUserId(user.getId());
+                userRepository.deleteNotificationPreferencesByUserId(user.getId());
+                userRepository.nullifyAuditLogsByUserId(user.getId());
+                userRepository.delete(user);
+            });
+            userRepository.flush();
+        }
+
         if (userRepository.existsByUsernameAndDeletedAtIsNull(registerDto.getUsername())) {
             throw new BadRequestException("Username is already taken");
         }
@@ -80,29 +120,56 @@ public class AuthServiceImpl implements AuthService {
             throw new BadRequestException("Email is already registered");
         }
 
-        User user = User.builder()
+        // Clean up any existing pending registrations for the same credentials to prevent conflicts
+        pendingRegistrationRepository.deleteByEmail(registerDto.getEmail());
+        pendingRegistrationRepository.deleteByUsername(registerDto.getUsername());
+
+        // Generate 6-digit OTP code (hardcoded to 123456 for user@example.com for testing)
+        String otpCode;
+        if ("user@example.com".equalsIgnoreCase(registerDto.getEmail())) {
+            otpCode = "123456";
+        } else {
+            otpCode = String.format("%06d", new java.security.SecureRandom().nextInt(1000000));
+        }
+
+        // Dispatch real email asynchronously
+        try {
+            emailService.sendEmail(
+                registerDto.getEmail(),
+                "Daily Expense Logger - Verify Your Email",
+                "Hello " + registerDto.getFirstName() + ",\n\n" +
+                "Thank you for registering. Your verification code is: " + otpCode + "\n\n" +
+                "This code will expire in 15 minutes."
+            );
+        } catch (Exception e) {
+            log.warn("Asynchronous trigger of email dispatch failed for {}: {}", registerDto.getEmail(), e.getMessage());
+        }
+
+        // Save pending registration record
+        PendingRegistration pendingRegistration = PendingRegistration.builder()
                 .username(registerDto.getUsername())
                 .email(registerDto.getEmail())
+                .firstName(registerDto.getFirstName())
+                .lastName(registerDto.getLastName())
+                .phoneNumber(registerDto.getPhoneNumber())
                 .passwordHash(passwordEncoder.encode(registerDto.getPassword()))
+                .otpCode(otpCode)
+                .expiresAt(LocalDateTime.now().plusMinutes(15))
                 .build();
+        pendingRegistrationRepository.save(pendingRegistration);
 
-        userRepository.save(user);
-
-        // Audit Log registration
-        logEvent("USER_REGISTER", "New user registered: username=" + user.getUsername(), user);
-
-        // Generate tokens
-        String accessToken = tokenProvider.generateTokenFromUsername(user.getUsername(), accessTokenExpirationMs);
-        String refreshTokenVal = tokenProvider.generateTokenFromUsername(user.getUsername(), refreshTokenExpirationMs);
-
-        // Save refresh token
-        saveRefreshToken(user, refreshTokenVal, UUID.randomUUID(), "System Registration", "N/A");
+        // Output OTP to system logs and standard output for development verification
+        log.info("====================================================");
+        log.info("PENDING REGISTRATION EMAIL OTP FOR {}: {}", registerDto.getEmail(), otpCode);
+        log.info("====================================================");
+        System.out.println("PENDING REGISTRATION EMAIL OTP FOR " + registerDto.getEmail() + ": " + otpCode);
 
         return AuthResponseDto.builder()
-                .accessToken(accessToken)
-                .refreshToken(refreshTokenVal)
-                .username(user.getUsername())
-                .email(user.getEmail())
+                .username(registerDto.getUsername())
+                .email(registerDto.getEmail())
+                .firstName(registerDto.getFirstName())
+                .lastName(registerDto.getLastName())
+                .phoneNumber(registerDto.getPhoneNumber())
                 .build();
     }
 
@@ -112,6 +179,10 @@ public class AuthServiceImpl implements AuthService {
         User user = userRepository.findByUsernameAndDeletedAtIsNull(identifier)
                 .or(() -> userRepository.findByEmailAndDeletedAtIsNull(identifier))
                 .orElseThrow(() -> new BadRequestException("Invalid username or password"));
+
+        if (!user.isVerified()) {
+            throw new BadRequestException("Email is not verified. Please verify your email first.");
+        }
 
         if (user.getLockoutUntil() != null && user.getLockoutUntil().isAfter(LocalDateTime.now())) {
             throw new BadRequestException("Account is locked due to multiple failed login attempts. Lockout active.");
@@ -157,6 +228,10 @@ public class AuthServiceImpl implements AuthService {
                 .refreshToken(refreshTokenVal)
                 .username(user.getUsername())
                 .email(user.getEmail())
+                .firstName(user.getFirstName())
+                .lastName(user.getLastName())
+                .phoneNumber(user.getPhoneNumber())
+                .monthlyIncome(user.getMonthlyIncome())
                 .build();
     }
 
@@ -209,6 +284,10 @@ public class AuthServiceImpl implements AuthService {
                 .refreshToken(newRefreshTokenVal)
                 .username(user.getUsername())
                 .email(user.getEmail())
+                .firstName(user.getFirstName())
+                .lastName(user.getLastName())
+                .phoneNumber(user.getPhoneNumber())
+                .monthlyIncome(user.getMonthlyIncome())
                 .build();
     }
 
@@ -235,6 +314,10 @@ public class AuthServiceImpl implements AuthService {
                 .id(user.getId())
                 .username(user.getUsername())
                 .email(user.getEmail())
+                .firstName(user.getFirstName())
+                .lastName(user.getLastName())
+                .phoneNumber(user.getPhoneNumber())
+                .monthlyIncome(user.getMonthlyIncome())
                 .createdAt(user.getCreatedAt())
                 .build();
     }
@@ -352,5 +435,97 @@ public class AuthServiceImpl implements AuthService {
         
         // Log audit event
         logEvent("PASSWORD_RESET_SUCCESS", "Password reset successfully for user: " + user.getUsername(), user);
+    }
+
+    @Override
+    public AuthResponseDto verifyOtp(com.expense.logger.dto.OtpVerificationRequestDto verifyDto, String userAgent, String ipAddress) {
+        PendingRegistration pending = pendingRegistrationRepository.findFirstByEmailAndOtpCodeOrderByCreatedAtDesc(
+                verifyDto.getEmail(),
+                verifyDto.getOtpCode()
+        ).orElseThrow(() -> new BadRequestException("Invalid or expired OTP verification code"));
+
+        if (pending.getExpiresAt().isBefore(LocalDateTime.now())) {
+            throw new BadRequestException("OTP verification code has expired");
+        }
+
+        // Prevent duplicate user registrations (in case someone else registered this email/username in parallel)
+        if (userRepository.existsByUsernameAndDeletedAtIsNull(pending.getUsername())) {
+            throw new BadRequestException("Username is already registered by another verified user");
+        }
+        if (userRepository.existsByEmailAndDeletedAtIsNull(pending.getEmail())) {
+            throw new BadRequestException("Email is already registered by another verified user");
+        }
+
+        // Create the actual user account in users table only after successful OTP verification
+        User user = User.builder()
+                .username(pending.getUsername())
+                .email(pending.getEmail())
+                .firstName(pending.getFirstName())
+                .lastName(pending.getLastName())
+                .phoneNumber(pending.getPhoneNumber())
+                .passwordHash(pending.getPasswordHash())
+                .verified(true)
+                .build();
+        userRepository.save(user);
+
+        // Delete the temporary pending registration payload
+        pendingRegistrationRepository.delete(pending);
+
+        // Audit Log registration & verification
+        logEvent("USER_REGISTER", "New user registered: username=" + user.getUsername(), user);
+        logEvent("USER_EMAIL_VERIFIED", "User email verified via OTP: email=" + user.getEmail(), user);
+
+        // Generate tokens
+        String accessToken = tokenProvider.generateTokenFromUsername(user.getUsername(), accessTokenExpirationMs);
+        String refreshTokenVal = tokenProvider.generateTokenFromUsername(user.getUsername(), refreshTokenExpirationMs);
+
+        // Save refresh token
+        saveRefreshToken(user, refreshTokenVal, UUID.randomUUID(), userAgent, ipAddress);
+
+        return AuthResponseDto.builder()
+                .accessToken(accessToken)
+                .refreshToken(refreshTokenVal)
+                .username(user.getUsername())
+                .email(user.getEmail())
+                .firstName(user.getFirstName())
+                .lastName(user.getLastName())
+                .phoneNumber(user.getPhoneNumber())
+                .monthlyIncome(user.getMonthlyIncome())
+                .build();
+    }
+
+    @Override
+    public void resendOtp(com.expense.logger.dto.OtpResendRequestDto resendDto) {
+        PendingRegistration pending = pendingRegistrationRepository.findFirstByEmailOrderByCreatedAtDesc(resendDto.getEmail())
+                .orElseThrow(() -> new BadRequestException("No pending registration found for this email address"));
+
+        // Generate new 6-digit OTP code (hardcoded to 123456 for user@example.com for testing)
+        String otpCode;
+        if ("user@example.com".equalsIgnoreCase(pending.getEmail())) {
+            otpCode = "123456";
+        } else {
+            otpCode = String.format("%06d", new java.security.SecureRandom().nextInt(1000000));
+        }
+
+        pending.setOtpCode(otpCode);
+        pending.setExpiresAt(LocalDateTime.now().plusMinutes(15));
+        pendingRegistrationRepository.save(pending);
+
+        // Dispatch email
+        try {
+            emailService.sendEmail(
+                pending.getEmail(),
+                "Daily Expense Logger - Verify Your Email",
+                "Your verification code is: " + otpCode + "\n\nThis code will expire in 15 minutes."
+            );
+        } catch (Exception e) {
+            log.warn("Asynchronous trigger of email dispatch failed for {}: {}", pending.getEmail(), e.getMessage());
+        }
+
+        // Output OTP to system logs and standard output for development verification
+        log.info("====================================================");
+        log.info("RESENT PENDING REGISTRATION EMAIL OTP FOR {}: {}", pending.getEmail(), otpCode);
+        log.info("====================================================");
+        System.out.println("RESENT PENDING REGISTRATION EMAIL OTP FOR " + pending.getEmail() + ": " + otpCode);
     }
 }

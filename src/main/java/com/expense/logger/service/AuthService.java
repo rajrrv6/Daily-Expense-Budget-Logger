@@ -13,4 +13,6 @@ public interface AuthService {
     UserResponseDto getCurrentUserProfile(String username);
     void requestForgotPassword(com.expense.logger.dto.ForgotPasswordRequestDto requestDto, String ipAddress, String userAgent);
     void resetPassword(com.expense.logger.dto.ResetPasswordRequestDto requestDto);
+    AuthResponseDto verifyOtp(com.expense.logger.dto.OtpVerificationRequestDto verifyDto, String userAgent, String ipAddress);
+    void resendOtp(com.expense.logger.dto.OtpResendRequestDto resendDto);
 }

@@ -31,4 +31,6 @@ public class ExpenseRequestDto {
 
     @NotNull(message = "Category ID is required")
     private Long categoryId;
+
+    private String receiptPath;
 }

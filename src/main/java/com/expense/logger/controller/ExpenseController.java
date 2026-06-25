@@ -1,6 +1,13 @@
 package com.expense.logger.controller;
 
 import com.expense.logger.dto.ExpenseRequestDto;
+import com.expense.logger.service.ReceiptStorageService;
+import org.springframework.core.io.Resource;
+import org.springframework.web.multipart.MultipartFile;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.util.Map;
+import java.util.HashMap;
 import com.expense.logger.dto.ExpenseResponseDto;
 import com.expense.logger.dto.PagedResponseDto;
 import com.expense.logger.exception.ResourceNotFoundException;
@@ -20,6 +27,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import jakarta.servlet.http.HttpServletRequest;
 
 import java.time.LocalDate;
 import java.util.UUID;
@@ -30,26 +38,35 @@ public class ExpenseController {
 
     private final ExpenseService expenseService;
     private final UserRepository userRepository;
+    private final ReceiptStorageService receiptStorageService;
 
-    public ExpenseController(ExpenseService expenseService, UserRepository userRepository) {
+    public ExpenseController(ExpenseService expenseService, UserRepository userRepository, ReceiptStorageService receiptStorageService) {
         this.expenseService = expenseService;
         this.userRepository = userRepository;
+        this.receiptStorageService = receiptStorageService;
     }
 
     @GetMapping("/export")
     public ResponseEntity<byte[]> exportExpenses(
             Authentication authentication,
+            HttpServletRequest request,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
         
         UUID userId = getAuthenticatedUserId(authentication);
-        byte[] csvData = expenseService.exportExpensesToCsv(userId, startDate, endDate);
+        
+        String token = request.getHeader("Authorization");
+        if (token != null && token.startsWith("Bearer ")) {
+            token = token.substring(7);
+        }
+
+        byte[] pdfData = expenseService.exportExpensesToPdf(userId, startDate, endDate, token);
 
         HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.parseMediaType("text/csv; charset=UTF-8"));
-        headers.setContentDisposition(ContentDisposition.attachment().filename("expenses_export.csv").build());
+        headers.setContentType(MediaType.APPLICATION_PDF);
+        headers.setContentDisposition(ContentDisposition.attachment().filename("expenses_export.pdf").build());
 
-        return new ResponseEntity<>(csvData, headers, HttpStatus.OK);
+        return new ResponseEntity<>(pdfData, headers, HttpStatus.OK);
     }
 
     @GetMapping
@@ -109,6 +126,38 @@ public class ExpenseController {
         UUID userId = getAuthenticatedUserId(authentication);
         expenseService.deleteExpense(id, userId);
         return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/receipts")
+    public ResponseEntity<Map<String, String>> uploadReceipt(
+            Authentication authentication,
+            @RequestParam("file") MultipartFile file) {
+        getAuthenticatedUserId(authentication);
+        String storedFileName = receiptStorageService.storeFile(file);
+        Map<String, String> response = new HashMap<>();
+        response.put("fileName", storedFileName);
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/receipts/{filename:.+}")
+    public ResponseEntity<Resource> downloadReceipt(
+            Authentication authentication,
+            @PathVariable String filename) {
+        getAuthenticatedUserId(authentication);
+        Resource fileResource = receiptStorageService.loadFileAsResource(filename);
+        String contentType = null;
+        try {
+            contentType = Files.probeContentType(fileResource.getFile().toPath());
+        } catch (IOException ex) {
+            contentType = "application/octet-stream";
+        }
+        if (contentType == null) {
+            contentType = "application/octet-stream";
+        }
+        return ResponseEntity.ok()
+                .contentType(MediaType.parseMediaType(contentType))
+                .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + fileResource.getFilename() + "\"")
+                .body(fileResource);
     }
 
     private UUID getAuthenticatedUserId(Authentication authentication) {

@@ -55,6 +55,10 @@ public class UserServiceImpl implements UserService {
 
         user.setUsername(dto.getUsername());
         user.setEmail(dto.getEmail());
+        user.setFirstName(dto.getFirstName());
+        user.setLastName(dto.getLastName());
+        user.setPhoneNumber(dto.getPhoneNumber());
+        user.setMonthlyIncome(dto.getMonthlyIncome());
         userRepository.save(user);
 
         // Audit Logging
@@ -64,6 +68,10 @@ public class UserServiceImpl implements UserService {
                 .id(user.getId())
                 .username(user.getUsername())
                 .email(user.getEmail())
+                .firstName(user.getFirstName())
+                .lastName(user.getLastName())
+                .phoneNumber(user.getPhoneNumber())
+                .monthlyIncome(user.getMonthlyIncome())
                 .createdAt(user.getCreatedAt())
                 .build();
     }

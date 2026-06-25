@@ -22,4 +22,5 @@ public class ExpenseResponseDto {
     private CategoryResponseDto category;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+    private String receiptPath;
 }

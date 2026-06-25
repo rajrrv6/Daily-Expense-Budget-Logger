@@ -29,6 +29,20 @@ public class TodoItem {
     @Builder.Default
     private boolean completed = false;
 
+    @Column(name = "price", precision = 12, scale = 2)
+    private java.math.BigDecimal price;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "category_id")
+    private Category category;
+
+    @Column(name = "target_date")
+    private java.time.LocalDate targetDate;
+
+    @Column(name = "notification_sent", nullable = false)
+    @Builder.Default
+    private boolean notificationSent = false;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;

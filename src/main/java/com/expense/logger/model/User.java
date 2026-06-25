@@ -5,6 +5,7 @@ import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -27,6 +28,22 @@ public class User {
 
     @Column(nullable = false, length = 100)
     private String email;
+
+    @Column(name = "first_name", length = 50)
+    private String firstName;
+
+    @Column(name = "last_name", length = 50)
+    private String lastName;
+
+    @Column(name = "phone_number", length = 20)
+    private String phoneNumber;
+
+    @Column(name = "monthly_income", precision = 12, scale = 2)
+    private BigDecimal monthlyIncome;
+
+    @Column(nullable = false)
+    @Builder.Default
+    private boolean verified = false;
 
     @Column(name = "password_hash", nullable = false)
     private String passwordHash;

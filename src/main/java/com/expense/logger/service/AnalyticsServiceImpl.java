@@ -29,7 +29,6 @@ public class AnalyticsServiceImpl implements AnalyticsService {
     private final ExpenseRepository expenseRepository;
     private final CategoryRepository categoryRepository;
     private final BudgetRepository budgetRepository;
-    private static final BigDecimal DEFAULT_BUDGET_LIMIT = new BigDecimal("1000.00");
 
     public AnalyticsServiceImpl(ExpenseRepository expenseRepository, 
                                 CategoryRepository categoryRepository,
@@ -74,13 +73,9 @@ public class AnalyticsServiceImpl implements AnalyticsService {
                     .reduce(BigDecimal.ZERO, BigDecimal::add);
         }
 
-        if (budgetLimit.compareTo(BigDecimal.ZERO) == 0) {
-            budgetLimit = DEFAULT_BUDGET_LIMIT;
-        }
-
         // 3. Budget Utilization
         BigDecimal utilizationPercent = BigDecimal.ZERO;
-        if (totalExpenses.compareTo(BigDecimal.ZERO) > 0) {
+        if (totalExpenses.compareTo(BigDecimal.ZERO) > 0 && budgetLimit.compareTo(BigDecimal.ZERO) > 0) {
             utilizationPercent = totalExpenses
                     .multiply(new BigDecimal("100"))
                     .divide(budgetLimit, 2, RoundingMode.HALF_UP);
@@ -391,17 +386,16 @@ public class AnalyticsServiceImpl implements AnalyticsService {
                     .reduce(BigDecimal.ZERO, BigDecimal::add);
         }
 
-        if (budgetLimit.compareTo(BigDecimal.ZERO) == 0) {
-            budgetLimit = DEFAULT_BUDGET_LIMIT;
-        }
-
-        BigDecimal projectedRemaining = budgetLimit.subtract(forecastedAmount);
-        boolean isProjectedOver = forecastedAmount.compareTo(budgetLimit) > 0;
+        boolean isBudgetConfigured = budgetLimit.compareTo(BigDecimal.ZERO) > 0;
+        BigDecimal projectedRemaining = isBudgetConfigured ? budgetLimit.subtract(forecastedAmount) : BigDecimal.ZERO;
+        boolean isProjectedOver = isBudgetConfigured && forecastedAmount.compareTo(budgetLimit) > 0;
 
         List<String> recommendations = new ArrayList<>();
-        if (isProjectedOver) {
-            recommendations.add("Your projected next month spending of $" + forecastedAmount.setScale(2, RoundingMode.HALF_UP) + 
-                    " exceeds your budget cap of $" + budgetLimit.setScale(2, RoundingMode.HALF_UP) + ". We suggest reviewing non-essential expenses.");
+        if (!isBudgetConfigured) {
+            recommendations.add("You don't have a monthly budget set up. We recommend setting up a budget limit in the Budgets page to track your financial goals effectively.");
+        } else if (isProjectedOver) {
+            recommendations.add("Your projected next month spending of ₹" + forecastedAmount.setScale(2, RoundingMode.HALF_UP) + 
+                    " exceeds your budget cap of ₹" + budgetLimit.setScale(2, RoundingMode.HALF_UP) + ". We suggest reviewing non-essential expenses.");
         } else if (forecastedAmount.compareTo(BigDecimal.ZERO) > 0) {
             recommendations.add("Your next month spending projection is within your budget cap. Continue tracking to maintain this trend.");
         } else {

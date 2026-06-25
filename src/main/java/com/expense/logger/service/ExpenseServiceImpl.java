@@ -18,13 +18,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.TemporalAdjusters;
 import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import com.expense.logger.exception.BadRequestException;
 import com.expense.logger.model.Budget;
 import com.expense.logger.repository.BudgetRepository;
@@ -41,19 +41,22 @@ public class ExpenseServiceImpl implements ExpenseService {
     private final AuditLogRepository auditLogRepository;
     private final BudgetRepository budgetRepository;
     private final NotificationService notificationService;
+    private final ReceiptStorageService receiptStorageService;
 
     public ExpenseServiceImpl(ExpenseRepository expenseRepository,
                               CategoryRepository categoryRepository,
                               UserRepository userRepository,
                               AuditLogRepository auditLogRepository,
                               BudgetRepository budgetRepository,
-                              NotificationService notificationService) {
+                              NotificationService notificationService,
+                              ReceiptStorageService receiptStorageService) {
         this.expenseRepository = expenseRepository;
         this.categoryRepository = categoryRepository;
         this.userRepository = userRepository;
         this.auditLogRepository = auditLogRepository;
         this.budgetRepository = budgetRepository;
         this.notificationService = notificationService;
+        this.receiptStorageService = receiptStorageService;
     }
 
     @Override
@@ -91,6 +94,7 @@ public class ExpenseServiceImpl implements ExpenseService {
                 .transactionDate(dto.getTransactionDate())
                 .user(user)
                 .category(category)
+                .receiptPath(dto.getReceiptPath())
                 .build();
 
         expenseRepository.save(expense);
@@ -112,10 +116,18 @@ public class ExpenseServiceImpl implements ExpenseService {
         Category category = categoryRepository.findById(dto.getCategoryId())
                 .orElseThrow(() -> new ResourceNotFoundException("Category not found"));
 
+        // Clean up old receipt file if a new one is set, or if receipt was removed
+        String oldReceiptPath = expense.getReceiptPath();
+        String newReceiptPath = dto.getReceiptPath();
+        if (oldReceiptPath != null && !oldReceiptPath.equals(newReceiptPath)) {
+            receiptStorageService.deleteFile(oldReceiptPath);
+        }
+
         expense.setName(dto.getName());
         expense.setAmount(dto.getAmount());
         expense.setTransactionDate(dto.getTransactionDate());
         expense.setCategory(category);
+        expense.setReceiptPath(newReceiptPath);
 
         expenseRepository.save(expense);
 
@@ -136,6 +148,11 @@ public class ExpenseServiceImpl implements ExpenseService {
         // Soft delete execution
         expense.setDeletedAt(LocalDateTime.now());
         expenseRepository.save(expense);
+
+        // Delete the associated file on disk
+        if (expense.getReceiptPath() != null) {
+            receiptStorageService.deleteFile(expense.getReceiptPath());
+        }
 
         // Audit Log
         logEvent("EXPENSE_DELETE", "Expense soft-deleted: name=" + expense.getName(), expense.getUser());
@@ -165,11 +182,12 @@ public class ExpenseServiceImpl implements ExpenseService {
                 .category(categoryDto)
                 .createdAt(expense.getCreatedAt())
                 .updatedAt(expense.getUpdatedAt())
+                .receiptPath(expense.getReceiptPath())
                 .build();
     }
 
     @Override
-    public byte[] exportExpensesToCsv(UUID userId, LocalDate startDate, LocalDate endDate) {
+    public byte[] exportExpensesToPdf(UUID userId, LocalDate startDate, LocalDate endDate, String token) {
         if (startDate != null && endDate != null && startDate.isAfter(endDate)) {
             throw new BadRequestException("Start date must be before or equal to end date");
         }
@@ -184,48 +202,151 @@ public class ExpenseServiceImpl implements ExpenseService {
         // Sort chronologically (ascending)
         expenses.sort(Comparator.comparing(Expense::getTransactionDate));
 
-        // Limit to 1000 records to prevent memory spikes
+        // Limit to 1000 records to prevent memory spikes in PDF compilation
         if (expenses.size() > 1000) {
             expenses = expenses.subList(0, 1000);
-        }
-
-        StringBuilder csv = new StringBuilder();
-        // UTF-8 BOM
-        csv.append("\uFEFF");
-        csv.append("Expense ID,Name,Amount,Category,Transaction Date,Created At\n");
-
-        for (Expense e : expenses) {
-            csv.append(sanitizeCsvValue(e.getId().toString())).append(",")
-               .append(sanitizeCsvValue(e.getName())).append(",")
-               .append(sanitizeCsvValue(e.getAmount().toPlainString())).append(",")
-               .append(sanitizeCsvValue(e.getCategory().getName())).append(",")
-               .append(sanitizeCsvValue(e.getTransactionDate().toString())).append(",")
-               .append(sanitizeCsvValue(e.getCreatedAt().toString())).append("\n");
         }
 
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
-        logEvent("EXPENSE_EXPORT", "Exported " + expenses.size() + " expenses to CSV", user);
+        try (java.io.ByteArrayOutputStream out = new java.io.ByteArrayOutputStream()) {
+            com.lowagie.text.Document document = new com.lowagie.text.Document(com.lowagie.text.PageSize.A4, 36, 36, 36, 36);
+            com.lowagie.text.pdf.PdfWriter.getInstance(document, out);
+            document.open();
 
-        return csv.toString().getBytes(StandardCharsets.UTF_8);
+            // Font styles
+            com.lowagie.text.Font titleFont = com.lowagie.text.FontFactory.getFont(com.lowagie.text.FontFactory.HELVETICA_BOLD, 22, new java.awt.Color(79, 70, 229));
+            com.lowagie.text.Font subtitleFont = com.lowagie.text.FontFactory.getFont(com.lowagie.text.FontFactory.HELVETICA_BOLD, 12, new java.awt.Color(100, 116, 139));
+            com.lowagie.text.Font metaLabelFont = com.lowagie.text.FontFactory.getFont(com.lowagie.text.FontFactory.HELVETICA_BOLD, 10, new java.awt.Color(71, 85, 105));
+            com.lowagie.text.Font metaValueFont = com.lowagie.text.FontFactory.getFont(com.lowagie.text.FontFactory.HELVETICA, 10, new java.awt.Color(15, 23, 42));
+            com.lowagie.text.Font headerFont = com.lowagie.text.FontFactory.getFont(com.lowagie.text.FontFactory.HELVETICA_BOLD, 10, java.awt.Color.WHITE);
+            com.lowagie.text.Font bodyFont = com.lowagie.text.FontFactory.getFont(com.lowagie.text.FontFactory.HELVETICA, 9, new java.awt.Color(15, 23, 42));
+            com.lowagie.text.Font footerFont = com.lowagie.text.FontFactory.getFont(com.lowagie.text.FontFactory.HELVETICA_OBLIQUE, 8, new java.awt.Color(148, 163, 184));
+            com.lowagie.text.Font linkFont = com.lowagie.text.FontFactory.getFont(com.lowagie.text.FontFactory.HELVETICA_BOLD, 9, com.lowagie.text.Font.UNDERLINE, new java.awt.Color(79, 70, 229));
+            com.lowagie.text.Font notAvailableFont = com.lowagie.text.FontFactory.getFont(com.lowagie.text.FontFactory.HELVETICA_OBLIQUE, 9, new java.awt.Color(148, 163, 184));
+
+            // Title
+            com.lowagie.text.Paragraph title = new com.lowagie.text.Paragraph("Daily Expense & Budget Logger", titleFont);
+            title.setSpacingAfter(4);
+            document.add(title);
+
+            // Subtitle
+            com.lowagie.text.Paragraph subtitle = new com.lowagie.text.Paragraph("Expense Statement Report", subtitleFont);
+            subtitle.setSpacingAfter(15);
+            document.add(subtitle);
+
+            // Metadata table
+            com.lowagie.text.pdf.PdfPTable metaTable = new com.lowagie.text.pdf.PdfPTable(2);
+            metaTable.setWidthPercentage(100);
+            metaTable.setSpacingAfter(20);
+            float[] metaColumnWidths = {1f, 1f};
+            metaTable.setWidths(metaColumnWidths);
+
+            String datePeriod = (startDate != null && endDate != null) 
+                    ? startDate.toString() + " to " + endDate.toString() 
+                    : "All Time";
+            
+            BigDecimal totalAmount = expenses.stream()
+                    .map(Expense::getAmount)
+                    .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+            addMetaCell(metaTable, "Generated For:", user.getFirstName() + " " + user.getLastName() + " (" + user.getEmail() + ")", metaLabelFont, metaValueFont);
+            addMetaCell(metaTable, "Statement Period:", datePeriod, metaLabelFont, metaValueFont);
+            addMetaCell(metaTable, "Total Transactions:", String.valueOf(expenses.size()), metaLabelFont, metaValueFont);
+            addMetaCell(metaTable, "Total Spent:", "₹" + totalAmount.setScale(2, java.math.RoundingMode.HALF_UP).toString(), metaLabelFont, metaValueFont);
+
+            document.add(metaTable);
+
+            // Expense Ledger Table
+            com.lowagie.text.pdf.PdfPTable table = new com.lowagie.text.pdf.PdfPTable(5);
+            table.setWidthPercentage(100);
+            float[] columnWidths = {2.2f, 1.5f, 1.5f, 1.5f, 1.8f};
+            table.setWidths(columnWidths);
+            table.setSpacingAfter(15);
+
+            // Table Headers
+            addHeaderCell(table, "Expense Name", headerFont);
+            addHeaderCell(table, "Category", headerFont);
+            addHeaderCell(table, "Amount (INR)", headerFont);
+            addHeaderCell(table, "Transaction Date", headerFont);
+            addHeaderCell(table, "Receipt", headerFont);
+
+            // Table Rows
+            boolean alternating = false;
+            for (Expense e : expenses) {
+                alternating = !alternating;
+                java.awt.Color rowBgColor = alternating ? new java.awt.Color(248, 250, 252) : java.awt.Color.WHITE;
+                
+                addBodyCell(table, e.getName(), bodyFont, rowBgColor, com.lowagie.text.Element.ALIGN_LEFT);
+                addBodyCell(table, e.getCategory().getName(), bodyFont, rowBgColor, com.lowagie.text.Element.ALIGN_LEFT);
+                addBodyCell(table, "₹" + e.getAmount().setScale(2, java.math.RoundingMode.HALF_UP).toString(), bodyFont, rowBgColor, com.lowagie.text.Element.ALIGN_RIGHT);
+                addBodyCell(table, e.getTransactionDate().toString(), bodyFont, rowBgColor, com.lowagie.text.Element.ALIGN_CENTER);
+
+                // Add Receipt link cell
+                if (e.getReceiptPath() != null && !e.getReceiptPath().isBlank() && token != null) {
+                    String downloadUrl = org.springframework.web.servlet.support.ServletUriComponentsBuilder.fromCurrentContextPath().toUriString() 
+                            + "/api/v1/expenses/receipts/" + e.getReceiptPath() + "?token=" + token;
+                    
+                    com.lowagie.text.Anchor anchor = new com.lowagie.text.Anchor("Download", linkFont);
+                    anchor.setReference(downloadUrl);
+                    
+                    com.lowagie.text.pdf.PdfPCell cell = new com.lowagie.text.pdf.PdfPCell(anchor);
+                    cell.setBackgroundColor(rowBgColor);
+                    cell.setHorizontalAlignment(com.lowagie.text.Element.ALIGN_CENTER);
+                    cell.setPadding(6);
+                    cell.setBorderColor(new java.awt.Color(226, 232, 240));
+                    table.addCell(cell);
+                } else {
+                    addBodyCell(table, "Not Available", notAvailableFont, rowBgColor, com.lowagie.text.Element.ALIGN_CENTER);
+                }
+            }
+
+            document.add(table);
+
+            // Footer / Timestamp
+            com.lowagie.text.Paragraph footer = new com.lowagie.text.Paragraph("Report generated automatically on: " + java.time.LocalDateTime.now().toString(), footerFont);
+            footer.setAlignment(com.lowagie.text.Element.ALIGN_CENTER);
+            document.add(footer);
+
+            document.close();
+            
+            logEvent("EXPENSE_EXPORT", "Exported " + expenses.size() + " expenses to PDF", user);
+            
+            return out.toByteArray();
+        } catch (com.lowagie.text.DocumentException | java.io.IOException ex) {
+            log.error("Failed to generate PDF report for user {}", userId, ex);
+            throw new RuntimeException("Could not generate PDF expense report", ex);
+        }
     }
 
-    private String sanitizeCsvValue(String value) {
-        if (value == null) {
-            return "";
-        }
-        String result = value;
-        // Prefix dangerous formulas (=, +, -, @) with a single quote to prevent CSV injection
-        if (result.startsWith("=") || result.startsWith("+") || result.startsWith("-") || result.startsWith("@")) {
-            result = "'" + result;
-        }
-        // Escape quotes and wrap value in quotes if it contains commas, quotes, or newlines
-        if (result.contains("\"") || result.contains(",") || result.contains("\n") || result.contains("\r")) {
-            result = result.replace("\"", "\"\"");
-            result = "\"" + result + "\"";
-        }
-        return result;
+    private void addMetaCell(com.lowagie.text.pdf.PdfPTable table, String label, String value, com.lowagie.text.Font labelFont, com.lowagie.text.Font valueFont) {
+        com.lowagie.text.Phrase phrase = new com.lowagie.text.Phrase();
+        phrase.add(new com.lowagie.text.Chunk(label + " ", labelFont));
+        phrase.add(new com.lowagie.text.Chunk(value, valueFont));
+        
+        com.lowagie.text.pdf.PdfPCell cell = new com.lowagie.text.pdf.PdfPCell(phrase);
+        cell.setBorder(com.lowagie.text.pdf.PdfPCell.NO_BORDER);
+        cell.setPadding(4);
+        table.addCell(cell);
+    }
+
+    private void addHeaderCell(com.lowagie.text.pdf.PdfPTable table, String text, com.lowagie.text.Font font) {
+        com.lowagie.text.pdf.PdfPCell cell = new com.lowagie.text.pdf.PdfPCell(new com.lowagie.text.Phrase(text, font));
+        cell.setBackgroundColor(new java.awt.Color(15, 23, 42)); // Slate-900
+        cell.setHorizontalAlignment(com.lowagie.text.Element.ALIGN_CENTER);
+        cell.setPadding(8);
+        cell.setBorderColor(new java.awt.Color(51, 65, 85)); // Slate-700
+        table.addCell(cell);
+    }
+
+    private void addBodyCell(com.lowagie.text.pdf.PdfPTable table, String text, com.lowagie.text.Font font, java.awt.Color bgColor, int align) {
+        com.lowagie.text.pdf.PdfPCell cell = new com.lowagie.text.pdf.PdfPCell(new com.lowagie.text.Phrase(text, font));
+        cell.setBackgroundColor(bgColor);
+        cell.setHorizontalAlignment(align);
+        cell.setPadding(6);
+        cell.setBorderColor(new java.awt.Color(226, 232, 240)); // Slate-200
+        table.addCell(cell);
     }
 
     private void triggerBudgetChecks(UUID userId, Category category) {

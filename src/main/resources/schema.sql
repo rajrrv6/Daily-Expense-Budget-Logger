@@ -6,6 +6,11 @@ CREATE TABLE IF NOT EXISTS users (
     user_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     username VARCHAR(50) NOT NULL,
     email VARCHAR(100) NOT NULL,
+    first_name VARCHAR(50) NULL,
+    last_name VARCHAR(50) NULL,
+    phone_number VARCHAR(20) NULL,
+    monthly_income DECIMAL(12, 2) NULL,
+    verified BOOLEAN NOT NULL DEFAULT false,
     password_hash VARCHAR(255) NOT NULL,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -31,6 +36,7 @@ CREATE TABLE IF NOT EXISTS expenses (
     transaction_date DATE NOT NULL,
     user_id UUID NOT NULL REFERENCES users(user_id) ON DELETE CASCADE,
     category_id BIGINT NOT NULL REFERENCES categories(category_id) ON DELETE RESTRICT,
+    receipt_path VARCHAR(255) NULL,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     deleted_at TIMESTAMP NULL
@@ -41,6 +47,10 @@ CREATE TABLE IF NOT EXISTS todo_items (
     todo_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     todo_name VARCHAR(100) NOT NULL,
     is_completed BOOLEAN NOT NULL DEFAULT false,
+    price DECIMAL(12, 2) NULL,
+    category_id BIGINT NULL REFERENCES categories(category_id) ON DELETE SET NULL,
+    target_date DATE NULL,
+    notification_sent BOOLEAN NOT NULL DEFAULT false,
     user_id UUID NOT NULL REFERENCES users(user_id) ON DELETE CASCADE,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -136,4 +146,28 @@ CREATE TABLE IF NOT EXISTS notification_preferences (
 
 -- Indexes for notifications
 CREATE INDEX IF NOT EXISTS idx_notifications_user ON notifications(user_id, created_at DESC) WHERE deleted_at IS NULL;
+
+-- Table: verification_otps
+CREATE TABLE IF NOT EXISTS verification_otps (
+    otp_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    email VARCHAR(100) NOT NULL,
+    otp_code VARCHAR(6) NOT NULL,
+    expires_at TIMESTAMP NOT NULL,
+    used BOOLEAN NOT NULL DEFAULT false,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Table: pending_registrations
+CREATE TABLE IF NOT EXISTS pending_registrations (
+    registration_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    username VARCHAR(50) NOT NULL,
+    email VARCHAR(100) NOT NULL,
+    first_name VARCHAR(50) NULL,
+    last_name VARCHAR(50) NULL,
+    phone_number VARCHAR(20) NULL,
+    password_hash VARCHAR(255) NOT NULL,
+    otp_code VARCHAR(6) NOT NULL,
+    expires_at TIMESTAMP NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
 
