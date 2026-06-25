@@ -130,11 +130,11 @@ export default function DashboardPage() {
   return (
     <div className="space-y-6">
       {/* Welcome Banner */}
-      <div className="p-6 bg-slate-900 border border-slate-800 rounded-xl">
-        <h3 className="text-xl font-semibold text-slate-100">
-          Hello, {user?.username}! 👋
+      <div className="p-6 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl transition-colors duration-200">
+        <h3 className="text-xl font-semibold text-slate-800 dark:text-slate-100">
+          Hello, {user?.firstName || user?.username}! 👋
         </h3>
-        <p className="text-sm text-slate-400 mt-1">
+        <p className="text-sm text-slate-550 dark:text-slate-400 mt-1">
           Here is your financial snapshot for this month.
         </p>
       </div>
@@ -142,14 +142,14 @@ export default function DashboardPage() {
       {/* Grid Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {/* Total Expenses */}
-        <div className="p-6 bg-slate-900 border border-slate-800 rounded-xl">
-          <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
+        <div className="p-6 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl transition-colors duration-200">
+          <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
             Total Spent (This Month)
           </span>
-          <h4 className="text-3xl font-bold text-slate-100 mt-2">
-            ${summary?.totalExpensesMonth?.toFixed(2) || '0.00'}
+          <h4 className="text-3xl font-bold text-slate-850 dark:text-slate-100 mt-2">
+            ₹{summary?.totalExpensesMonth?.toFixed(2) || '0.00'}
           </h4>
-          <div className="w-full bg-slate-950 rounded-full h-1.5 mt-4 overflow-hidden">
+          <div className="w-full bg-slate-100 dark:bg-slate-950 rounded-full h-1.5 mt-4 overflow-hidden">
             <div
               className={`h-full rounded-full transition-all duration-500 ${
                 summary?.budgetUtilizationPercent >= 100
@@ -167,27 +167,27 @@ export default function DashboardPage() {
         </div>
 
         {/* Budget Limit */}
-        <div className="p-6 bg-slate-900 border border-slate-800 rounded-xl">
-          <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
+        <div className="p-6 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl transition-colors duration-200">
+          <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
             Monthly Budget Cap
           </span>
-          <h4 className="text-3xl font-bold text-slate-100 mt-2">
-            ${summary?.budgetLimit?.toFixed(2) || '0.00'}
+          <h4 className="text-3xl font-bold text-slate-850 dark:text-slate-100 mt-2">
+            ₹{summary?.budgetLimit?.toFixed(2) || '0.00'}
           </h4>
-          <p className="text-xs text-slate-400 mt-4">
+          <p className="text-xs text-slate-500 dark:text-slate-400 mt-4">
             Fixed caps help allocate monthly savings goals.
           </p>
         </div>
 
         {/* Top Spending Category */}
-        <div className="p-6 bg-slate-900 border border-slate-800 rounded-xl">
-          <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
+        <div className="p-6 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl transition-colors duration-200">
+          <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
             Highest Spending Sector
           </span>
-          <h4 className="text-3xl font-bold text-brand-100 mt-2 truncate">
+          <h4 className="text-3xl font-bold text-brand-600 dark:text-brand-100 mt-2 truncate">
             {summary?.highestSpendingCategory || 'N/A'}
           </h4>
-          <p className="text-xs text-slate-400 mt-4">
+          <p className="text-xs text-slate-500 dark:text-slate-400 mt-4">
             This sector represents your largest spending driver.
           </p>
         </div>
@@ -196,10 +196,10 @@ export default function DashboardPage() {
       {/* Grid Charts & Recent Activity */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Category breakdown visual charts */}
-        <div className="p-6 bg-slate-900 border border-slate-800 rounded-xl min-h-[350px] flex flex-col justify-between">
-          <h4 className="text-sm font-semibold text-slate-200 mb-4">Category Breakdown</h4>
+        <div className="p-6 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl min-h-[350px] flex flex-col justify-between transition-colors duration-200">
+          <h4 className="text-sm font-semibold text-slate-700 dark:text-slate-200 mb-4">Category Breakdown</h4>
           {pieData.length === 0 ? (
-            <div className="flex-1 flex items-center justify-center text-slate-500 text-sm">
+            <div className="flex-1 flex items-center justify-center text-slate-500 dark:text-slate-450 text-sm">
               No transactions recorded for this month yet.
             </div>
           ) : (
@@ -210,13 +210,13 @@ export default function DashboardPage() {
         </div>
 
         {/* Recent Transactions List Feed */}
-        <div className="p-6 bg-slate-900 border border-slate-800 rounded-xl min-h-[350px] flex flex-col justify-between">
+        <div className="p-6 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl min-h-[350px] flex flex-col justify-between transition-colors duration-200">
           <div>
             <div className="flex justify-between items-center mb-4">
-              <h4 className="text-sm font-semibold text-slate-200">Recent Transactions</h4>
+              <h4 className="text-sm font-semibold text-slate-700 dark:text-slate-200">Recent Transactions</h4>
               <button
                 onClick={() => navigate('/expenses')}
-                className="text-xs text-brand-100 hover:text-white transition-colors"
+                className="text-xs text-brand-600 dark:text-brand-100 hover:text-brand-500 dark:hover:text-white transition-colors"
                 aria-label="Navigate to full expense ledger"
               >
                 View All Ledger
@@ -224,15 +224,15 @@ export default function DashboardPage() {
             </div>
 
             {recent.length === 0 ? (
-              <div className="text-slate-500 text-sm py-12 text-center">
+              <div className="text-slate-500 dark:text-slate-450 text-sm py-12 text-center">
                 No expense transactions found.
               </div>
             ) : (
-              <div className="divide-y divide-slate-800/60 max-h-[250px] overflow-y-auto pr-1">
+              <div className="divide-y divide-slate-100 dark:divide-slate-800/60 max-h-[250px] overflow-y-auto pr-1">
                 {recent.map((item) => (
                   <div key={item.id} className="flex items-center justify-between py-3.5 first:pt-0 last:pb-0">
                     <div>
-                      <h5 className="text-sm font-medium text-slate-200">{item.name}</h5>
+                      <h5 className="text-sm font-medium text-slate-850 dark:text-slate-200">{item.name}</h5>
                       <span
                         className="inline-block px-2 py-0.5 text-[10px] font-semibold rounded-full text-white/90 mt-1"
                         style={{ backgroundColor: item.category.color || '#4F46E5' }}
@@ -241,8 +241,8 @@ export default function DashboardPage() {
                       </span>
                     </div>
                     <div className="text-right">
-                      <span className="text-sm font-bold text-slate-100">
-                        -${item.amount.toFixed(2)}
+                      <span className="text-sm font-bold text-slate-800 dark:text-slate-100">
+                        -₹{item.amount.toFixed(2)}
                       </span>
                       <span className="block text-[10px] text-slate-500 mt-1">
                         {new Date(item.transactionDate).toLocaleDateString(undefined, {
@@ -259,13 +259,13 @@ export default function DashboardPage() {
         </div>
 
         {/* Productivity Checklist Widget */}
-        <div className="p-6 bg-slate-900 border border-slate-800 rounded-xl min-h-[350px] flex flex-col justify-between">
+        <div className="p-6 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl min-h-[350px] flex flex-col justify-between transition-colors duration-200">
           <div>
             <div className="flex justify-between items-center mb-4">
-              <h4 className="text-sm font-semibold text-slate-200">Shopping Checklist</h4>
+              <h4 className="text-sm font-semibold text-slate-700 dark:text-slate-200">Shopping Checklist</h4>
               <button
                 onClick={() => navigate('/todos')}
-                className="text-xs text-brand-100 hover:text-white transition-colors"
+                className="text-xs text-brand-600 dark:text-brand-100 hover:text-brand-500 dark:hover:text-white transition-colors"
                 aria-label="Navigate to full checklist manager"
               >
                 Manage All
@@ -273,21 +273,21 @@ export default function DashboardPage() {
             </div>
 
             {todoLoading ? (
-              <div className="space-y-3 py-6 animate-pulse">
-                <div className="h-6 bg-slate-800 rounded"></div>
-                <div className="h-6 bg-slate-800 rounded"></div>
-                <div className="h-6 bg-slate-800 rounded"></div>
+              <div className="space-y-3 py-6">
+                <div className="h-6 bg-slate-100 dark:bg-slate-800 rounded animate-pulse"></div>
+                <div className="h-6 bg-slate-100 dark:bg-slate-800 rounded animate-pulse"></div>
+                <div className="h-6 bg-slate-100 dark:bg-slate-800 rounded animate-pulse"></div>
               </div>
             ) : todos.length === 0 ? (
-              <div className="text-slate-500 text-sm py-12 text-center">
+              <div className="text-slate-500 dark:text-slate-450 text-sm py-12 text-center">
                 No pending items on checklist.
               </div>
             ) : (
               <div className="space-y-4">
-                <p className="text-xs text-slate-400">
-                  You have <span className="text-brand-100 font-semibold">{todoCount}</span> pending checklist items:
+                <p className="text-xs text-slate-500 dark:text-slate-400">
+                  You have <span className="text-brand-600 dark:text-brand-100 font-semibold">{todoCount}</span> pending checklist items:
                 </p>
-                <div className="divide-y divide-slate-800/40">
+                <div className="divide-y divide-slate-100 dark:divide-slate-800/40">
                   {todos.slice(0, 3).map((item) => (
                     <div key={item.id} className="flex items-center justify-between py-2.5 first:pt-0 last:pb-0">
                       <div className="flex items-center gap-3">
@@ -296,10 +296,10 @@ export default function DashboardPage() {
                           checked={item.completed}
                           disabled={togglingIds.has(item.id)}
                           onChange={() => handleDashboardTodoToggle(item.id)}
-                          className="w-4 h-4 rounded border-slate-700 bg-slate-950 text-brand-500 focus:ring-brand-500 cursor-pointer disabled:opacity-50"
+                          className="w-4 h-4 rounded border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-brand-500 focus:ring-brand-500 cursor-pointer disabled:opacity-50"
                           aria-label={`Mark checklist item ${item.name} as completed`}
                         />
-                        <span className="text-sm text-slate-300 font-medium truncate max-w-[150px]">
+                        <span className="text-sm text-slate-700 dark:text-slate-300 font-medium truncate max-w-[150px]">
                           {item.name}
                         </span>
                       </div>

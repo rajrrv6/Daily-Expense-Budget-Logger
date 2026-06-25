@@ -46,14 +46,14 @@ export default function PasswordChangeModal({ isOpen, onClose }) {
     <Modal isOpen={isOpen} onClose={handleClose} title="Change Account Password">
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
         <div>
-          <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">
+          <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">
             Current Password
           </label>
           <input
             type="password"
             {...register('currentPassword')}
-            className={`w-full px-4 py-3 bg-slate-950 border rounded-xl text-slate-100 placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all ${
-              errors.currentPassword ? 'border-red-500' : 'border-slate-800'
+            className={`w-full px-4 py-3 bg-slate-50 dark:bg-slate-950 border rounded-xl text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all ${
+              errors.currentPassword ? 'border-red-500' : 'border-slate-200 dark:border-slate-800'
             }`}
             placeholder="••••••••"
           />
@@ -63,14 +63,14 @@ export default function PasswordChangeModal({ isOpen, onClose }) {
         </div>
 
         <div>
-          <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">
+          <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">
             New Password
           </label>
           <input
             type="password"
             {...register('newPassword')}
-            className={`w-full px-4 py-3 bg-slate-950 border rounded-xl text-slate-100 placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all ${
-              errors.newPassword ? 'border-red-500' : 'border-slate-800'
+            className={`w-full px-4 py-3 bg-slate-50 dark:bg-slate-950 border rounded-xl text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all ${
+              errors.newPassword ? 'border-red-500' : 'border-slate-200 dark:border-slate-800'
             }`}
             placeholder="••••••••"
           />
@@ -80,14 +80,14 @@ export default function PasswordChangeModal({ isOpen, onClose }) {
         </div>
 
         <div>
-          <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">
+          <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">
             Confirm New Password
           </label>
           <input
             type="password"
             {...register('confirmPassword')}
-            className={`w-full px-4 py-3 bg-slate-950 border rounded-xl text-slate-100 placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all ${
-              errors.confirmPassword ? 'border-red-500' : 'border-slate-800'
+            className={`w-full px-4 py-3 bg-slate-50 dark:bg-slate-950 border rounded-xl text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all ${
+              errors.confirmPassword ? 'border-red-500' : 'border-slate-200 dark:border-slate-800'
             }`}
             placeholder="••••••••"
           />
@@ -100,7 +100,7 @@ export default function PasswordChangeModal({ isOpen, onClose }) {
           <button
             type="button"
             onClick={handleClose}
-            className="px-5 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 font-medium rounded-xl transition-colors text-sm"
+            className="px-5 py-2.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-medium rounded-xl transition-colors text-sm"
           >
             Cancel
           </button>

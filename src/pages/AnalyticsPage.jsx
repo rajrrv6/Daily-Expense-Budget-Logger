@@ -9,7 +9,7 @@ const MonthlyTrendChart = React.lazy(() => import('../components/charts/MonthlyT
 const CategoryComparisonChart = React.lazy(() => import('../components/charts/CategoryComparisonChart'));
 
 const ChartPlaceholder = () => (
-  <div className="h-64 w-full flex items-center justify-center bg-slate-950/30 rounded-lg border border-slate-800/60 animate-pulse">
+  <div className="h-64 w-full flex items-center justify-center bg-slate-200/30 dark:bg-slate-950/30 rounded-lg border border-slate-200 dark:border-slate-800/60 animate-pulse">
     <span className="text-xs text-slate-500">Loading visual data...</span>
   </div>
 );
@@ -126,21 +126,21 @@ export default function AnalyticsPage() {
   return (
     <div className="space-y-6">
       {/* Title Header */}
-      <div className="p-6 bg-slate-900 border border-slate-800 rounded-xl">
-        <h3 className="text-xl font-semibold text-slate-100">Advanced Analytics &amp; Reports</h3>
-        <p className="text-sm text-slate-400 mt-1">
+      <div className="p-6 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl transition-colors duration-200">
+        <h3 className="text-xl font-semibold text-slate-800 dark:text-slate-100">Advanced Analytics &amp; Reports</h3>
+        <p className="text-sm text-slate-550 dark:text-slate-400 mt-1">
           Detailed metrics, spending visual graphs, and forecasting insights.
         </p>
       </div>
 
       {/* Tab controls - Accessibility enabled */}
-      <div className="flex border-b border-slate-800 gap-2" role="tablist" aria-label="Analytics Tab Categories">
+      <div className="flex border-b border-slate-200 dark:border-slate-800 gap-2 transition-colors duration-200" role="tablist" aria-label="Analytics Tab Categories">
         <button
           onClick={() => setActiveTab('overview')}
           className={`px-4 py-2 text-sm font-semibold transition-all border-b-2 outline-none ${
             activeTab === 'overview'
-              ? 'border-brand-500 text-slate-100'
-              : 'border-transparent text-slate-400 hover:text-slate-200'
+              ? 'border-brand-500 text-slate-850 dark:text-slate-100'
+              : 'border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-850 dark:hover:text-slate-200'
           }`}
           role="tab"
           aria-selected={activeTab === 'overview'}
@@ -153,8 +153,8 @@ export default function AnalyticsPage() {
           onClick={() => setActiveTab('comparison')}
           className={`px-4 py-2 text-sm font-semibold transition-all border-b-2 outline-none ${
             activeTab === 'comparison'
-              ? 'border-brand-500 text-slate-100'
-              : 'border-transparent text-slate-400 hover:text-slate-200'
+              ? 'border-brand-500 text-slate-850 dark:text-slate-100'
+              : 'border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-850 dark:hover:text-slate-200'
           }`}
           role="tab"
           aria-selected={activeTab === 'comparison'}
@@ -167,8 +167,8 @@ export default function AnalyticsPage() {
           onClick={() => setActiveTab('custom')}
           className={`px-4 py-2 text-sm font-semibold transition-all border-b-2 outline-none ${
             activeTab === 'custom'
-              ? 'border-brand-500 text-slate-100'
-              : 'border-transparent text-slate-400 hover:text-slate-200'
+              ? 'border-brand-500 text-slate-850 dark:text-slate-100'
+              : 'border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-850 dark:hover:text-slate-200'
           }`}
           role="tab"
           aria-selected={activeTab === 'custom'}
@@ -181,8 +181,8 @@ export default function AnalyticsPage() {
           onClick={() => setActiveTab('forecast')}
           className={`px-4 py-2 text-sm font-semibold transition-all border-b-2 outline-none ${
             activeTab === 'forecast'
-              ? 'border-brand-500 text-slate-100'
-              : 'border-transparent text-slate-400 hover:text-slate-200'
+              ? 'border-brand-500 text-slate-850 dark:text-slate-100'
+              : 'border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-850 dark:hover:text-slate-200'
           }`}
           role="tab"
           aria-selected={activeTab === 'forecast'}
@@ -207,11 +207,11 @@ export default function AnalyticsPage() {
               id="panel-overview"
               role="tabpanel"
               aria-labelledby="tab-overview"
-              className="p-6 bg-slate-900 border border-slate-800 rounded-xl space-y-4"
+              className="p-6 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl space-y-4 transition-colors duration-200"
             >
               <div>
-                <h4 className="text-base font-semibold text-slate-200">Historical Spending Trends</h4>
-                <p className="text-xs text-slate-400 mt-0.5">Chronological summary of your monthly spending.</p>
+                <h4 className="text-base font-semibold text-slate-805 dark:text-slate-200">Historical Spending Trends</h4>
+                <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Chronological summary of your monthly spending.</p>
               </div>
               <div className="pt-4">
                 <Suspense fallback={<ChartPlaceholder />}>
@@ -227,11 +227,11 @@ export default function AnalyticsPage() {
               id="panel-comparison"
               role="tabpanel"
               aria-labelledby="tab-comparison"
-              className="p-6 bg-slate-900 border border-slate-800 rounded-xl space-y-4"
+              className="p-6 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl space-y-4 transition-colors duration-200"
             >
               <div>
-                <h4 className="text-base font-semibold text-slate-200">Month-Over-Month Comparison</h4>
-                <p className="text-xs text-slate-400 mt-0.5">Compares category-specific spending between the current month and the previous month.</p>
+                <h4 className="text-base font-semibold text-slate-850 dark:text-slate-200">Month-Over-Month Comparison</h4>
+                <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Compares category-specific spending between the current month and the previous month.</p>
               </div>
               <div className="pt-4">
                 <Suspense fallback={<ChartPlaceholder />}>
@@ -250,9 +250,9 @@ export default function AnalyticsPage() {
               className="space-y-6"
             >
               {/* Date Filters Panel */}
-              <div className="p-6 bg-slate-900 border border-slate-800 rounded-xl flex flex-wrap gap-4 items-end">
+              <div className="p-6 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl flex flex-wrap gap-4 items-end transition-colors duration-200">
                 <div className="space-y-1">
-                  <label htmlFor="custom-start-date" className="block text-xs font-semibold text-slate-400">
+                  <label htmlFor="custom-start-date" className="block text-xs font-semibold text-slate-500 dark:text-slate-400">
                     Start Date
                   </label>
                   <input
@@ -260,11 +260,11 @@ export default function AnalyticsPage() {
                     type="date"
                     value={startDate}
                     onChange={(e) => setStartDate(e.target.value)}
-                    className="px-3 py-2 text-sm text-slate-200 bg-slate-950 border border-slate-850 rounded-lg outline-none focus:border-brand-500"
+                    className="px-3 py-2 text-sm text-slate-800 dark:text-slate-200 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-850 rounded-lg outline-none focus:border-brand-500"
                   />
                 </div>
                 <div className="space-y-1">
-                  <label htmlFor="custom-end-date" className="block text-xs font-semibold text-slate-400">
+                  <label htmlFor="custom-end-date" className="block text-xs font-semibold text-slate-500 dark:text-slate-400">
                     End Date
                   </label>
                   <input
@@ -272,7 +272,7 @@ export default function AnalyticsPage() {
                     type="date"
                     value={endDate}
                     onChange={(e) => setEndDate(e.target.value)}
-                    className="px-3 py-2 text-sm text-slate-200 bg-slate-950 border border-slate-850 rounded-lg outline-none focus:border-brand-500"
+                    className="px-3 py-2 text-sm text-slate-800 dark:text-slate-200 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-850 rounded-lg outline-none focus:border-brand-500"
                   />
                 </div>
                 <button
@@ -296,30 +296,30 @@ export default function AnalyticsPage() {
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                   {/* Aggregation Metrics Cards */}
                   <div className="lg:col-span-1 space-y-6">
-                    <div className="p-6 bg-slate-900 border border-slate-800 rounded-xl">
-                      <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider block">
+                    <div className="p-6 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl transition-colors duration-200">
+                      <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider block">
                         Total Spent (Selected Range)
                       </span>
-                      <h4 className="text-3xl font-bold text-slate-100 mt-2">
-                        ${parseFloat(customAggregation.totalSpent).toFixed(2)}
+                      <h4 className="text-3xl font-bold text-slate-850 dark:text-slate-100 mt-2">
+                        ₹{parseFloat(customAggregation.totalSpent).toFixed(2)}
                       </h4>
                     </div>
 
-                    <div className="p-6 bg-slate-900 border border-slate-800 rounded-xl">
-                      <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider block">
+                    <div className="p-6 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl transition-colors duration-200">
+                      <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider block">
                         Daily Average Spends
                       </span>
-                      <h4 className="text-3xl font-bold text-slate-100 mt-2">
-                        ${parseFloat(customAggregation.averageSpentPerDay).toFixed(2)}
+                      <h4 className="text-3xl font-bold text-slate-850 dark:text-slate-100 mt-2">
+                        ₹{parseFloat(customAggregation.averageSpentPerDay).toFixed(2)}
                       </h4>
                     </div>
                   </div>
 
                   {/* Range Pie Chart */}
-                  <div className="lg:col-span-2 p-6 bg-slate-900 border border-slate-800 rounded-xl flex flex-col justify-between">
-                    <h4 className="text-sm font-semibold text-slate-200 mb-4">Range Category Breakdown</h4>
+                  <div className="lg:col-span-2 p-6 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl flex flex-col justify-between transition-colors duration-200">
+                    <h4 className="text-sm font-semibold text-slate-700 dark:text-slate-200 mb-4">Range Category Breakdown</h4>
                     {customPieData.length === 0 ? (
-                      <div className="flex-1 flex items-center justify-center text-slate-500 text-sm h-64">
+                      <div className="flex-1 flex items-center justify-center text-slate-500 dark:text-slate-450 text-sm h-64">
                         No transactions recorded in this range.
                       </div>
                     ) : (
@@ -330,7 +330,7 @@ export default function AnalyticsPage() {
                   </div>
                 </div>
               ) : (
-                <div className="p-12 text-center border border-slate-850 rounded-xl text-slate-500 text-sm bg-slate-900/50">
+                <div className="p-12 text-center border border-slate-200 dark:border-slate-850 rounded-xl text-slate-550 dark:text-slate-400 text-sm bg-slate-100 dark:bg-slate-900/50 transition-colors duration-200">
                   Select a date range and click Run Query to view breakdown metrics.
                 </div>
               )}
@@ -346,27 +346,27 @@ export default function AnalyticsPage() {
               className="space-y-6"
             >
               {/* Forecast Header Panel */}
-              <div className="p-6 bg-slate-900 border border-slate-800 rounded-xl grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="p-6 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl grid grid-cols-1 md:grid-cols-3 gap-6 transition-colors duration-200">
                 <div>
-                  <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider block">
+                  <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider block">
                     Forecasted Next-Month Spend
                   </span>
-                  <h4 className="text-3xl font-bold text-slate-100 mt-2">
-                    ${parseFloat(forecast.forecastedAmount).toFixed(2)}
+                  <h4 className="text-3xl font-bold text-slate-850 dark:text-slate-100 mt-2">
+                    ₹{parseFloat(forecast.forecastedAmount).toFixed(2)}
                   </h4>
                 </div>
                 <div>
-                  <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider block">
+                  <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider block">
                     Projection Confidence
                   </span>
                   <div className="mt-2.5">
                     <span
                       className={`inline-block px-3 py-1 text-xs font-bold rounded-full border ${
                         forecast.confidenceLevel === 'HIGH'
-                          ? 'bg-emerald-950/40 text-emerald-400 border-emerald-800'
+                          ? 'bg-emerald-50 text-emerald-600 border-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-400 dark:border-emerald-800'
                           : forecast.confidenceLevel === 'MEDIUM'
-                          ? 'bg-amber-950/40 text-amber-400 border-amber-800'
-                          : 'bg-slate-950/40 text-slate-400 border-slate-800'
+                          ? 'bg-amber-50 text-amber-600 border-amber-200 dark:bg-amber-950/40 dark:text-amber-400 dark:border-amber-800'
+                          : 'bg-slate-50 text-slate-600 border-slate-200 dark:bg-slate-950/40 dark:text-slate-400 dark:border-slate-800'
                       }`}
                     >
                       {forecast.confidenceLevel} CONFIDENCE
@@ -374,22 +374,22 @@ export default function AnalyticsPage() {
                   </div>
                 </div>
                 <div>
-                  <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider block">
+                  <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider block">
                     Calculation Basis
                   </span>
-                  <p className="text-xs text-slate-300 mt-2 font-medium">
+                  <p className="text-xs text-slate-700 dark:text-slate-300 mt-2 font-medium">
                     {forecast.basis}
                   </p>
                 </div>
               </div>
 
               {/* Recommendations panel */}
-              <div className="p-6 bg-slate-900 border border-slate-800 rounded-xl space-y-4">
-                <h4 className="text-sm font-semibold text-slate-200">Personalized Budgeting Recommendations</h4>
+              <div className="p-6 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl space-y-4 transition-colors duration-200">
+                <h4 className="text-sm font-semibold text-slate-755 dark:text-slate-200">Personalized Budgeting Recommendations</h4>
                 <ul className="space-y-3.5 pl-1">
                   {forecast.recommendations.map((rec, index) => (
-                    <li key={index} className="flex gap-3 text-sm text-slate-300 leading-relaxed items-start">
-                      <span className="text-brand-300 font-semibold text-base mt-[-2px]">•</span>
+                    <li key={index} className="flex gap-3 text-sm text-slate-600 dark:text-slate-300 leading-relaxed items-start">
+                      <span className="text-brand-500 dark:text-brand-300 font-semibold text-base mt-[-2px]">•</span>
                       <span>{rec}</span>
                     </li>
                   ))}

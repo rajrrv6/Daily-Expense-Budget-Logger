@@ -63,3 +63,22 @@ export const exportExpenses = async (startDate, endDate) => {
   });
   return response.data;
 };
+
+export const uploadReceipt = async (file) => {
+  const formData = new FormData();
+  formData.append('file', file);
+  const { data } = await apiClient.post('/api/v1/expenses/receipts', formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  });
+  return data;
+};
+
+export const getReceiptFile = async (filename) => {
+  const response = await apiClient.get(`/api/v1/expenses/receipts/${filename}`, {
+    responseType: 'blob',
+  });
+  return response.data;
+};
+

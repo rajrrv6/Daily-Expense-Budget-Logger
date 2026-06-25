@@ -12,7 +12,7 @@ export default function Sidebar() {
   };
 
   const navItems = [
-    { name: 'Dashboard', path: '/', icon: '📊' },
+    { name: 'Dashboard', path: '/dashboard', icon: '📊' },
     { name: 'Expenses', path: '/expenses', icon: '💸' },
     { name: 'Checklist', path: '/todos', icon: '📝' },
     { name: 'Analytics', path: '/analytics', icon: '📈' },
@@ -23,7 +23,7 @@ export default function Sidebar() {
   return (
     <aside className="flex flex-col w-64 h-screen bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 text-slate-800 dark:text-slate-100 transition-colors duration-200">
       {/* Brand Header */}
-      <div className="flex items-center gap-3 px-6 py-5 border-b border-slate-200 dark:border-slate-800">
+      <div className="flex items-center gap-3 px-6 h-16 border-b border-slate-200 dark:border-slate-800">
         <span className="text-2xl">💰</span>
         <h1 className="text-xl font-bold tracking-tight text-brand-500 dark:text-brand-100">BudgetLogger</h1>
       </div>
@@ -49,10 +49,10 @@ export default function Sidebar() {
       </nav>
 
       {/* User Footer Action */}
-      <div className="p-4 border-t border-slate-200 dark:border-slate-800">
+      <div className="flex items-center h-16 border-t border-slate-200 dark:border-slate-800 px-4">
         <button
           onClick={handleLogout}
-          className="flex items-center gap-4 w-full px-4 py-3 text-sm font-medium text-slate-500 dark:text-slate-400 rounded-lg hover:bg-red-50 dark:hover:bg-red-950/30 hover:text-red-600 dark:hover:text-red-400 transition-all duration-200"
+          className="flex items-center gap-4 w-full px-4 py-2.5 text-sm font-medium text-slate-500 dark:text-slate-400 rounded-lg hover:bg-red-50 dark:hover:bg-red-950/30 hover:text-red-600 dark:hover:text-red-400 transition-all duration-200"
         >
           <span>🚪</span>
           <span>Sign Out</span>

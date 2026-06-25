@@ -12,7 +12,14 @@ export const AuthProvider = ({ children }) => {
     const checkSession = async () => {
       try {
         const { data } = await apiClient.post('/api/v1/auth/refresh');
-        setUser({ username: data.username, email: data.email });
+        setUser({
+          username: data.username,
+          email: data.email,
+          firstName: data.firstName,
+          lastName: data.lastName,
+          phoneNumber: data.phoneNumber,
+          monthlyIncome: data.monthlyIncome,
+        });
         setAuthTokenHeader(data.accessToken);
       } catch (err) {
         // Safe to ignore on mount (means no active session cookie exists)
@@ -42,19 +49,37 @@ export const AuthProvider = ({ children }) => {
       usernameOrEmail,
       password,
     });
-    setUser({ username: data.username, email: data.email });
+    setUser({
+      username: data.username,
+      email: data.email,
+      firstName: data.firstName,
+      lastName: data.lastName,
+      phoneNumber: data.phoneNumber,
+      monthlyIncome: data.monthlyIncome,
+    });
     setAuthTokenHeader(data.accessToken);
     return data;
   };
 
-  const register = async (username, email, password) => {
+  const register = async (username, email, firstName, lastName, phoneNumber, password) => {
     const { data } = await apiClient.post('/api/v1/auth/register', {
       username,
       email,
+      firstName,
+      lastName,
+      phoneNumber,
       password,
     });
-    setUser({ username: data.username, email: data.email });
-    setAuthTokenHeader(data.accessToken);
+    // Do not set user or auth token headers until verified
+    return data;
+  };
+
+  const verifyOtp = async (email, otpCode) => {
+    const { data } = await apiClient.post('/api/v1/auth/verify-otp', {
+      email,
+      otpCode,
+    });
+    // In this flow, we do not auto-login the user. They will login manually on the login page.
     return data;
   };
 
@@ -74,7 +99,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, register, logout, updateUser }}>
+    <AuthContext.Provider value={{ user, loading, login, register, verifyOtp, logout, updateUser }}>
       {children}
     </AuthContext.Provider>
   );

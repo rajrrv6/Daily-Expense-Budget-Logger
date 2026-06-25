@@ -1,9 +1,11 @@
 import React, { Suspense, lazy } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { ThemeProvider } from './context/ThemeContext';
 import { AuthProvider } from './context/AuthContext';
 import { NotificationProvider } from './context/NotificationContext';
 import PrivateRoute from './components/common/PrivateRoute';
 import MainLayout from './components/layout/MainLayout';
+import AuthLayout from './components/layout/AuthLayout';
 
 // Lazy load all page modules for performance optimization
 const LoginPage = lazy(() => import('./pages/LoginPage'));
@@ -16,23 +18,32 @@ const TodosPage = lazy(() => import('./pages/TodosPage'));
 const AnalyticsPage = lazy(() => import('./pages/AnalyticsPage'));
 const SettingsPage = lazy(() => import('./pages/SettingsPage'));
 const BudgetsPage = lazy(() => import('./pages/BudgetsPage'));
+const LandingPage = lazy(() => import('./pages/LandingPage'));
+const EmailVerificationPage = lazy(() => import('./pages/EmailVerificationPage'));
 
 export default function App() {
   return (
     <Router>
-      <NotificationProvider>
-        <AuthProvider>
+      <ThemeProvider>
+        <NotificationProvider>
+          <AuthProvider>
           <Suspense fallback={
-            <div className="min-h-screen bg-slate-950 flex items-center justify-center">
+            <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex items-center justify-center transition-colors duration-200">
               <span className="text-xs text-slate-500">Loading requested view...</span>
             </div>
           }>
             <Routes>
+              {/* Public landing page */}
+              <Route path="/" element={<LandingPage />} />
+
               {/* Public authentication flows */}
-              <Route path="/login" element={<LoginPage />} />
-              <Route path="/register" element={<RegisterPage />} />
-              <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-              <Route path="/reset-password" element={<ResetPasswordPage />} />
+              <Route element={<AuthLayout />}>
+                <Route path="/login" element={<LoginPage />} />
+                <Route path="/register" element={<RegisterPage />} />
+                <Route path="/verify-email" element={<EmailVerificationPage />} />
+                <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+                <Route path="/reset-password" element={<ResetPasswordPage />} />
+              </Route>
 
               {/* Secure authenticated layout paths */}
               <Route
@@ -43,7 +54,7 @@ export default function App() {
                   </PrivateRoute>
                 }
               >
-                <Route index element={<DashboardPage />} />
+                <Route path="dashboard" element={<DashboardPage />} />
                 <Route path="expenses" element={<ExpensesPage />} />
                 <Route path="todos" element={<TodosPage />} />
                 <Route path="analytics" element={<AnalyticsPage />} />
@@ -54,6 +65,7 @@ export default function App() {
           </Suspense>
         </AuthProvider>
       </NotificationProvider>
+      </ThemeProvider>
     </Router>
   );
 }

@@ -1,0 +1,284 @@
+import React, { useState, useEffect, useMemo } from 'react';
+import Modal from '../common/Modal';
+import { createTodo, updateTodo } from '../../services/todoService';
+import { createCategory } from '../../services/categoryService';
+import { useNotification } from '../../context/NotificationContext';
+
+export default function TodoFormModal({ isOpen, onClose, todo, categories, onSubmitSuccess }) {
+  const { showNotification } = useNotification();
+  const [name, setName] = useState('');
+  const [price, setPrice] = useState('');
+  const [categoryId, setCategoryId] = useState('');
+  const [targetDate, setTargetDate] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+  const [dateError, setDateError] = useState('');
+
+  // Category addition states
+  const [addedCategories, setAddedCategories] = useState([]);
+  const [showAddCategory, setShowAddCategory] = useState(false);
+  const [newCatName, setNewCatName] = useState('');
+  const [newCatColor, setNewCatColor] = useState('#4F46E5');
+  const [catLoading, setCatLoading] = useState(false);
+
+  const isEditMode = !!todo;
+
+  const todayStr = (() => {
+    const d = new Date();
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  })();
+
+  const allCategories = useMemo(() => {
+    return [...categories, ...addedCategories];
+  }, [categories, addedCategories]);
+
+  useEffect(() => {
+    if (isOpen) {
+      setAddedCategories([]);
+      setShowAddCategory(false);
+      setNewCatName('');
+      setDateError('');
+      if (todo) {
+        setName(todo.name || '');
+        setPrice(todo.price !== null && todo.price !== undefined ? todo.price.toString() : '');
+        setCategoryId(todo.categoryId !== null && todo.categoryId !== undefined ? todo.categoryId.toString() : '');
+        setTargetDate(todo.targetDate || '');
+      } else {
+        setName('');
+        setPrice('');
+        setCategoryId('');
+        setTargetDate('');
+      }
+    }
+  }, [isOpen, todo]);
+
+  const handleAddNewCategory = async () => {
+    if (!newCatName.trim()) {
+      showNotification('Category name cannot be blank', 'error');
+      return;
+    }
+    setCatLoading(true);
+    try {
+      const newCat = await createCategory({
+        name: newCatName.trim(),
+        color: newCatColor,
+      });
+      setAddedCategories((prev) => [...prev, newCat]);
+      setCategoryId(newCat.id.toString());
+      setNewCatName('');
+      setShowAddCategory(false);
+      showNotification('New category added!', 'success');
+    } catch (err) {
+      showNotification(err.response?.data?.message || 'Failed to add category', 'error');
+    } finally {
+      setCatLoading(false);
+    }
+  };
+
+  const handleDateChange = (e) => {
+    const val = e.target.value;
+    setTargetDate(val);
+    if (val && val < todayStr) {
+      setDateError('Target date cannot be in the past.');
+    } else {
+      setDateError('');
+    }
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const nameStr = name.trim();
+    if (!nameStr) {
+      showNotification('Item name is required', 'error');
+      return;
+    }
+
+    if (price && parseFloat(price) < 0) {
+      showNotification('Price must be greater than or equal to zero', 'error');
+      return;
+    }
+
+    if (targetDate && targetDate < todayStr) {
+      setDateError('Target date cannot be in the past.');
+      return;
+    }
+
+    setSubmitting(true);
+    try {
+      const payload = {
+        name: nameStr,
+        price: price ? parseFloat(price) : null,
+        categoryId: categoryId ? parseInt(categoryId) : null,
+        targetDate: targetDate || null,
+      };
+
+      let result;
+      if (isEditMode) {
+        result = await updateTodo(todo.id, payload);
+        showNotification('Checklist item updated successfully.', 'success');
+      } else {
+        result = await createTodo(payload);
+        showNotification('Checklist item added successfully.', 'success');
+      }
+
+      onSubmitSuccess(result, isEditMode);
+      onClose();
+    } catch (err) {
+      const errMsg = err.response?.data?.message;
+      if (errMsg && errMsg.toLowerCase().includes('target date')) {
+        setDateError('Target date cannot be in the past.');
+      } else {
+        showNotification(errMsg || 'Failed to save checklist item.', 'error');
+      }
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  return (
+    <Modal
+      isOpen={isOpen}
+      onClose={onClose}
+      title={isEditMode ? 'Edit Checklist Item' : 'Add New Checklist Item'}
+    >
+      <form onSubmit={handleSubmit} className="space-y-4">
+        {/* Item Name */}
+        <div>
+          <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">
+            Item Name
+          </label>
+          <input
+            type="text"
+            required
+            disabled={submitting}
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            placeholder="e.g. Office rent, Groceries"
+            className="w-full px-4 py-2.5 text-sm text-slate-900 dark:text-slate-100 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg focus:outline-none focus:border-brand-500 transition-colors placeholder-slate-400 dark:placeholder-slate-650"
+          />
+        </div>
+
+        {/* Grid Estimated Price & Date to Buy */}
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">
+              Estimated Price (₹)
+            </label>
+            <input
+              type="number"
+              step="0.01"
+              min="0.00"
+              disabled={submitting}
+              value={price}
+              onChange={(e) => setPrice(e.target.value)}
+              placeholder="0.00"
+              className="w-full px-4 py-2.5 text-sm text-slate-900 dark:text-slate-100 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg focus:outline-none focus:border-brand-500 transition-colors placeholder-slate-400 dark:placeholder-slate-650"
+            />
+          </div>
+
+          <div>
+            <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">
+              Date to Buy
+            </label>
+            <input
+              type="date"
+              min={todayStr}
+              disabled={submitting}
+              value={targetDate}
+              onChange={handleDateChange}
+              onBlur={handleDateChange}
+              className={`w-full px-4 py-2.5 text-sm text-slate-900 dark:text-slate-100 bg-slate-50 dark:bg-slate-950 border rounded-lg focus:outline-none focus:border-brand-500 transition-colors ${
+                dateError ? 'border-red-500 focus:border-red-500' : 'border-slate-200 dark:border-slate-800'
+              }`}
+            />
+            {dateError && (
+              <span className="block text-xs text-red-500 dark:text-red-400 mt-1">
+                {dateError}
+              </span>
+            )}
+          </div>
+        </div>
+
+        {/* Category Selector */}
+        <div>
+          <div className="flex justify-between items-center mb-2">
+            <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+              Category
+            </label>
+            <button
+              type="button"
+              disabled={submitting}
+              onClick={() => setShowAddCategory(!showAddCategory)}
+              className="text-xs text-brand-600 dark:text-brand-100 hover:text-brand-500 dark:hover:text-white font-semibold transition-colors"
+            >
+              {showAddCategory ? 'Cancel' : '+ Add New Category'}
+            </button>
+          </div>
+
+          {/* Quick Add Category Form */}
+          {showAddCategory && (
+            <div className="p-3 mb-3 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg space-y-3 transition-colors duration-200">
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  value={newCatName}
+                  onChange={(e) => setNewCatName(e.target.value)}
+                  placeholder="New category name"
+                  className="flex-1 px-3 py-1.5 text-xs text-slate-900 dark:text-slate-100 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded focus:outline-none focus:border-brand-500 placeholder-slate-400 dark:placeholder-slate-650"
+                />
+                <input
+                  type="color"
+                  value={newCatColor}
+                  onChange={(e) => setNewCatColor(e.target.value)}
+                  className="w-8 h-8 rounded border border-slate-200 dark:border-slate-800 bg-transparent cursor-pointer"
+                />
+                <button
+                  type="button"
+                  disabled={catLoading}
+                  onClick={handleAddNewCategory}
+                  className="px-3 py-1.5 text-xs text-slate-700 dark:text-white bg-slate-200 hover:bg-slate-350 dark:bg-slate-850 dark:hover:bg-slate-750 rounded disabled:opacity-50 transition-colors"
+                >
+                  Save
+                </button>
+              </div>
+            </div>
+          )}
+
+          <select
+            disabled={submitting}
+            value={categoryId}
+            onChange={(e) => setCategoryId(e.target.value)}
+            className="w-full px-4 py-2.5 text-sm text-slate-900 dark:text-slate-100 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg focus:outline-none focus:border-brand-500 transition-colors"
+          >
+            <option value="">Select a category</option>
+            {allCategories.map((cat) => (
+              <option key={cat.id} value={cat.id}>
+                {cat.name}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        {/* Footer Actions */}
+        <div className="flex justify-end gap-3 pt-4 mt-6">
+          <button
+            type="button"
+            onClick={onClose}
+            className="px-4 py-2 text-sm font-semibold text-slate-600 dark:text-slate-350 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors"
+          >
+            Cancel
+          </button>
+          <button
+            type="submit"
+            disabled={submitting}
+            className="px-5 py-2.5 text-sm font-semibold text-white bg-brand-500 hover:bg-brand-600 rounded-lg transition-colors disabled:opacity-50"
+          >
+            {submitting ? 'Saving...' : isEditMode ? 'Save Changes' : 'Add Item'}
+          </button>
+        </div>
+      </form>
+    </Modal>
+  );
+}

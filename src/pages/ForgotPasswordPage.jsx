@@ -37,25 +37,24 @@ export default function ForgotPasswordPage() {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-brand-600/20 p-4">
-      <div className="w-full max-w-md p-8 bg-slate-900/60 backdrop-blur-xl border border-slate-800 rounded-2xl shadow-2xl">
+    <div className="w-full max-w-md p-8 bg-white dark:bg-slate-900/60 backdrop-blur-xl border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xl transition-colors duration-200">
         {/* Title */}
         <div className="text-center mb-8">
           <span className="text-4xl">🔑</span>
-          <h2 className="mt-4 text-2xl font-bold tracking-tight text-slate-100">Reset Password</h2>
-          <p className="mt-2 text-sm text-slate-400">Enter your email to receive a recovery link</p>
+          <h2 className="mt-4 text-2xl font-bold tracking-tight text-slate-800 dark:text-slate-100">Reset Password</h2>
+          <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">Enter your email to receive a recovery link</p>
         </div>
 
         {/* Success Alert */}
         {successMessage && (
-          <div className="p-4 mb-6 text-sm text-emerald-200 bg-emerald-950/40 border border-emerald-800 rounded-lg">
+          <div className="p-4 mb-6 text-sm text-emerald-805 dark:text-emerald-200 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-250 dark:border-emerald-800 rounded-lg">
             ✅ {successMessage}
           </div>
         )}
 
         {/* Error Alert */}
         {submitError && (
-          <div className="p-4 mb-6 text-sm text-red-200 bg-red-950/40 border border-red-800 rounded-lg">
+          <div className="p-4 mb-6 text-sm text-red-750 dark:text-red-200 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800 rounded-lg">
             ⚠️ {submitError}
           </div>
         )}
@@ -64,19 +63,19 @@ export default function ForgotPasswordPage() {
         {!successMessage && (
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
             <div>
-              <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">
+              <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">
                 Email Address
               </label>
               <input
                 type="email"
                 {...register('email')}
                 placeholder="e.g. john@example.com"
-                className={`w-full px-4 py-3 text-sm text-slate-100 bg-slate-950/80 border ${
-                  errors.email ? 'border-red-800 focus:border-red-800' : 'border-slate-800 focus:border-brand-500'
+                className={`w-full px-4 py-3 text-sm text-slate-855 dark:text-slate-105 bg-slate-50 dark:bg-slate-950/80 border ${
+                  errors.email ? 'border-red-500 focus:border-red-500' : 'border-slate-200 dark:border-slate-800 focus:border-brand-500'
                 } rounded-lg focus:outline-none transition-colors`}
               />
               {errors.email && (
-                <span className="block text-xs text-red-400 mt-1">{errors.email.message}</span>
+                <span className="block text-xs text-red-650 dark:text-red-400 mt-1">{errors.email.message}</span>
               )}
             </div>
 
@@ -90,13 +89,12 @@ export default function ForgotPasswordPage() {
           </form>
         )}
 
-        <div className="mt-6 text-center text-sm text-slate-400">
+        <div className="mt-6 text-center text-sm text-slate-500 dark:text-slate-400">
           Remember your password?{' '}
-          <Link to="/login" className="font-semibold text-brand-100 hover:text-white transition-colors">
+          <Link to="/login" className="font-semibold text-brand-500 dark:text-brand-100 hover:text-brand-600 dark:hover:text-white transition-colors">
             Sign In
           </Link>
         </div>
       </div>
-    </div>
   );
 }

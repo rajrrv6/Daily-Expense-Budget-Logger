@@ -126,12 +126,12 @@ export default function NotificationCenter() {
   const getSeverityStyles = (severity) => {
     switch (severity?.toUpperCase()) {
       case 'CRITICAL':
-        return 'bg-rose-950/60 border-rose-900/60 text-rose-400';
+        return 'bg-rose-50 border-rose-200 text-rose-600 dark:bg-rose-950/60 dark:border-rose-900/60 dark:text-rose-400';
       case 'WARNING':
-        return 'bg-amber-950/60 border-amber-900/60 text-amber-400';
+        return 'bg-amber-50 border-amber-200 text-amber-600 dark:bg-amber-950/60 dark:border-amber-900/60 dark:text-amber-400';
       case 'INFO':
       default:
-        return 'bg-emerald-950/60 border-emerald-900/60 text-emerald-400';
+        return 'bg-emerald-50 border-emerald-200 text-emerald-600 dark:bg-emerald-950/60 dark:border-emerald-900/60 dark:text-emerald-400';
     }
   };
 
@@ -140,7 +140,7 @@ export default function NotificationCenter() {
       {/* Trigger Bell Icon */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="relative p-2.5 bg-slate-800/60 hover:bg-slate-800 text-slate-300 hover:text-slate-100 rounded-xl border border-slate-700/40 hover:border-slate-700 transition-all flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-indigo-500"
+        className="relative p-2.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800/60 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-350 hover:text-slate-800 dark:hover:text-slate-100 rounded-xl border border-slate-200 dark:border-slate-700/40 hover:border-slate-300 dark:hover:border-slate-700 transition-all flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-indigo-500"
         aria-label="View Alerts & Notifications"
       >
         <svg
@@ -158,7 +158,7 @@ export default function NotificationCenter() {
           />
         </svg>
         {unreadCount > 0 && (
-          <span className="absolute -top-1.5 -right-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-rose-600 text-[10px] font-bold text-white ring-2 ring-slate-900 animate-pulse">
+          <span className="absolute -top-1.5 -right-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-rose-600 text-[10px] font-bold text-white ring-2 ring-white dark:ring-slate-900 animate-pulse">
             {unreadCount}
           </span>
         )}
@@ -166,19 +166,19 @@ export default function NotificationCenter() {
 
       {/* Notifications Dropdown Panel */}
       {isOpen && (
-        <div className="absolute right-0 mt-3 w-80 sm:w-96 max-h-[480px] bg-slate-900/95 border border-slate-800/90 rounded-2xl shadow-2xl backdrop-blur-md overflow-hidden z-50 flex flex-col animate-slide-in pointer-events-auto">
+        <div className="absolute right-0 mt-3 w-80 sm:w-96 max-h-[480px] bg-white dark:bg-slate-900/95 border border-slate-200 dark:border-slate-800/90 rounded-2xl shadow-2xl backdrop-blur-md overflow-hidden z-50 flex flex-col animate-slide-in pointer-events-auto transition-colors duration-200">
           {/* Header */}
-          <div className="flex items-center justify-between px-5 py-4 border-b border-slate-800/80">
+          <div className="flex items-center justify-between px-5 py-4 border-b border-slate-100 dark:border-slate-800/80 transition-colors duration-200">
             <div>
-              <h3 className="text-sm font-bold text-slate-100">Alert Center</h3>
-              <p className="text-[10px] text-slate-400 mt-0.5">
+              <h3 className="text-sm font-bold text-slate-850 dark:text-slate-100">Alert Center</h3>
+              <p className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5">
                 {unreadCount} unread notification{unreadCount !== 1 && 's'}
               </p>
             </div>
             {unreadCount > 0 && (
               <button
                 onClick={handleMarkAllRead}
-                className="text-xs font-semibold text-indigo-400 hover:text-indigo-350 transition-colors"
+                className="text-xs font-semibold text-indigo-600 dark:text-indigo-400 hover:text-indigo-500 dark:hover:text-indigo-350 transition-colors"
               >
                 Mark all read
               </button>
@@ -186,19 +186,19 @@ export default function NotificationCenter() {
           </div>
 
           {/* List Area */}
-          <div className="flex-1 overflow-y-auto max-h-[320px] custom-scrollbar divide-y divide-slate-850">
+          <div className="flex-1 overflow-y-auto max-h-[320px] custom-scrollbar divide-y divide-slate-100 dark:divide-slate-850 transition-colors duration-200">
             {notifications.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-10 px-4 text-center">
                 <span className="text-2xl mb-2">🔔</span>
-                <p className="text-sm font-semibold text-slate-400">All caught up!</p>
-                <p className="text-xs text-slate-500 mt-1">You have no active alerts.</p>
+                <p className="text-sm font-semibold text-slate-500 dark:text-slate-400">All caught up!</p>
+                <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">You have no active alerts.</p>
               </div>
             ) : (
               notifications.map((item) => (
                 <div
                   key={item.id}
-                  className={`p-4 flex gap-3 transition-colors hover:bg-slate-850/40 relative group ${
-                    !item.read ? 'bg-slate-850/15' : ''
+                  className={`p-4 flex gap-3 transition-colors hover:bg-slate-50 dark:hover:bg-slate-850/40 relative group ${
+                    !item.read ? 'bg-indigo-50/20 dark:bg-slate-850/15' : ''
                   }`}
                 >
                   {/* Read dot indicator */}
@@ -211,13 +211,13 @@ export default function NotificationCenter() {
                       <span className={`px-2 py-0.5 rounded-full text-[10px] font-semibold border ${getSeverityStyles(item.severity)}`}>
                         {item.severity}
                       </span>
-                      <span className="text-[10px] text-slate-500">
+                      <span className="text-[10px] text-slate-450 dark:text-slate-500">
                         {new Date(item.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                       </span>
                     </div>
 
-                    <h4 className="text-xs font-bold text-slate-200">{item.title}</h4>
-                    <p className="text-xs text-slate-400 leading-relaxed pr-6">{item.message}</p>
+                    <h4 className="text-xs font-bold text-slate-800 dark:text-slate-200">{item.title}</h4>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed pr-6">{item.message}</p>
                   </div>
 
                   {/* Actions (Mark read, Delete) */}
@@ -225,7 +225,7 @@ export default function NotificationCenter() {
                     {!item.read && (
                       <button
                         onClick={() => handleMarkRead(item.id)}
-                        className="text-slate-400 hover:text-indigo-400 p-1 rounded transition-colors"
+                        className="text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 p-1 rounded transition-colors"
                         title="Mark as read"
                       >
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4">
@@ -235,7 +235,7 @@ export default function NotificationCenter() {
                     )}
                     <button
                       onClick={() => handleDelete(item.id, !item.read)}
-                      className="text-slate-400 hover:text-rose-400 p-1 rounded transition-colors opacity-80 hover:opacity-100"
+                      className="text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 p-1 rounded transition-colors opacity-80 hover:opacity-100"
                       title="Delete Notification"
                     >
                       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4">
@@ -250,11 +250,11 @@ export default function NotificationCenter() {
 
           {/* Footer Pagination */}
           {hasMore && (
-            <div className="p-3 border-t border-slate-800/80 bg-slate-950/45 text-center">
+            <div className="p-3 border-t border-slate-100 dark:border-slate-800/80 bg-slate-50 dark:bg-slate-950/45 text-center transition-colors duration-200">
               <button
                 onClick={handleLoadMore}
                 disabled={isLoading}
-                className="text-xs font-bold text-indigo-400 hover:text-indigo-350 transition-colors py-1 px-4 disabled:text-slate-600"
+                className="text-xs font-bold text-indigo-600 dark:text-indigo-400 hover:text-indigo-500 dark:hover:text-indigo-350 transition-colors py-1 px-4 disabled:text-slate-400 dark:disabled:text-slate-600"
               >
                 {isLoading ? 'Loading...' : 'Load Older Alerts'}
               </button>

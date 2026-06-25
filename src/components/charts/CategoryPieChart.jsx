@@ -1,23 +1,26 @@
 import React from 'react';
 import { ResponsiveContainer, PieChart, Pie, Cell, Tooltip, Legend } from 'recharts';
+import { useTheme } from '../../context/ThemeContext';
 
-const TOOLTIP_CONTENT_STYLE = {
-  backgroundColor: '#0F172A',
-  border: '1px solid #1E293B',
-  borderRadius: '8px',
-  color: '#F1F5F9',
-};
-
-const LEGEND_FORMATTER = (value) => <span className="text-xs text-slate-400">{value}</span>;
+const LEGEND_FORMATTER = (value) => <span className="text-xs text-slate-500 dark:text-slate-400 transition-colors duration-200">{value}</span>;
 
 const CategoryPieChart = React.memo(({ data }) => {
+  const { isDark } = useTheme();
+
   if (!data || data.length === 0) {
     return (
-      <div className="flex items-center justify-center h-64 text-slate-500 text-sm">
+      <div className="flex items-center justify-center h-64 text-slate-500 dark:text-slate-450 text-sm">
         No category data to display.
       </div>
     );
   }
+
+  const tooltipStyle = {
+    backgroundColor: isDark ? '#0F172A' : '#FFFFFF',
+    border: `1px solid ${isDark ? '#1E293B' : '#E2E8F0'}`,
+    borderRadius: '8px',
+    color: isDark ? '#F1F5F9' : '#0F172A',
+  };
 
   return (
     <div className="h-64 w-full" aria-label="Category Spending Breakdown Chart" role="img">
@@ -38,8 +41,8 @@ const CategoryPieChart = React.memo(({ data }) => {
             ))}
           </Pie>
           <Tooltip
-            formatter={(value) => [`$${parseFloat(value).toFixed(2)}`, 'Spent']}
-            contentStyle={TOOLTIP_CONTENT_STYLE}
+            formatter={(value) => [`₹${parseFloat(value).toFixed(2)}`, 'Spent']}
+            contentStyle={tooltipStyle}
           />
           <Legend
             verticalAlign="bottom"

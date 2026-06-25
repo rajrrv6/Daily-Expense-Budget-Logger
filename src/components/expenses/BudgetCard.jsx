@@ -58,16 +58,16 @@ export default function BudgetCard({ budget, onEdit, onDelete }) {
       <div className="grid grid-cols-3 gap-2 text-center py-2 border-y border-slate-100 dark:border-slate-800/80">
         <div>
           <span className="text-[10px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider block">Limit</span>
-          <span className="text-sm font-semibold text-slate-700 dark:text-slate-200">${limit.toFixed(2)}</span>
+          <span className="text-sm font-semibold text-slate-700 dark:text-slate-200">₹{limit.toFixed(2)}</span>
         </div>
         <div>
           <span className="text-[10px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider block">Spent</span>
-          <span className="text-sm font-semibold text-slate-700 dark:text-slate-200">${spent.toFixed(2)}</span>
+          <span className="text-sm font-semibold text-slate-700 dark:text-slate-200">₹{spent.toFixed(2)}</span>
         </div>
         <div>
           <span className="text-[10px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider block">Remaining</span>
           <span className={`text-sm font-semibold block ${remaining < 0 ? 'text-red-500' : 'text-slate-700 dark:text-slate-200'}`}>
-            ${remaining.toFixed(2)}
+            ₹{remaining.toFixed(2)}
           </span>
         </div>
       </div>

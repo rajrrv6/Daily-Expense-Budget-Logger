@@ -1,19 +1,15 @@
 import React from 'react';
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid } from 'recharts';
-
-const TOOLTIP_CONTENT_STYLE = {
-  backgroundColor: '#0F172A',
-  border: '1px solid #1E293B',
-  borderRadius: '8px',
-  color: '#F1F5F9',
-};
+import { useTheme } from '../../context/ThemeContext';
 
 const GRID_STROKE_DASHARRAY = '3 3';
 
 const MonthlyTrendChart = React.memo(({ data }) => {
+  const { isDark } = useTheme();
+
   if (!data || data.length === 0) {
     return (
-      <div className="flex items-center justify-center h-64 text-slate-500 text-sm">
+      <div className="flex items-center justify-center h-64 text-slate-500 dark:text-slate-450 text-sm">
         No monthly trend data available.
       </div>
     );
@@ -31,28 +27,38 @@ const MonthlyTrendChart = React.memo(({ data }) => {
     };
   });
 
+  const tooltipStyle = {
+    backgroundColor: isDark ? '#0F172A' : '#FFFFFF',
+    border: `1px solid ${isDark ? '#1E293B' : '#E2E8F0'}`,
+    borderRadius: '8px',
+    color: isDark ? '#F1F5F9' : '#0F172A',
+  };
+
+  const gridStroke = isDark ? '#1E293B' : '#E2E8F0';
+  const axisStroke = isDark ? '#94A3B8' : '#64748B';
+
   return (
     <div className="h-64 w-full" aria-label="Monthly Spending Trend Chart" role="img">
       <ResponsiveContainer width="100%" height="100%">
         <BarChart data={formattedData} margin={{ top: 10, right: 10, left: -10, bottom: 0 }}>
-          <CartesianGrid stroke="#1E293B" strokeDasharray={GRID_STROKE_DASHARRAY} />
+          <CartesianGrid stroke={gridStroke} strokeDasharray={GRID_STROKE_DASHARRAY} />
           <XAxis
             dataKey="displayLabel"
-            stroke="#94A3B8"
+            stroke={axisStroke}
             fontSize={11}
             tickLine={false}
             axisLine={false}
           />
           <YAxis
-            stroke="#94A3B8"
+            stroke={axisStroke}
             fontSize={11}
             tickLine={false}
             axisLine={false}
-            tickFormatter={(value) => `$${value}`}
+            tickFormatter={(value) => `₹${value}`}
           />
           <Tooltip
-            formatter={(value) => [`$${parseFloat(value).toFixed(2)}`, 'Total Spent']}
-            contentStyle={TOOLTIP_CONTENT_STYLE}
+            formatter={(value) => [`₹${parseFloat(value).toFixed(2)}`, 'Total Spent']}
+            contentStyle={tooltipStyle}
           />
           <Bar
             dataKey="amount"

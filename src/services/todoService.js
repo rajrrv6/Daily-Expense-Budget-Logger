@@ -20,6 +20,11 @@ export const toggleTodo = async (id) => {
   return data;
 };
 
+export const completeTodo = async (id, dto) => {
+  const { data } = await apiClient.patch(`/api/v1/todos/${id}/complete`, dto);
+  return data;
+};
+
 export const deleteTodo = async (id) => {
   await apiClient.delete(`/api/v1/todos/${id}`);
 };

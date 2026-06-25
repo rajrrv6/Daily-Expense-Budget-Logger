@@ -125,7 +125,7 @@ export default function BudgetFormModal({ isOpen, onClose, onSubmit, budget, cat
           {/* Monthly Limit */}
           <div>
             <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-1.5">
-              Monthly Limit Amount ($)
+              Monthly Limit Amount (₹)
             </label>
             <input
               type="text"

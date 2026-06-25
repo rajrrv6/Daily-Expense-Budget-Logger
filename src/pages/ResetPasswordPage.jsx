@@ -49,19 +49,18 @@ export default function ResetPasswordPage() {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-brand-600/20 p-4">
-      <div className="w-full max-w-md p-8 bg-slate-900/60 backdrop-blur-xl border border-slate-800 rounded-2xl shadow-2xl">
-        {/* Title */}
+    <div className="w-full max-w-md p-8 bg-white dark:bg-slate-900/60 backdrop-blur-xl border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xl transition-colors duration-200">
+      {/* Title */}
         <div className="text-center mb-8">
           <span className="text-4xl">🔄</span>
-          <h2 className="mt-4 text-2xl font-bold tracking-tight text-slate-100">Set New Password</h2>
-          <p className="mt-2 text-sm text-slate-400">Complete the form below to restore your account access</p>
+          <h2 className="mt-4 text-2xl font-bold tracking-tight text-slate-800 dark:text-slate-100">Set New Password</h2>
+          <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">Complete the form below to restore your account access</p>
         </div>
 
         {/* Success Alert */}
         {successMessage && (
           <div className="space-y-4">
-            <div className="p-4 text-sm text-emerald-200 bg-emerald-950/40 border border-emerald-800 rounded-lg">
+            <div className="p-4 text-sm text-emerald-805 dark:text-emerald-200 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-250 dark:border-emerald-800 rounded-lg">
               ✅ {successMessage}
             </div>
             <Link
@@ -75,7 +74,7 @@ export default function ResetPasswordPage() {
 
         {/* Error Alert */}
         {submitError && (
-          <div className="p-4 mb-6 text-sm text-red-200 bg-red-950/40 border border-red-800 rounded-lg">
+          <div className="p-4 mb-6 text-sm text-red-750 dark:text-red-200 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800 rounded-lg">
             ⚠️ {submitError}
           </div>
         )}
@@ -86,56 +85,56 @@ export default function ResetPasswordPage() {
             {/* Reset Token Input (Hidden if provided via URL) */}
             {!tokenFromUrl && (
               <div>
-                <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">
+                <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">
                   Reset Token
                 </label>
                 <input
                   type="text"
                   {...register('token')}
                   placeholder="Enter the reset token sent to your email"
-                  className={`w-full px-4 py-3 text-sm text-slate-100 bg-slate-950/80 border ${
-                    errors.token ? 'border-red-800 focus:border-red-800' : 'border-slate-800 focus:border-brand-500'
+                  className={`w-full px-4 py-3 text-sm text-slate-850 dark:text-slate-105 bg-slate-50 dark:bg-slate-950/80 border ${
+                    errors.token ? 'border-red-500 focus:border-red-500' : 'border-slate-200 dark:border-slate-800 focus:border-brand-500'
                   } rounded-lg focus:outline-none transition-colors`}
                 />
                 {errors.token && (
-                  <span className="block text-xs text-red-400 mt-1">{errors.token.message}</span>
+                  <span className="block text-xs text-red-650 dark:text-red-400 mt-1">{errors.token.message}</span>
                 )}
               </div>
             )}
 
             {/* New Password */}
             <div>
-              <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">
+              <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">
                 New Password
               </label>
               <input
                 type="password"
                 {...register('newPassword')}
                 placeholder="••••••••"
-                className={`w-full px-4 py-3 text-sm text-slate-100 bg-slate-950/80 border ${
-                  errors.newPassword ? 'border-red-800 focus:border-red-800' : 'border-slate-800 focus:border-brand-500'
+                className={`w-full px-4 py-3 text-sm text-slate-850 dark:text-slate-105 bg-slate-50 dark:bg-slate-950/80 border ${
+                  errors.newPassword ? 'border-red-500 focus:border-red-500' : 'border-slate-200 dark:border-slate-800 focus:border-brand-500'
                 } rounded-lg focus:outline-none transition-colors`}
               />
               {errors.newPassword && (
-                <span className="block text-xs text-red-400 mt-1">{errors.newPassword.message}</span>
+                <span className="block text-xs text-red-650 dark:text-red-400 mt-1">{errors.newPassword.message}</span>
               )}
             </div>
 
             {/* Confirm Password */}
             <div>
-              <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">
+              <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">
                 Confirm New Password
               </label>
               <input
                 type="password"
                 {...register('confirmPassword')}
                 placeholder="••••••••"
-                className={`w-full px-4 py-3 text-sm text-slate-100 bg-slate-950/80 border ${
-                  errors.confirmPassword ? 'border-red-800 focus:border-red-800' : 'border-slate-800 focus:border-brand-500'
+                className={`w-full px-4 py-3 text-sm text-slate-850 dark:text-slate-105 bg-slate-50 dark:bg-slate-950/80 border ${
+                  errors.confirmPassword ? 'border-red-500 focus:border-red-500' : 'border-slate-200 dark:border-slate-800 focus:border-brand-500'
                 } rounded-lg focus:outline-none transition-colors`}
               />
               {errors.confirmPassword && (
-                <span className="block text-xs text-red-400 mt-1">{errors.confirmPassword.message}</span>
+                <span className="block text-xs text-red-650 dark:text-red-400 mt-1">{errors.confirmPassword.message}</span>
               )}
             </div>
 
@@ -150,14 +149,13 @@ export default function ResetPasswordPage() {
         )}
 
         {!successMessage && (
-          <div className="mt-6 text-center text-sm text-slate-400">
+          <div className="mt-6 text-center text-sm text-slate-500 dark:text-slate-400">
             Cancel and return to{' '}
-            <Link to="/login" className="font-semibold text-brand-100 hover:text-white transition-colors">
+            <Link to="/login" className="font-semibold text-brand-500 dark:text-brand-100 hover:text-brand-600 dark:hover:text-white transition-colors">
               Sign In
             </Link>
           </div>
         )}
       </div>
-    </div>
   );
 }
