@@ -1,0 +1,694 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report-3.0.xsd" version="3.0" name="com.expense.logger.AdvancedFeaturesTest" time="22.774" tests="15" errors="0" skipped="0" failures="0">
+  <properties>
+    <property name="java.specification.version" value="21"/>
+    <property name="sun.jnu.encoding" value="UTF-8"/>
+    <property name="java.class.path" value="/Users/local34/Desktop/Daily Expense &amp; Budget Logger/backend/target/test-classes:/Users/local34/Desktop/Daily Expense &amp; Budget Logger/backend/target/classes:/Users/local34/.m2/repository/org/springframework/boot/spring-boot-starter-web/3.3.0/spring-boot-starter-web-3.3.0.jar:/Users/local34/.m2/repository/org/springframework/boot/spring-boot-starter/3.3.0/spring-boot-starter-3.3.0.jar:/Users/local34/.m2/repository/org/springframework/boot/spring-boot/3.3.0/spring-boot-3.3.0.jar:/Users/local34/.m2/repository/org/springframework/boot/spring-boot-autoconfigure/3.3.0/spring-boot-autoconfigure-3.3.0.jar:/Users/local34/.m2/repository/org/springframework/boot/spring-boot-starter-logging/3.3.0/spring-boot-starter-logging-3.3.0.jar:/Users/local34/.m2/repository/ch/qos/logback/logback-classic/1.5.6/logback-classic-1.5.6.jar:/Users/local34/.m2/repository/ch/qos/logback/logback-core/1.5.6/logback-core-1.5.6.jar:/Users/local34/.m2/repository/org/apache/logging/log4j/log4j-to-slf4j/2.23.1/log4j-to-slf4j-2.23.1.jar:/Users/local34/.m2/repository/org/apache/logging/log4j/log4j-api/2.23.1/log4j-api-2.23.1.jar:/Users/local34/.m2/repository/org/slf4j/jul-to-slf4j/2.0.13/jul-to-slf4j-2.0.13.jar:/Users/local34/.m2/repository/jakarta/annotation/jakarta.annotation-api/2.1.1/jakarta.annotation-api-2.1.1.jar:/Users/local34/.m2/repository/org/yaml/snakeyaml/2.2/snakeyaml-2.2.jar:/Users/local34/.m2/repository/org/springframework/boot/spring-boot-starter-json/3.3.0/spring-boot-starter-json-3.3.0.jar:/Users/local34/.m2/repository/com/fasterxml/jackson/datatype/jackson-datatype-jdk8/2.17.1/jackson-datatype-jdk8-2.17.1.jar:/Users/local34/.m2/repository/com/fasterxml/jackson/datatype/jackson-datatype-jsr310/2.17.1/jackson-datatype-jsr310-2.17.1.jar:/Users/local34/.m2/repository/com/fasterxml/jackson/module/jackson-module-parameter-names/2.17.1/jackson-module-parameter-names-2.17.1.jar:/Users/local34/.m2/repository/org/springframework/boot/spring-boot-starter-tomcat/3.3.0/spring-boot-starter-tomcat-3.3.0.jar:/Users/local34/.m2/repository/org/apache/tomcat/embed/tomcat-embed-core/10.1.24/tomcat-embed-core-10.1.24.jar:/Users/local34/.m2/repository/org/apache/tomcat/embed/tomcat-embed-websocket/10.1.24/tomcat-embed-websocket-10.1.24.jar:/Users/local34/.m2/repository/org/springframework/spring-web/6.1.8/spring-web-6.1.8.jar:/Users/local34/.m2/repository/org/springframework/spring-beans/6.1.8/spring-beans-6.1.8.jar:/Users/local34/.m2/repository/org/springframework/spring-webmvc/6.1.8/spring-webmvc-6.1.8.jar:/Users/local34/.m2/repository/org/springframework/spring-context/6.1.8/spring-context-6.1.8.jar:/Users/local34/.m2/repository/org/springframework/spring-expression/6.1.8/spring-expression-6.1.8.jar:/Users/local34/.m2/repository/org/springframework/boot/spring-boot-starter-security/3.3.0/spring-boot-starter-security-3.3.0.jar:/Users/local34/.m2/repository/org/springframework/spring-aop/6.1.8/spring-aop-6.1.8.jar:/Users/local34/.m2/repository/org/springframework/security/spring-security-config/6.3.0/spring-security-config-6.3.0.jar:/Users/local34/.m2/repository/org/springframework/security/spring-security-web/6.3.0/spring-security-web-6.3.0.jar:/Users/local34/.m2/repository/org/springframework/boot/spring-boot-starter-data-jpa/3.3.0/spring-boot-starter-data-jpa-3.3.0.jar:/Users/local34/.m2/repository/org/springframework/boot/spring-boot-starter-aop/3.3.0/spring-boot-starter-aop-3.3.0.jar:/Users/local34/.m2/repository/org/aspectj/aspectjweaver/1.9.22/aspectjweaver-1.9.22.jar:/Users/local34/.m2/repository/org/springframework/boot/spring-boot-starter-jdbc/3.3.0/spring-boot-starter-jdbc-3.3.0.jar:/Users/local34/.m2/repository/com/zaxxer/HikariCP/5.1.0/HikariCP-5.1.0.jar:/Users/local34/.m2/repository/org/springframework/spring-jdbc/6.1.8/spring-jdbc-6.1.8.jar:/Users/local34/.m2/repository/org/hibernate/orm/hibernate-core/6.5.2.Final/hibernate-core-6.5.2.Final.jar:/Users/local34/.m2/repository/jakarta/persistence/jakarta.persistence-api/3.1.0/jakarta.persistence-api-3.1.0.jar:/Users/local34/.m2/repository/jakarta/transaction/jakarta.transaction-api/2.0.1/jakarta.transaction-api-2.0.1.jar:/Users/local34/.m2/repository/org/jboss/logging/jboss-logging/3.5.3.Final/jboss-logging-3.5.3.Final.jar:/Users/local34/.m2/repository/org/hibernate/common/hibernate-commons-annotations/6.0.6.Final/hibernate-commons-annotations-6.0.6.Final.jar:/Users/local34/.m2/repository/io/smallrye/jandex/3.1.2/jandex-3.1.2.jar:/Users/local34/.m2/repository/com/fasterxml/classmate/1.7.0/classmate-1.7.0.jar:/Users/local34/.m2/repository/net/bytebuddy/byte-buddy/1.14.16/byte-buddy-1.14.16.jar:/Users/local34/.m2/repository/org/glassfish/jaxb/jaxb-runtime/4.0.5/jaxb-runtime-4.0.5.jar:/Users/local34/.m2/repository/org/glassfish/jaxb/jaxb-core/4.0.5/jaxb-core-4.0.5.jar:/Users/local34/.m2/repository/org/glassfish/jaxb/txw2/4.0.5/txw2-4.0.5.jar:/Users/local34/.m2/repository/com/sun/istack/istack-commons-runtime/4.1.2/istack-commons-runtime-4.1.2.jar:/Users/local34/.m2/repository/jakarta/inject/jakarta.inject-api/2.0.1/jakarta.inject-api-2.0.1.jar:/Users/local34/.m2/repository/org/antlr/antlr4-runtime/4.13.0/antlr4-runtime-4.13.0.jar:/Users/local34/.m2/repository/org/springframework/data/spring-data-jpa/3.3.0/spring-data-jpa-3.3.0.jar:/Users/local34/.m2/repository/org/springframework/data/spring-data-commons/3.3.0/spring-data-commons-3.3.0.jar:/Users/local34/.m2/repository/org/springframework/spring-orm/6.1.8/spring-orm-6.1.8.jar:/Users/local34/.m2/repository/org/springframework/spring-tx/6.1.8/spring-tx-6.1.8.jar:/Users/local34/.m2/repository/org/slf4j/slf4j-api/2.0.13/slf4j-api-2.0.13.jar:/Users/local34/.m2/repository/org/springframework/spring-aspects/6.1.8/spring-aspects-6.1.8.jar:/Users/local34/.m2/repository/org/springframework/boot/spring-boot-starter-validation/3.3.0/spring-boot-starter-validation-3.3.0.jar:/Users/local34/.m2/repository/org/apache/tomcat/embed/tomcat-embed-el/10.1.24/tomcat-embed-el-10.1.24.jar:/Users/local34/.m2/repository/org/hibernate/validator/hibernate-validator/8.0.1.Final/hibernate-validator-8.0.1.Final.jar:/Users/local34/.m2/repository/jakarta/validation/jakarta.validation-api/3.0.2/jakarta.validation-api-3.0.2.jar:/Users/local34/.m2/repository/org/springframework/boot/spring-boot-starter-actuator/3.3.0/spring-boot-starter-actuator-3.3.0.jar:/Users/local34/.m2/repository/org/springframework/boot/spring-boot-actuator-autoconfigure/3.3.0/spring-boot-actuator-autoconfigure-3.3.0.jar:/Users/local34/.m2/repository/org/springframework/boot/spring-boot-actuator/3.3.0/spring-boot-actuator-3.3.0.jar:/Users/local34/.m2/repository/io/micrometer/micrometer-observation/1.13.0/micrometer-observation-1.13.0.jar:/Users/local34/.m2/repository/io/micrometer/micrometer-commons/1.13.0/micrometer-commons-1.13.0.jar:/Users/local34/.m2/repository/io/micrometer/micrometer-jakarta9/1.13.0/micrometer-jakarta9-1.13.0.jar:/Users/local34/.m2/repository/io/micrometer/micrometer-core/1.13.0/micrometer-core-1.13.0.jar:/Users/local34/.m2/repository/org/hdrhistogram/HdrHistogram/2.2.1/HdrHistogram-2.2.1.jar:/Users/local34/.m2/repository/org/latencyutils/LatencyUtils/2.0.3/LatencyUtils-2.0.3.jar:/Users/local34/.m2/repository/org/springframework/boot/spring-boot-starter-mail/3.3.0/spring-boot-starter-mail-3.3.0.jar:/Users/local34/.m2/repository/org/springframework/spring-context-support/6.1.8/spring-context-support-6.1.8.jar:/Users/local34/.m2/repository/org/eclipse/angus/jakarta.mail/2.0.3/jakarta.mail-2.0.3.jar:/Users/local34/.m2/repository/jakarta/activation/jakarta.activation-api/2.1.3/jakarta.activation-api-2.1.3.jar:/Users/local34/.m2/repository/org/eclipse/angus/angus-activation/2.0.2/angus-activation-2.0.2.jar:/Users/local34/.m2/repository/org/postgresql/postgresql/42.7.3/postgresql-42.7.3.jar:/Users/local34/.m2/repository/org/checkerframework/checker-qual/3.42.0/checker-qual-3.42.0.jar:/Users/local34/.m2/repository/org/projectlombok/lombok/1.18.40/lombok-1.18.40.jar:/Users/local34/.m2/repository/io/jsonwebtoken/jjwt-api/0.12.5/jjwt-api-0.12.5.jar:/Users/local34/.m2/repository/io/jsonwebtoken/jjwt-impl/0.12.5/jjwt-impl-0.12.5.jar:/Users/local34/.m2/repository/io/jsonwebtoken/jjwt-jackson/0.12.5/jjwt-jackson-0.12.5.jar:/Users/local34/.m2/repository/com/fasterxml/jackson/core/jackson-databind/2.17.1/jackson-databind-2.17.1.jar:/Users/local34/.m2/repository/com/fasterxml/jackson/core/jackson-annotations/2.17.1/jackson-annotations-2.17.1.jar:/Users/local34/.m2/repository/com/fasterxml/jackson/core/jackson-core/2.17.1/jackson-core-2.17.1.jar:/Users/local34/.m2/repository/org/springframework/boot/spring-boot-starter-test/3.3.0/spring-boot-starter-test-3.3.0.jar:/Users/local34/.m2/repository/org/springframework/boot/spring-boot-test/3.3.0/spring-boot-test-3.3.0.jar:/Users/local34/.m2/repository/org/springframework/boot/spring-boot-test-autoconfigure/3.3.0/spring-boot-test-autoconfigure-3.3.0.jar:/Users/local34/.m2/repository/com/jayway/jsonpath/json-path/2.9.0/json-path-2.9.0.jar:/Users/local34/.m2/repository/jakarta/xml/bind/jakarta.xml.bind-api/4.0.2/jakarta.xml.bind-api-4.0.2.jar:/Users/local34/.m2/repository/net/minidev/json-smart/2.5.1/json-smart-2.5.1.jar:/Users/local34/.m2/repository/net/minidev/accessors-smart/2.5.1/accessors-smart-2.5.1.jar:/Users/local34/.m2/repository/org/ow2/asm/asm/9.6/asm-9.6.jar:/Users/local34/.m2/repository/org/assertj/assertj-core/3.25.3/assertj-core-3.25.3.jar:/Users/local34/.m2/repository/org/awaitility/awaitility/4.2.1/awaitility-4.2.1.jar:/Users/local34/.m2/repository/org/hamcrest/hamcrest/2.2/hamcrest-2.2.jar:/Users/local34/.m2/repository/org/junit/jupiter/junit-jupiter/5.10.2/junit-jupiter-5.10.2.jar:/Users/local34/.m2/repository/org/junit/jupiter/junit-jupiter-api/5.10.2/junit-jupiter-api-5.10.2.jar:/Users/local34/.m2/repository/org/opentest4j/opentest4j/1.3.0/opentest4j-1.3.0.jar:/Users/local34/.m2/repository/org/junit/platform/junit-platform-commons/1.10.2/junit-platform-commons-1.10.2.jar:/Users/local34/.m2/repository/org/apiguardian/apiguardian-api/1.1.2/apiguardian-api-1.1.2.jar:/Users/local34/.m2/repository/org/junit/jupiter/junit-jupiter-params/5.10.2/junit-jupiter-params-5.10.2.jar:/Users/local34/.m2/repository/org/junit/jupiter/junit-jupiter-engine/5.10.2/junit-jupiter-engine-5.10.2.jar:/Users/local34/.m2/repository/org/junit/platform/junit-platform-engine/1.10.2/junit-platform-engine-1.10.2.jar:/Users/local34/.m2/repository/org/mockito/mockito-core/5.11.0/mockito-core-5.11.0.jar:/Users/local34/.m2/repository/net/bytebuddy/byte-buddy-agent/1.14.16/byte-buddy-agent-1.14.16.jar:/Users/local34/.m2/repository/org/objenesis/objenesis/3.3/objenesis-3.3.jar:/Users/local34/.m2/repository/org/mockito/mockito-junit-jupiter/5.11.0/mockito-junit-jupiter-5.11.0.jar:/Users/local34/.m2/repository/org/skyscreamer/jsonassert/1.5.1/jsonassert-1.5.1.jar:/Users/local34/.m2/repository/com/vaadin/external/google/android-json/0.0.20131108.vaadin1/android-json-0.0.20131108.vaadin1.jar:/Users/local34/.m2/repository/org/springframework/spring-core/6.1.8/spring-core-6.1.8.jar:/Users/local34/.m2/repository/org/springframework/spring-jcl/6.1.8/spring-jcl-6.1.8.jar:/Users/local34/.m2/repository/org/springframework/spring-test/6.1.8/spring-test-6.1.8.jar:/Users/local34/.m2/repository/org/xmlunit/xmlunit-core/2.9.1/xmlunit-core-2.9.1.jar:/Users/local34/.m2/repository/org/springframework/security/spring-security-test/6.3.0/spring-security-test-6.3.0.jar:/Users/local34/.m2/repository/org/springframework/security/spring-security-core/6.3.0/spring-security-core-6.3.0.jar:/Users/local34/.m2/repository/org/springframework/security/spring-security-crypto/6.3.0/spring-security-crypto-6.3.0.jar:/Users/local34/.m2/repository/com/h2database/h2/2.2.224/h2-2.2.224.jar:"/>
+    <property name="java.vm.vendor" value="Eclipse Adoptium"/>
+    <property name="sun.arch.data.model" value="64"/>
+    <property name="java.vendor.url" value="https://adoptium.net/"/>
+    <property name="user.timezone" value="Asia/Kolkata"/>
+    <property name="org.jboss.logging.provider" value="slf4j"/>
+    <property name="os.name" value="Mac OS X"/>
+    <property name="java.vm.specification.version" value="21"/>
+    <property name="sun.java.launcher" value="SUN_STANDARD"/>
+    <property name="user.country" value="GB"/>
+    <property name="sun.boot.library.path" value="/Users/local34/Desktop/Daily Expense &amp; Budget Logger/jdk21/Contents/Home/lib"/>
+    <property name="sun.java.command" value="/Users/local34/Desktop/Daily Expense &amp; Budget Logger/backend/target/surefire/surefirebooter-20260625191144355_3.jar /Users/local34/Desktop/Daily Expense &amp; Budget Logger/backend/target/surefire 2026-06-25T19-11-44_165-jvmRun1 surefire-20260625191144355_1tmp surefire_0-20260625191144355_2tmp"/>
+    <property name="http.nonProxyHosts" value="local|*.local|169.254/16|*.169.254/16"/>
+    <property name="jdk.debug" value="release"/>
+    <property name="surefire.test.class.path" value="/Users/local34/Desktop/Daily Expense &amp; Budget Logger/backend/target/test-classes:/Users/local34/Desktop/Daily Expense &amp; Budget Logger/backend/target/classes:/Users/local34/.m2/repository/org/springframework/boot/spring-boot-starter-web/3.3.0/spring-boot-starter-web-3.3.0.jar:/Users/local34/.m2/repository/org/springframework/boot/spring-boot-starter/3.3.0/spring-boot-starter-3.3.0.jar:/Users/local34/.m2/repository/org/springframework/boot/spring-boot/3.3.0/spring-boot-3.3.0.jar:/Users/local34/.m2/repository/org/springframework/boot/spring-boot-autoconfigure/3.3.0/spring-boot-autoconfigure-3.3.0.jar:/Users/local34/.m2/repository/org/springframework/boot/spring-boot-starter-logging/3.3.0/spring-boot-starter-logging-3.3.0.jar:/Users/local34/.m2/repository/ch/qos/logback/logback-classic/1.5.6/logback-classic-1.5.6.jar:/Users/local34/.m2/repository/ch/qos/logback/logback-core/1.5.6/logback-core-1.5.6.jar:/Users/local34/.m2/repository/org/apache/logging/log4j/log4j-to-slf4j/2.23.1/log4j-to-slf4j-2.23.1.jar:/Users/local34/.m2/repository/org/apache/logging/log4j/log4j-api/2.23.1/log4j-api-2.23.1.jar:/Users/local34/.m2/repository/org/slf4j/jul-to-slf4j/2.0.13/jul-to-slf4j-2.0.13.jar:/Users/local34/.m2/repository/jakarta/annotation/jakarta.annotation-api/2.1.1/jakarta.annotation-api-2.1.1.jar:/Users/local34/.m2/repository/org/yaml/snakeyaml/2.2/snakeyaml-2.2.jar:/Users/local34/.m2/repository/org/springframework/boot/spring-boot-starter-json/3.3.0/spring-boot-starter-json-3.3.0.jar:/Users/local34/.m2/repository/com/fasterxml/jackson/datatype/jackson-datatype-jdk8/2.17.1/jackson-datatype-jdk8-2.17.1.jar:/Users/local34/.m2/repository/com/fasterxml/jackson/datatype/jackson-datatype-jsr310/2.17.1/jackson-datatype-jsr310-2.17.1.jar:/Users/local34/.m2/repository/com/fasterxml/jackson/module/jackson-module-parameter-names/2.17.1/jackson-module-parameter-names-2.17.1.jar:/Users/local34/.m2/repository/org/springframework/boot/spring-boot-starter-tomcat/3.3.0/spring-boot-starter-tomcat-3.3.0.jar:/Users/local34/.m2/repository/org/apache/tomcat/embed/tomcat-embed-core/10.1.24/tomcat-embed-core-10.1.24.jar:/Users/local34/.m2/repository/org/apache/tomcat/embed/tomcat-embed-websocket/10.1.24/tomcat-embed-websocket-10.1.24.jar:/Users/local34/.m2/repository/org/springframework/spring-web/6.1.8/spring-web-6.1.8.jar:/Users/local34/.m2/repository/org/springframework/spring-beans/6.1.8/spring-beans-6.1.8.jar:/Users/local34/.m2/repository/org/springframework/spring-webmvc/6.1.8/spring-webmvc-6.1.8.jar:/Users/local34/.m2/repository/org/springframework/spring-context/6.1.8/spring-context-6.1.8.jar:/Users/local34/.m2/repository/org/springframework/spring-expression/6.1.8/spring-expression-6.1.8.jar:/Users/local34/.m2/repository/org/springframework/boot/spring-boot-starter-security/3.3.0/spring-boot-starter-security-3.3.0.jar:/Users/local34/.m2/repository/org/springframework/spring-aop/6.1.8/spring-aop-6.1.8.jar:/Users/local34/.m2/repository/org/springframework/security/spring-security-config/6.3.0/spring-security-config-6.3.0.jar:/Users/local34/.m2/repository/org/springframework/security/spring-security-web/6.3.0/spring-security-web-6.3.0.jar:/Users/local34/.m2/repository/org/springframework/boot/spring-boot-starter-data-jpa/3.3.0/spring-boot-starter-data-jpa-3.3.0.jar:/Users/local34/.m2/repository/org/springframework/boot/spring-boot-starter-aop/3.3.0/spring-boot-starter-aop-3.3.0.jar:/Users/local34/.m2/repository/org/aspectj/aspectjweaver/1.9.22/aspectjweaver-1.9.22.jar:/Users/local34/.m2/repository/org/springframework/boot/spring-boot-starter-jdbc/3.3.0/spring-boot-starter-jdbc-3.3.0.jar:/Users/local34/.m2/repository/com/zaxxer/HikariCP/5.1.0/HikariCP-5.1.0.jar:/Users/local34/.m2/repository/org/springframework/spring-jdbc/6.1.8/spring-jdbc-6.1.8.jar:/Users/local34/.m2/repository/org/hibernate/orm/hibernate-core/6.5.2.Final/hibernate-core-6.5.2.Final.jar:/Users/local34/.m2/repository/jakarta/persistence/jakarta.persistence-api/3.1.0/jakarta.persistence-api-3.1.0.jar:/Users/local34/.m2/repository/jakarta/transaction/jakarta.transaction-api/2.0.1/jakarta.transaction-api-2.0.1.jar:/Users/local34/.m2/repository/org/jboss/logging/jboss-logging/3.5.3.Final/jboss-logging-3.5.3.Final.jar:/Users/local34/.m2/repository/org/hibernate/common/hibernate-commons-annotations/6.0.6.Final/hibernate-commons-annotations-6.0.6.Final.jar:/Users/local34/.m2/repository/io/smallrye/jandex/3.1.2/jandex-3.1.2.jar:/Users/local34/.m2/repository/com/fasterxml/classmate/1.7.0/classmate-1.7.0.jar:/Users/local34/.m2/repository/net/bytebuddy/byte-buddy/1.14.16/byte-buddy-1.14.16.jar:/Users/local34/.m2/repository/org/glassfish/jaxb/jaxb-runtime/4.0.5/jaxb-runtime-4.0.5.jar:/Users/local34/.m2/repository/org/glassfish/jaxb/jaxb-core/4.0.5/jaxb-core-4.0.5.jar:/Users/local34/.m2/repository/org/glassfish/jaxb/txw2/4.0.5/txw2-4.0.5.jar:/Users/local34/.m2/repository/com/sun/istack/istack-commons-runtime/4.1.2/istack-commons-runtime-4.1.2.jar:/Users/local34/.m2/repository/jakarta/inject/jakarta.inject-api/2.0.1/jakarta.inject-api-2.0.1.jar:/Users/local34/.m2/repository/org/antlr/antlr4-runtime/4.13.0/antlr4-runtime-4.13.0.jar:/Users/local34/.m2/repository/org/springframework/data/spring-data-jpa/3.3.0/spring-data-jpa-3.3.0.jar:/Users/local34/.m2/repository/org/springframework/data/spring-data-commons/3.3.0/spring-data-commons-3.3.0.jar:/Users/local34/.m2/repository/org/springframework/spring-orm/6.1.8/spring-orm-6.1.8.jar:/Users/local34/.m2/repository/org/springframework/spring-tx/6.1.8/spring-tx-6.1.8.jar:/Users/local34/.m2/repository/org/slf4j/slf4j-api/2.0.13/slf4j-api-2.0.13.jar:/Users/local34/.m2/repository/org/springframework/spring-aspects/6.1.8/spring-aspects-6.1.8.jar:/Users/local34/.m2/repository/org/springframework/boot/spring-boot-starter-validation/3.3.0/spring-boot-starter-validation-3.3.0.jar:/Users/local34/.m2/repository/org/apache/tomcat/embed/tomcat-embed-el/10.1.24/tomcat-embed-el-10.1.24.jar:/Users/local34/.m2/repository/org/hibernate/validator/hibernate-validator/8.0.1.Final/hibernate-validator-8.0.1.Final.jar:/Users/local34/.m2/repository/jakarta/validation/jakarta.validation-api/3.0.2/jakarta.validation-api-3.0.2.jar:/Users/local34/.m2/repository/org/springframework/boot/spring-boot-starter-actuator/3.3.0/spring-boot-starter-actuator-3.3.0.jar:/Users/local34/.m2/repository/org/springframework/boot/spring-boot-actuator-autoconfigure/3.3.0/spring-boot-actuator-autoconfigure-3.3.0.jar:/Users/local34/.m2/repository/org/springframework/boot/spring-boot-actuator/3.3.0/spring-boot-actuator-3.3.0.jar:/Users/local34/.m2/repository/io/micrometer/micrometer-observation/1.13.0/micrometer-observation-1.13.0.jar:/Users/local34/.m2/repository/io/micrometer/micrometer-commons/1.13.0/micrometer-commons-1.13.0.jar:/Users/local34/.m2/repository/io/micrometer/micrometer-jakarta9/1.13.0/micrometer-jakarta9-1.13.0.jar:/Users/local34/.m2/repository/io/micrometer/micrometer-core/1.13.0/micrometer-core-1.13.0.jar:/Users/local34/.m2/repository/org/hdrhistogram/HdrHistogram/2.2.1/HdrHistogram-2.2.1.jar:/Users/local34/.m2/repository/org/latencyutils/LatencyUtils/2.0.3/LatencyUtils-2.0.3.jar:/Users/local34/.m2/repository/org/springframework/boot/spring-boot-starter-mail/3.3.0/spring-boot-starter-mail-3.3.0.jar:/Users/local34/.m2/repository/org/springframework/spring-context-support/6.1.8/spring-context-support-6.1.8.jar:/Users/local34/.m2/repository/org/eclipse/angus/jakarta.mail/2.0.3/jakarta.mail-2.0.3.jar:/Users/local34/.m2/repository/jakarta/activation/jakarta.activation-api/2.1.3/jakarta.activation-api-2.1.3.jar:/Users/local34/.m2/repository/org/eclipse/angus/angus-activation/2.0.2/angus-activation-2.0.2.jar:/Users/local34/.m2/repository/org/postgresql/postgresql/42.7.3/postgresql-42.7.3.jar:/Users/local34/.m2/repository/org/checkerframework/checker-qual/3.42.0/checker-qual-3.42.0.jar:/Users/local34/.m2/repository/org/projectlombok/lombok/1.18.40/lombok-1.18.40.jar:/Users/local34/.m2/repository/io/jsonwebtoken/jjwt-api/0.12.5/jjwt-api-0.12.5.jar:/Users/local34/.m2/repository/io/jsonwebtoken/jjwt-impl/0.12.5/jjwt-impl-0.12.5.jar:/Users/local34/.m2/repository/io/jsonwebtoken/jjwt-jackson/0.12.5/jjwt-jackson-0.12.5.jar:/Users/local34/.m2/repository/com/fasterxml/jackson/core/jackson-databind/2.17.1/jackson-databind-2.17.1.jar:/Users/local34/.m2/repository/com/fasterxml/jackson/core/jackson-annotations/2.17.1/jackson-annotations-2.17.1.jar:/Users/local34/.m2/repository/com/fasterxml/jackson/core/jackson-core/2.17.1/jackson-core-2.17.1.jar:/Users/local34/.m2/repository/org/springframework/boot/spring-boot-starter-test/3.3.0/spring-boot-starter-test-3.3.0.jar:/Users/local34/.m2/repository/org/springframework/boot/spring-boot-test/3.3.0/spring-boot-test-3.3.0.jar:/Users/local34/.m2/repository/org/springframework/boot/spring-boot-test-autoconfigure/3.3.0/spring-boot-test-autoconfigure-3.3.0.jar:/Users/local34/.m2/repository/com/jayway/jsonpath/json-path/2.9.0/json-path-2.9.0.jar:/Users/local34/.m2/repository/jakarta/xml/bind/jakarta.xml.bind-api/4.0.2/jakarta.xml.bind-api-4.0.2.jar:/Users/local34/.m2/repository/net/minidev/json-smart/2.5.1/json-smart-2.5.1.jar:/Users/local34/.m2/repository/net/minidev/accessors-smart/2.5.1/accessors-smart-2.5.1.jar:/Users/local34/.m2/repository/org/ow2/asm/asm/9.6/asm-9.6.jar:/Users/local34/.m2/repository/org/assertj/assertj-core/3.25.3/assertj-core-3.25.3.jar:/Users/local34/.m2/repository/org/awaitility/awaitility/4.2.1/awaitility-4.2.1.jar:/Users/local34/.m2/repository/org/hamcrest/hamcrest/2.2/hamcrest-2.2.jar:/Users/local34/.m2/repository/org/junit/jupiter/junit-jupiter/5.10.2/junit-jupiter-5.10.2.jar:/Users/local34/.m2/repository/org/junit/jupiter/junit-jupiter-api/5.10.2/junit-jupiter-api-5.10.2.jar:/Users/local34/.m2/repository/org/opentest4j/opentest4j/1.3.0/opentest4j-1.3.0.jar:/Users/local34/.m2/repository/org/junit/platform/junit-platform-commons/1.10.2/junit-platform-commons-1.10.2.jar:/Users/local34/.m2/repository/org/apiguardian/apiguardian-api/1.1.2/apiguardian-api-1.1.2.jar:/Users/local34/.m2/repository/org/junit/jupiter/junit-jupiter-params/5.10.2/junit-jupiter-params-5.10.2.jar:/Users/local34/.m2/repository/org/junit/jupiter/junit-jupiter-engine/5.10.2/junit-jupiter-engine-5.10.2.jar:/Users/local34/.m2/repository/org/junit/platform/junit-platform-engine/1.10.2/junit-platform-engine-1.10.2.jar:/Users/local34/.m2/repository/org/mockito/mockito-core/5.11.0/mockito-core-5.11.0.jar:/Users/local34/.m2/repository/net/bytebuddy/byte-buddy-agent/1.14.16/byte-buddy-agent-1.14.16.jar:/Users/local34/.m2/repository/org/objenesis/objenesis/3.3/objenesis-3.3.jar:/Users/local34/.m2/repository/org/mockito/mockito-junit-jupiter/5.11.0/mockito-junit-jupiter-5.11.0.jar:/Users/local34/.m2/repository/org/skyscreamer/jsonassert/1.5.1/jsonassert-1.5.1.jar:/Users/local34/.m2/repository/com/vaadin/external/google/android-json/0.0.20131108.vaadin1/android-json-0.0.20131108.vaadin1.jar:/Users/local34/.m2/repository/org/springframework/spring-core/6.1.8/spring-core-6.1.8.jar:/Users/local34/.m2/repository/org/springframework/spring-jcl/6.1.8/spring-jcl-6.1.8.jar:/Users/local34/.m2/repository/org/springframework/spring-test/6.1.8/spring-test-6.1.8.jar:/Users/local34/.m2/repository/org/xmlunit/xmlunit-core/2.9.1/xmlunit-core-2.9.1.jar:/Users/local34/.m2/repository/org/springframework/security/spring-security-test/6.3.0/spring-security-test-6.3.0.jar:/Users/local34/.m2/repository/org/springframework/security/spring-security-core/6.3.0/spring-security-core-6.3.0.jar:/Users/local34/.m2/repository/org/springframework/security/spring-security-crypto/6.3.0/spring-security-crypto-6.3.0.jar:/Users/local34/.m2/repository/com/h2database/h2/2.2.224/h2-2.2.224.jar:"/>
+    <property name="sun.cpu.endian" value="little"/>
+    <property name="user.home" value="/Users/local34"/>
+    <property name="user.language" value="en"/>
+    <property name="java.specification.vendor" value="Oracle Corporation"/>
+    <property name="java.version.date" value="2026-04-21"/>
+    <property name="java.home" value="/Users/local34/Desktop/Daily Expense &amp; Budget Logger/jdk21/Contents/Home"/>
+    <property name="file.separator" value="/"/>
+    <property name="basedir" value="/Users/local34/Desktop/Daily Expense &amp; Budget Logger/backend"/>
+    <property name="java.vm.compressedOopsMode" value="Zero based"/>
+    <property name="line.separator" value="&#10;"/>
+    <property name="java.vm.specification.vendor" value="Oracle Corporation"/>
+    <property name="java.specification.name" value="Java Platform API Specification"/>
+    <property name="FILE_LOG_CHARSET" value="UTF-8"/>
+    <property name="java.awt.headless" value="true"/>
+    <property name="apple.awt.application.name" value="ForkedBooter"/>
+    <property name="surefire.real.class.path" value="/Users/local34/Desktop/Daily Expense &amp; Budget Logger/backend/target/surefire/surefirebooter-20260625191144355_3.jar"/>
+    <property name="sun.management.compiler" value="HotSpot 64-Bit Tiered Compilers"/>
+    <property name="ftp.nonProxyHosts" value="local|*.local|169.254/16|*.169.254/16"/>
+    <property name="java.runtime.version" value="21.0.11+10-LTS"/>
+    <property name="user.name" value="local34"/>
+    <property name="stdout.encoding" value="UTF-8"/>
+    <property name="path.separator" value=":"/>
+    <property name="os.version" value="12.3.1"/>
+    <property name="java.runtime.name" value="OpenJDK Runtime Environment"/>
+    <property name="file.encoding" value="UTF-8"/>
+    <property name="java.vm.name" value="OpenJDK 64-Bit Server VM"/>
+    <property name="java.vendor.version" value="Temurin-21.0.11+10"/>
+    <property name="localRepository" value="/Users/local34/.m2/repository"/>
+    <property name="java.vendor.url.bug" value="https://github.com/adoptium/adoptium-support/issues"/>
+    <property name="java.io.tmpdir" value="/var/folders/fb/nywkvtyj1v94vkjdnn1rtsj80000gp/T/"/>
+    <property name="com.zaxxer.hikari.pool_number" value="1"/>
+    <property name="java.version" value="21.0.11"/>
+    <property name="user.dir" value="/Users/local34/Desktop/Daily Expense &amp; Budget Logger/backend"/>
+    <property name="os.arch" value="x86_64"/>
+    <property name="java.vm.specification.name" value="Java Virtual Machine Specification"/>
+    <property name="PID" value="47960"/>
+    <property name="CONSOLE_LOG_CHARSET" value="UTF-8"/>
+    <property name="native.encoding" value="UTF-8"/>
+    <property name="java.library.path" value="/Users/local34/Library/Java/Extensions:/Library/Java/Extensions:/Network/Library/Java/Extensions:/System/Library/Java/Extensions:/usr/lib/java:."/>
+    <property name="java.vm.info" value="mixed mode"/>
+    <property name="stderr.encoding" value="UTF-8"/>
+    <property name="java.vendor" value="Eclipse Adoptium"/>
+    <property name="java.vm.version" value="21.0.11+10-LTS"/>
+    <property name="sun.io.unicode.encoding" value="UnicodeBig"/>
+    <property name="socksNonProxyHosts" value="local|*.local|169.254/16|*.169.254/16"/>
+    <property name="java.class.version" value="65.0"/>
+  </properties>
+  <testcase name="testSecureCSVExport" classname="com.expense.logger.AdvancedFeaturesTest" time="1.672">
+    <system-out><![CDATA[19:11:46.151 [main] INFO org.springframework.test.context.support.AnnotationConfigContextLoaderUtils -- Could not detect default configuration classes for test class [com.expense.logger.AdvancedFeaturesTest]: AdvancedFeaturesTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+19:11:46.520 [main] INFO org.springframework.boot.test.context.SpringBootTestContextBootstrapper -- Found @SpringBootConfiguration com.expense.logger.LoggerApplication for test class com.expense.logger.AdvancedFeaturesTest
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v3.3.0)
+
+2026-06-25T19:11:47.277+05:30  INFO 47960 --- [           main] c.expense.logger.AdvancedFeaturesTest    : Starting AdvancedFeaturesTest using Java 21.0.11 with PID 47960 (started by local34 in /Users/local34/Desktop/Daily Expense & Budget Logger/backend)
+2026-06-25T19:11:47.279+05:30 DEBUG 47960 --- [           main] c.expense.logger.AdvancedFeaturesTest    : Running with Spring Boot v3.3.0, Spring v6.1.8
+2026-06-25T19:11:47.281+05:30  INFO 47960 --- [           main] c.expense.logger.AdvancedFeaturesTest    : The following 1 profile is active: "test"
+2026-06-25T19:11:51.707+05:30  WARN 47960 --- [           main] org.hibernate.orm.deprecation            : HHH90000025: H2Dialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+Hibernate: drop table if exists audit_logs cascade 
+Hibernate: drop table if exists budgets cascade 
+Hibernate: drop table if exists categories cascade 
+Hibernate: drop table if exists expenses cascade 
+Hibernate: drop table if exists notification_preferences cascade 
+Hibernate: drop table if exists notifications cascade 
+Hibernate: drop table if exists password_reset_tokens cascade 
+Hibernate: drop table if exists refresh_tokens cascade 
+Hibernate: drop table if exists todo_items cascade 
+Hibernate: drop table if exists users cascade 
+Hibernate: create table audit_logs (created_at timestamp(6) not null, log_id bigint generated by default as identity, user_id uuid, action_type varchar(50) not null, description varchar(255) not null, primary key (log_id))
+Hibernate: create table budgets (end_date date not null, monthly_limit numeric(12,2) not null, start_date date not null, warning_threshold_percent integer not null, category_id bigint, created_at timestamp(6) not null, deleted_at timestamp(6), updated_at timestamp(6) not null, budget_id uuid not null, user_id uuid not null, primary key (budget_id))
+Hibernate: create table categories (category_color varchar(7) not null, category_id bigint generated by default as identity, created_at timestamp(6) not null, deleted_at timestamp(6), category_name varchar(50) not null, primary key (category_id))
+Hibernate: create table expenses (amount numeric(12,2) not null, transaction_date date not null, category_id bigint not null, created_at timestamp(6) not null, deleted_at timestamp(6), updated_at timestamp(6) not null, expense_id uuid not null, user_id uuid not null, expense_name varchar(100) not null, primary key (expense_id))
+Hibernate: create table notification_preferences (budget_warnings_enabled boolean not null, quiet_hours_enabled boolean not null, quiet_hours_end time(6), quiet_hours_start time(6), system_alerts_enabled boolean not null, user_id uuid not null, primary key (user_id))
+Hibernate: create table notifications (is_read boolean not null, created_at timestamp(6) not null, deleted_at timestamp(6), read_at timestamp(6), notification_id uuid not null, user_id uuid not null, severity varchar(20) not null, category varchar(30) not null, title varchar(100) not null, message varchar(255) not null, primary key (notification_id))
+Hibernate: create table password_reset_tokens (used boolean not null, created_at timestamp(6) not null, expires_at timestamp(6) not null, used_at timestamp(6), token_id uuid not null, user_id uuid not null, request_ip varchar(45), token_hash varchar(255) not null unique, user_agent varchar(255), primary key (token_id))
+Hibernate: create table refresh_tokens (used boolean not null, created_at timestamp(6) not null, expires_at timestamp(6) not null, family_id uuid not null, token_id uuid not null, user_id uuid not null, ip_address varchar(45), token_hash varchar(255) not null, user_agent varchar(255), primary key (token_id))
+Hibernate: create table todo_items (is_completed boolean not null, created_at timestamp(6) not null, deleted_at timestamp(6), updated_at timestamp(6) not null, todo_id uuid not null, user_id uuid not null, todo_name varchar(100) not null, primary key (todo_id))
+Hibernate: create table users (failed_login_attempts integer not null, created_at timestamp(6) not null, deleted_at timestamp(6), lockout_until timestamp(6), updated_at timestamp(6) not null, user_id uuid not null, username varchar(50) not null, email varchar(100) not null, password_hash varchar(255) not null, primary key (user_id))
+Hibernate: alter table if exists audit_logs add constraint FKjs4iimve3y0xssbtve5ysyef0 foreign key (user_id) references users
+Hibernate: alter table if exists budgets add constraint FKn7qib00712y8dwelmqfwis6ka foreign key (category_id) references categories
+Hibernate: alter table if exists budgets add constraint FKln0tm5tgf3f9q3sp9sa5m8m7b foreign key (user_id) references users
+Hibernate: alter table if exists expenses add constraint FKjao23ohq935a4qrorwwsen0lr foreign key (category_id) references categories
+Hibernate: alter table if exists expenses add constraint FKhpk0n2cbnfiuu5nrgl0ika3hq foreign key (user_id) references users
+Hibernate: alter table if exists notification_preferences add constraint FKt9qjvmcl36i14utm5uptyqg84 foreign key (user_id) references users
+Hibernate: alter table if exists notifications add constraint FK9y21adhxn0ayjhfocscqox7bh foreign key (user_id) references users
+Hibernate: alter table if exists password_reset_tokens add constraint FKk3ndxg5xp6v7wd4gjyusp15gq foreign key (user_id) references users
+Hibernate: alter table if exists refresh_tokens add constraint FK1lih5y2npsf8u5o3vhdb9y0os foreign key (user_id) references users
+Hibernate: alter table if exists todo_items add constraint FKav4ha4dkkk09oss5h6qdtnggv foreign key (user_id) references users
+2026-06-25T19:11:55.560+05:30  WARN 47960 --- [           main] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2026-06-25T19:11:58.545+05:30 DEBUG 47960 --- [           main] c.e.l.security.JwtAuthenticationFilter   : Filter 'jwtAuthenticationFilter' configured for use
+2026-06-25T19:11:58.710+05:30  INFO 47960 --- [           main] c.expense.logger.AdvancedFeaturesTest    : Started AdvancedFeaturesTest in 11.905 seconds (process running for 14.194)
+Hibernate: select n1_0.notification_id,n1_0.category,n1_0.created_at,n1_0.deleted_at,n1_0.message,n1_0.is_read,n1_0.read_at,n1_0.severity,n1_0.title,n1_0.user_id from notifications n1_0
+Hibernate: select np1_0.user_id,np1_0.budget_warnings_enabled,np1_0.quiet_hours_enabled,np1_0.quiet_hours_end,np1_0.quiet_hours_start,np1_0.system_alerts_enabled from notification_preferences np1_0
+Hibernate: select e1_0.expense_id,e1_0.amount,e1_0.category_id,e1_0.created_at,e1_0.deleted_at,e1_0.expense_name,e1_0.transaction_date,e1_0.updated_at,e1_0.user_id from expenses e1_0
+Hibernate: select ti1_0.todo_id,ti1_0.is_completed,ti1_0.created_at,ti1_0.deleted_at,ti1_0.todo_name,ti1_0.updated_at,ti1_0.user_id from todo_items ti1_0
+Hibernate: select c1_0.category_id,c1_0.category_color,c1_0.created_at,c1_0.deleted_at,c1_0.category_name from categories c1_0
+Hibernate: select u1_0.user_id,u1_0.created_at,u1_0.deleted_at,u1_0.email,u1_0.failed_login_attempts,u1_0.lockout_until,u1_0.password_hash,u1_0.updated_at,u1_0.username from users u1_0
+Hibernate: insert into users (created_at,deleted_at,email,failed_login_attempts,lockout_until,password_hash,updated_at,username,user_id) values (?,?,?,?,?,?,?,?,?)
+Hibernate: insert into users (created_at,deleted_at,email,failed_login_attempts,lockout_until,password_hash,updated_at,username,user_id) values (?,?,?,?,?,?,?,?,?)
+Hibernate: insert into categories (category_color,created_at,deleted_at,category_name,category_id) values (?,?,?,?,default)
+Hibernate: insert into categories (category_color,created_at,deleted_at,category_name,category_id) values (?,?,?,?,default)
+2026-06-25T19:12:00.236+05:30  INFO 47960 --- [           main] c.expense.logger.config.LoggingFilter    : Incoming Request: GET /api/v1/expenses/export | Client IP: 127.0.0.1
+Hibernate: select u1_0.user_id,u1_0.created_at,u1_0.deleted_at,u1_0.email,u1_0.failed_login_attempts,u1_0.lockout_until,u1_0.password_hash,u1_0.updated_at,u1_0.username from users u1_0 where u1_0.username=? and u1_0.deleted_at is null
+Hibernate: insert into expenses (amount,category_id,created_at,deleted_at,expense_name,transaction_date,updated_at,user_id,expense_id) values (?,?,?,?,?,?,?,?,?)
+Hibernate: insert into expenses (amount,category_id,created_at,deleted_at,expense_name,transaction_date,updated_at,user_id,expense_id) values (?,?,?,?,?,?,?,?,?)
+Hibernate: insert into expenses (amount,category_id,created_at,deleted_at,expense_name,transaction_date,updated_at,user_id,expense_id) values (?,?,?,?,?,?,?,?,?)
+Hibernate: select e1_0.expense_id,e1_0.amount,e1_0.category_id,e1_0.created_at,e1_0.deleted_at,e1_0.expense_name,e1_0.transaction_date,e1_0.updated_at,e1_0.user_id from expenses e1_0 where e1_0.user_id=? and e1_0.deleted_at is null
+Hibernate: insert into audit_logs (action_type,created_at,description,user_id,log_id) values (?,?,?,?,default)
+2026-06-25T19:12:00.366+05:30  INFO 47960 --- [           main] c.expense.logger.config.LoggingFilter    : Outgoing Response: /api/v1/expenses/export | Status: 200 | Duration: 130ms
+]]></system-out>
+    <system-err><![CDATA[WARNING: A Java agent has been loaded dynamically (/Users/local34/.m2/repository/net/bytebuddy/byte-buddy-agent/1.14.16/byte-buddy-agent-1.14.16.jar)
+WARNING: If a serviceability tool is in use, please run with -XX:+EnableDynamicAgentLoading to hide this warning
+WARNING: If a serviceability tool is not in use, please run with -Djdk.instrument.traceUsage for more information
+WARNING: Dynamic loading of agents will be disallowed by default in a future release
+]]></system-err>
+  </testcase>
+  <testcase name="testBudgetCrudAndOwnershipAndAnalytics" classname="com.expense.logger.AdvancedFeaturesTest" time="1.138">
+    <system-out><![CDATA[Hibernate: select n1_0.notification_id,n1_0.category,n1_0.created_at,n1_0.deleted_at,n1_0.message,n1_0.is_read,n1_0.read_at,n1_0.severity,n1_0.title,n1_0.user_id from notifications n1_0
+Hibernate: select np1_0.user_id,np1_0.budget_warnings_enabled,np1_0.quiet_hours_enabled,np1_0.quiet_hours_end,np1_0.quiet_hours_start,np1_0.system_alerts_enabled from notification_preferences np1_0
+Hibernate: select e1_0.expense_id,e1_0.amount,e1_0.category_id,e1_0.created_at,e1_0.deleted_at,e1_0.expense_name,e1_0.transaction_date,e1_0.updated_at,e1_0.user_id from expenses e1_0
+Hibernate: select ti1_0.todo_id,ti1_0.is_completed,ti1_0.created_at,ti1_0.deleted_at,ti1_0.todo_name,ti1_0.updated_at,ti1_0.user_id from todo_items ti1_0
+Hibernate: select c1_0.category_id,c1_0.category_color,c1_0.created_at,c1_0.deleted_at,c1_0.category_name from categories c1_0
+Hibernate: select u1_0.user_id,u1_0.created_at,u1_0.deleted_at,u1_0.email,u1_0.failed_login_attempts,u1_0.lockout_until,u1_0.password_hash,u1_0.updated_at,u1_0.username from users u1_0
+Hibernate: insert into users (created_at,deleted_at,email,failed_login_attempts,lockout_until,password_hash,updated_at,username,user_id) values (?,?,?,?,?,?,?,?,?)
+Hibernate: insert into users (created_at,deleted_at,email,failed_login_attempts,lockout_until,password_hash,updated_at,username,user_id) values (?,?,?,?,?,?,?,?,?)
+Hibernate: insert into categories (category_color,created_at,deleted_at,category_name,category_id) values (?,?,?,?,default)
+Hibernate: insert into categories (category_color,created_at,deleted_at,category_name,category_id) values (?,?,?,?,default)
+Hibernate: select b1_0.budget_id,b1_0.category_id,b1_0.created_at,b1_0.deleted_at,b1_0.end_date,b1_0.monthly_limit,b1_0.start_date,b1_0.updated_at,b1_0.user_id,b1_0.warning_threshold_percent from budgets b1_0
+2026-06-25T19:12:01.095+05:30  INFO 47960 --- [           main] c.expense.logger.config.LoggingFilter    : Incoming Request: POST /api/v1/budgets | Client IP: 127.0.0.1
+Hibernate: select u1_0.user_id,u1_0.created_at,u1_0.deleted_at,u1_0.email,u1_0.failed_login_attempts,u1_0.lockout_until,u1_0.password_hash,u1_0.updated_at,u1_0.username from users u1_0 where u1_0.username=? and u1_0.deleted_at is null
+Hibernate: insert into budgets (category_id,created_at,deleted_at,end_date,monthly_limit,start_date,updated_at,user_id,warning_threshold_percent,budget_id) values (?,?,?,?,?,?,?,?,?,?)
+Hibernate: insert into audit_logs (action_type,created_at,description,user_id,log_id) values (?,?,?,?,default)
+2026-06-25T19:12:01.397+05:30  INFO 47960 --- [           main] c.expense.logger.config.LoggingFilter    : Outgoing Response: /api/v1/budgets | Status: 201 | Duration: 302ms
+Hibernate: select b1_0.budget_id,b1_0.category_id,b1_0.created_at,b1_0.deleted_at,b1_0.end_date,b1_0.monthly_limit,b1_0.start_date,b1_0.updated_at,b1_0.user_id,b1_0.warning_threshold_percent from budgets b1_0 where b1_0.budget_id=? and b1_0.user_id=? and b1_0.deleted_at is null
+2026-06-25T19:12:01.529+05:30  INFO 47960 --- [           main] c.expense.logger.config.LoggingFilter    : Incoming Request: GET /api/v1/budgets | Client IP: 127.0.0.1
+Hibernate: select u1_0.user_id,u1_0.created_at,u1_0.deleted_at,u1_0.email,u1_0.failed_login_attempts,u1_0.lockout_until,u1_0.password_hash,u1_0.updated_at,u1_0.username from users u1_0 where u1_0.username=? and u1_0.deleted_at is null
+Hibernate: select b1_0.budget_id,b1_0.category_id,b1_0.created_at,b1_0.deleted_at,b1_0.end_date,b1_0.monthly_limit,b1_0.start_date,b1_0.updated_at,b1_0.user_id,b1_0.warning_threshold_percent from budgets b1_0 where b1_0.user_id=? and b1_0.deleted_at is null
+2026-06-25T19:12:01.550+05:30  INFO 47960 --- [           main] c.expense.logger.config.LoggingFilter    : Outgoing Response: /api/v1/budgets | Status: 200 | Duration: 21ms
+2026-06-25T19:12:01.573+05:30  INFO 47960 --- [           main] c.expense.logger.config.LoggingFilter    : Incoming Request: PUT /api/v1/budgets/b4ffb612-bc1a-453d-a630-480dc04e78af | Client IP: 127.0.0.1
+Hibernate: select u1_0.user_id,u1_0.created_at,u1_0.deleted_at,u1_0.email,u1_0.failed_login_attempts,u1_0.lockout_until,u1_0.password_hash,u1_0.updated_at,u1_0.username from users u1_0 where u1_0.username=? and u1_0.deleted_at is null
+Hibernate: select b1_0.budget_id,b1_0.category_id,b1_0.created_at,b1_0.deleted_at,b1_0.end_date,b1_0.monthly_limit,b1_0.start_date,b1_0.updated_at,b1_0.user_id,b1_0.warning_threshold_percent from budgets b1_0 where b1_0.budget_id=? and b1_0.user_id=? and b1_0.deleted_at is null
+Hibernate: insert into audit_logs (action_type,created_at,description,user_id,log_id) values (?,?,?,?,default)
+2026-06-25T19:12:01.598+05:30  INFO 47960 --- [           main] c.expense.logger.config.LoggingFilter    : Outgoing Response: /api/v1/budgets/b4ffb612-bc1a-453d-a630-480dc04e78af | Status: 200 | Duration: 25ms
+2026-06-25T19:12:01.606+05:30  INFO 47960 --- [           main] c.expense.logger.config.LoggingFilter    : Incoming Request: POST /api/v1/budgets | Client IP: 127.0.0.1
+2026-06-25T19:12:01.636+05:30  INFO 47960 --- [           main] c.expense.logger.config.LoggingFilter    : Outgoing Response: /api/v1/budgets | Status: 400 | Duration: 30ms
+2026-06-25T19:12:01.642+05:30  INFO 47960 --- [           main] c.expense.logger.config.LoggingFilter    : Incoming Request: POST /api/v1/budgets | Client IP: 127.0.0.1
+2026-06-25T19:12:01.647+05:30  INFO 47960 --- [           main] c.expense.logger.config.LoggingFilter    : Outgoing Response: /api/v1/budgets | Status: 400 | Duration: 5ms
+2026-06-25T19:12:01.652+05:30  INFO 47960 --- [           main] c.expense.logger.config.LoggingFilter    : Incoming Request: POST /api/v1/budgets | Client IP: 127.0.0.1
+Hibernate: select u1_0.user_id,u1_0.created_at,u1_0.deleted_at,u1_0.email,u1_0.failed_login_attempts,u1_0.lockout_until,u1_0.password_hash,u1_0.updated_at,u1_0.username from users u1_0 where u1_0.username=? and u1_0.deleted_at is null
+2026-06-25T19:12:01.665+05:30  INFO 47960 --- [           main] c.expense.logger.config.LoggingFilter    : Outgoing Response: /api/v1/budgets | Status: 400 | Duration: 13ms
+]]></system-out>
+  </testcase>
+  <testcase name="testUserPasswordChangeFlow" classname="com.expense.logger.AdvancedFeaturesTest" time="0.774">
+    <system-out><![CDATA[Hibernate: select n1_0.notification_id,n1_0.category,n1_0.created_at,n1_0.deleted_at,n1_0.message,n1_0.is_read,n1_0.read_at,n1_0.severity,n1_0.title,n1_0.user_id from notifications n1_0
+Hibernate: select np1_0.user_id,np1_0.budget_warnings_enabled,np1_0.quiet_hours_enabled,np1_0.quiet_hours_end,np1_0.quiet_hours_start,np1_0.system_alerts_enabled from notification_preferences np1_0
+Hibernate: select e1_0.expense_id,e1_0.amount,e1_0.category_id,e1_0.created_at,e1_0.deleted_at,e1_0.expense_name,e1_0.transaction_date,e1_0.updated_at,e1_0.user_id from expenses e1_0
+Hibernate: select ti1_0.todo_id,ti1_0.is_completed,ti1_0.created_at,ti1_0.deleted_at,ti1_0.todo_name,ti1_0.updated_at,ti1_0.user_id from todo_items ti1_0
+Hibernate: select c1_0.category_id,c1_0.category_color,c1_0.created_at,c1_0.deleted_at,c1_0.category_name from categories c1_0
+Hibernate: select u1_0.user_id,u1_0.created_at,u1_0.deleted_at,u1_0.email,u1_0.failed_login_attempts,u1_0.lockout_until,u1_0.password_hash,u1_0.updated_at,u1_0.username from users u1_0
+Hibernate: insert into users (created_at,deleted_at,email,failed_login_attempts,lockout_until,password_hash,updated_at,username,user_id) values (?,?,?,?,?,?,?,?,?)
+Hibernate: insert into users (created_at,deleted_at,email,failed_login_attempts,lockout_until,password_hash,updated_at,username,user_id) values (?,?,?,?,?,?,?,?,?)
+Hibernate: insert into categories (category_color,created_at,deleted_at,category_name,category_id) values (?,?,?,?,default)
+Hibernate: insert into categories (category_color,created_at,deleted_at,category_name,category_id) values (?,?,?,?,default)
+2026-06-25T19:12:01.951+05:30  INFO 47960 --- [           main] c.expense.logger.config.LoggingFilter    : Incoming Request: PUT /api/v1/users/password | Client IP: 127.0.0.1
+Hibernate: select u1_0.user_id,u1_0.created_at,u1_0.deleted_at,u1_0.email,u1_0.failed_login_attempts,u1_0.lockout_until,u1_0.password_hash,u1_0.updated_at,u1_0.username from users u1_0 where u1_0.username=? and u1_0.deleted_at is null
+2026-06-25T19:12:02.070+05:30  INFO 47960 --- [           main] c.expense.logger.config.LoggingFilter    : Outgoing Response: /api/v1/users/password | Status: 400 | Duration: 119ms
+2026-06-25T19:12:02.080+05:30  INFO 47960 --- [           main] c.expense.logger.config.LoggingFilter    : Incoming Request: PUT /api/v1/users/password | Client IP: 127.0.0.1
+Hibernate: select u1_0.user_id,u1_0.created_at,u1_0.deleted_at,u1_0.email,u1_0.failed_login_attempts,u1_0.lockout_until,u1_0.password_hash,u1_0.updated_at,u1_0.username from users u1_0 where u1_0.username=? and u1_0.deleted_at is null
+Hibernate: insert into refresh_tokens (created_at,expires_at,family_id,ip_address,token_hash,used,user_id,user_agent,token_id) values (?,?,?,?,?,?,?,?,?)
+Hibernate: update users set deleted_at=?,email=?,failed_login_attempts=?,lockout_until=?,password_hash=?,updated_at=?,username=? where user_id=?
+Hibernate: select rt1_0.token_id,rt1_0.created_at,rt1_0.expires_at,rt1_0.family_id,rt1_0.ip_address,rt1_0.token_hash,rt1_0.used,rt1_0.user_id,rt1_0.user_agent from refresh_tokens rt1_0 where rt1_0.user_id=?
+Hibernate: insert into audit_logs (action_type,created_at,description,user_id,log_id) values (?,?,?,?,default)
+2026-06-25T19:12:02.332+05:30  INFO 47960 --- [           main] c.expense.logger.config.LoggingFilter    : Outgoing Response: /api/v1/users/password | Status: 200 | Duration: 252ms
+Hibernate: delete from refresh_tokens where token_id=?
+Hibernate: select rt1_0.token_id,rt1_0.created_at,rt1_0.expires_at,rt1_0.family_id,rt1_0.ip_address,rt1_0.token_hash,rt1_0.used,rt1_0.user_id,rt1_0.user_agent from refresh_tokens rt1_0 where rt1_0.user_id=?
+]]></system-out>
+  </testcase>
+  <testcase name="testAnalyticsAndCalculations" classname="com.expense.logger.AdvancedFeaturesTest" time="0.468">
+    <system-out><![CDATA[Hibernate: select n1_0.notification_id,n1_0.category,n1_0.created_at,n1_0.deleted_at,n1_0.message,n1_0.is_read,n1_0.read_at,n1_0.severity,n1_0.title,n1_0.user_id from notifications n1_0
+Hibernate: select np1_0.user_id,np1_0.budget_warnings_enabled,np1_0.quiet_hours_enabled,np1_0.quiet_hours_end,np1_0.quiet_hours_start,np1_0.system_alerts_enabled from notification_preferences np1_0
+Hibernate: select e1_0.expense_id,e1_0.amount,e1_0.category_id,e1_0.created_at,e1_0.deleted_at,e1_0.expense_name,e1_0.transaction_date,e1_0.updated_at,e1_0.user_id from expenses e1_0
+Hibernate: select ti1_0.todo_id,ti1_0.is_completed,ti1_0.created_at,ti1_0.deleted_at,ti1_0.todo_name,ti1_0.updated_at,ti1_0.user_id from todo_items ti1_0
+Hibernate: select c1_0.category_id,c1_0.category_color,c1_0.created_at,c1_0.deleted_at,c1_0.category_name from categories c1_0
+Hibernate: select u1_0.user_id,u1_0.created_at,u1_0.deleted_at,u1_0.email,u1_0.failed_login_attempts,u1_0.lockout_until,u1_0.password_hash,u1_0.updated_at,u1_0.username from users u1_0
+Hibernate: insert into users (created_at,deleted_at,email,failed_login_attempts,lockout_until,password_hash,updated_at,username,user_id) values (?,?,?,?,?,?,?,?,?)
+Hibernate: insert into users (created_at,deleted_at,email,failed_login_attempts,lockout_until,password_hash,updated_at,username,user_id) values (?,?,?,?,?,?,?,?,?)
+Hibernate: insert into categories (category_color,created_at,deleted_at,category_name,category_id) values (?,?,?,?,default)
+Hibernate: insert into categories (category_color,created_at,deleted_at,category_name,category_id) values (?,?,?,?,default)
+2026-06-25T19:12:02.681+05:30  INFO 47960 --- [           main] c.expense.logger.config.LoggingFilter    : Incoming Request: GET /api/v1/analytics/dashboard | Client IP: 127.0.0.1
+Hibernate: select u1_0.user_id,u1_0.created_at,u1_0.deleted_at,u1_0.email,u1_0.failed_login_attempts,u1_0.lockout_until,u1_0.password_hash,u1_0.updated_at,u1_0.username from users u1_0 where u1_0.username=? and u1_0.deleted_at is null
+Hibernate: insert into expenses (amount,category_id,created_at,deleted_at,expense_name,transaction_date,updated_at,user_id,expense_id) values (?,?,?,?,?,?,?,?,?)
+Hibernate: insert into expenses (amount,category_id,created_at,deleted_at,expense_name,transaction_date,updated_at,user_id,expense_id) values (?,?,?,?,?,?,?,?,?)
+Hibernate: insert into expenses (amount,category_id,created_at,deleted_at,expense_name,transaction_date,updated_at,user_id,expense_id) values (?,?,?,?,?,?,?,?,?)
+Hibernate: insert into expenses (amount,category_id,created_at,deleted_at,expense_name,transaction_date,updated_at,user_id,expense_id) values (?,?,?,?,?,?,?,?,?)
+Hibernate: insert into expenses (amount,category_id,created_at,deleted_at,expense_name,transaction_date,updated_at,user_id,expense_id) values (?,?,?,?,?,?,?,?,?)
+Hibernate: select e1_0.expense_id,e1_0.amount,e1_0.category_id,e1_0.created_at,e1_0.deleted_at,e1_0.expense_name,e1_0.transaction_date,e1_0.updated_at,e1_0.user_id from expenses e1_0 where e1_0.user_id=? and e1_0.transaction_date between ? and ? and e1_0.deleted_at is null offset ? rows fetch first ? rows only
+Hibernate: select b1_0.budget_id,b1_0.category_id,b1_0.created_at,b1_0.deleted_at,b1_0.end_date,b1_0.monthly_limit,b1_0.start_date,b1_0.updated_at,b1_0.user_id,b1_0.warning_threshold_percent from budgets b1_0 where b1_0.user_id=? and b1_0.deleted_at is null
+2026-06-25T19:12:02.752+05:30  INFO 47960 --- [           main] c.expense.logger.config.LoggingFilter    : Outgoing Response: /api/v1/analytics/dashboard | Status: 200 | Duration: 71ms
+2026-06-25T19:12:02.759+05:30  INFO 47960 --- [           main] c.expense.logger.config.LoggingFilter    : Incoming Request: GET /api/v1/analytics/trends | Client IP: 127.0.0.1
+Hibernate: select u1_0.user_id,u1_0.created_at,u1_0.deleted_at,u1_0.email,u1_0.failed_login_attempts,u1_0.lockout_until,u1_0.password_hash,u1_0.updated_at,u1_0.username from users u1_0 where u1_0.username=? and u1_0.deleted_at is null
+Hibernate: select e1_0.expense_id,e1_0.amount,e1_0.category_id,e1_0.created_at,e1_0.deleted_at,e1_0.expense_name,e1_0.transaction_date,e1_0.updated_at,e1_0.user_id from expenses e1_0 where e1_0.user_id=? and e1_0.deleted_at is null
+2026-06-25T19:12:02.787+05:30  INFO 47960 --- [           main] c.expense.logger.config.LoggingFilter    : Outgoing Response: /api/v1/analytics/trends | Status: 200 | Duration: 28ms
+2026-06-25T19:12:02.794+05:30  INFO 47960 --- [           main] c.expense.logger.config.LoggingFilter    : Incoming Request: GET /api/v1/analytics/categories/comparison | Client IP: 127.0.0.1
+Hibernate: select u1_0.user_id,u1_0.created_at,u1_0.deleted_at,u1_0.email,u1_0.failed_login_attempts,u1_0.lockout_until,u1_0.password_hash,u1_0.updated_at,u1_0.username from users u1_0 where u1_0.username=? and u1_0.deleted_at is null
+Hibernate: select e1_0.expense_id,e1_0.amount,e1_0.category_id,e1_0.created_at,e1_0.deleted_at,e1_0.expense_name,e1_0.transaction_date,e1_0.updated_at,e1_0.user_id from expenses e1_0 where e1_0.user_id=? and e1_0.transaction_date between ? and ? and e1_0.deleted_at is null
+Hibernate: select e1_0.expense_id,e1_0.amount,e1_0.category_id,e1_0.created_at,e1_0.deleted_at,e1_0.expense_name,e1_0.transaction_date,e1_0.updated_at,e1_0.user_id from expenses e1_0 where e1_0.user_id=? and e1_0.transaction_date between ? and ? and e1_0.deleted_at is null
+Hibernate: select c1_0.category_id,c1_0.category_color,c1_0.created_at,c1_0.deleted_at,c1_0.category_name from categories c1_0 where c1_0.deleted_at is null
+2026-06-25T19:12:02.816+05:30  INFO 47960 --- [           main] c.expense.logger.config.LoggingFilter    : Outgoing Response: /api/v1/analytics/categories/comparison | Status: 200 | Duration: 22ms
+2026-06-25T19:12:02.823+05:30  INFO 47960 --- [           main] c.expense.logger.config.LoggingFilter    : Incoming Request: GET /api/v1/analytics/aggregate | Client IP: 127.0.0.1
+Hibernate: select u1_0.user_id,u1_0.created_at,u1_0.deleted_at,u1_0.email,u1_0.failed_login_attempts,u1_0.lockout_until,u1_0.password_hash,u1_0.updated_at,u1_0.username from users u1_0 where u1_0.username=? and u1_0.deleted_at is null
+Hibernate: select e1_0.expense_id,e1_0.amount,e1_0.category_id,e1_0.created_at,e1_0.deleted_at,e1_0.expense_name,e1_0.transaction_date,e1_0.updated_at,e1_0.user_id from expenses e1_0 where e1_0.user_id=? and e1_0.transaction_date between ? and ? and e1_0.deleted_at is null
+2026-06-25T19:12:02.845+05:30  INFO 47960 --- [           main] c.expense.logger.config.LoggingFilter    : Outgoing Response: /api/v1/analytics/aggregate | Status: 200 | Duration: 22ms
+2026-06-25T19:12:02.848+05:30  INFO 47960 --- [           main] c.expense.logger.config.LoggingFilter    : Incoming Request: GET /api/v1/analytics/aggregate | Client IP: 127.0.0.1
+Hibernate: select u1_0.user_id,u1_0.created_at,u1_0.deleted_at,u1_0.email,u1_0.failed_login_attempts,u1_0.lockout_until,u1_0.password_hash,u1_0.updated_at,u1_0.username from users u1_0 where u1_0.username=? and u1_0.deleted_at is null
+2026-06-25T19:12:02.860+05:30  INFO 47960 --- [           main] c.expense.logger.config.LoggingFilter    : Outgoing Response: /api/v1/analytics/aggregate | Status: 400 | Duration: 12ms
+2026-06-25T19:12:02.865+05:30  INFO 47960 --- [           main] c.expense.logger.config.LoggingFilter    : Incoming Request: GET /api/v1/analytics/aggregate | Client IP: 127.0.0.1
+Hibernate: select u1_0.user_id,u1_0.created_at,u1_0.deleted_at,u1_0.email,u1_0.failed_login_attempts,u1_0.lockout_until,u1_0.password_hash,u1_0.updated_at,u1_0.username from users u1_0 where u1_0.username=? and u1_0.deleted_at is null
+2026-06-25T19:12:02.871+05:30  INFO 47960 --- [           main] c.expense.logger.config.LoggingFilter    : Outgoing Response: /api/v1/analytics/aggregate | Status: 400 | Duration: 6ms
+2026-06-25T19:12:02.875+05:30  INFO 47960 --- [           main] c.expense.logger.config.LoggingFilter    : Incoming Request: GET /api/v1/analytics/forecast | Client IP: 127.0.0.1
+Hibernate: select u1_0.user_id,u1_0.created_at,u1_0.deleted_at,u1_0.email,u1_0.failed_login_attempts,u1_0.lockout_until,u1_0.password_hash,u1_0.updated_at,u1_0.username from users u1_0 where u1_0.username=? and u1_0.deleted_at is null
+Hibernate: select e1_0.expense_id,e1_0.amount,e1_0.category_id,e1_0.created_at,e1_0.deleted_at,e1_0.expense_name,e1_0.transaction_date,e1_0.updated_at,e1_0.user_id from expenses e1_0 where e1_0.user_id=? and e1_0.transaction_date between ? and ? and e1_0.deleted_at is null
+Hibernate: select e1_0.expense_id,e1_0.amount,e1_0.category_id,e1_0.created_at,e1_0.deleted_at,e1_0.expense_name,e1_0.transaction_date,e1_0.updated_at,e1_0.user_id from expenses e1_0 where e1_0.user_id=? and e1_0.transaction_date between ? and ? and e1_0.deleted_at is null
+Hibernate: select e1_0.expense_id,e1_0.amount,e1_0.category_id,e1_0.created_at,e1_0.deleted_at,e1_0.expense_name,e1_0.transaction_date,e1_0.updated_at,e1_0.user_id from expenses e1_0 where e1_0.user_id=? and e1_0.transaction_date between ? and ? and e1_0.deleted_at is null
+Hibernate: select b1_0.budget_id,b1_0.category_id,b1_0.created_at,b1_0.deleted_at,b1_0.end_date,b1_0.monthly_limit,b1_0.start_date,b1_0.updated_at,b1_0.user_id,b1_0.warning_threshold_percent from budgets b1_0 where b1_0.user_id=? and b1_0.deleted_at is null
+Hibernate: select e1_0.expense_id,e1_0.amount,e1_0.category_id,e1_0.created_at,e1_0.deleted_at,e1_0.expense_name,e1_0.transaction_date,e1_0.updated_at,e1_0.user_id from expenses e1_0 where e1_0.user_id=? and e1_0.deleted_at is null
+2026-06-25T19:12:02.910+05:30  INFO 47960 --- [           main] c.expense.logger.config.LoggingFilter    : Outgoing Response: /api/v1/analytics/forecast | Status: 200 | Duration: 35ms
+]]></system-out>
+  </testcase>
+  <testcase name="testForgotPasswordAndResetPasswordFlow" classname="com.expense.logger.AdvancedFeaturesTest" time="0.654">
+    <system-out><![CDATA[Hibernate: select n1_0.notification_id,n1_0.category,n1_0.created_at,n1_0.deleted_at,n1_0.message,n1_0.is_read,n1_0.read_at,n1_0.severity,n1_0.title,n1_0.user_id from notifications n1_0
+Hibernate: select np1_0.user_id,np1_0.budget_warnings_enabled,np1_0.quiet_hours_enabled,np1_0.quiet_hours_end,np1_0.quiet_hours_start,np1_0.system_alerts_enabled from notification_preferences np1_0
+Hibernate: select e1_0.expense_id,e1_0.amount,e1_0.category_id,e1_0.created_at,e1_0.deleted_at,e1_0.expense_name,e1_0.transaction_date,e1_0.updated_at,e1_0.user_id from expenses e1_0
+Hibernate: select ti1_0.todo_id,ti1_0.is_completed,ti1_0.created_at,ti1_0.deleted_at,ti1_0.todo_name,ti1_0.updated_at,ti1_0.user_id from todo_items ti1_0
+Hibernate: select c1_0.category_id,c1_0.category_color,c1_0.created_at,c1_0.deleted_at,c1_0.category_name from categories c1_0
+Hibernate: select u1_0.user_id,u1_0.created_at,u1_0.deleted_at,u1_0.email,u1_0.failed_login_attempts,u1_0.lockout_until,u1_0.password_hash,u1_0.updated_at,u1_0.username from users u1_0
+Hibernate: insert into users (created_at,deleted_at,email,failed_login_attempts,lockout_until,password_hash,updated_at,username,user_id) values (?,?,?,?,?,?,?,?,?)
+Hibernate: insert into users (created_at,deleted_at,email,failed_login_attempts,lockout_until,password_hash,updated_at,username,user_id) values (?,?,?,?,?,?,?,?,?)
+Hibernate: insert into categories (category_color,created_at,deleted_at,category_name,category_id) values (?,?,?,?,default)
+Hibernate: insert into categories (category_color,created_at,deleted_at,category_name,category_id) values (?,?,?,?,default)
+2026-06-25T19:12:03.165+05:30  INFO 47960 --- [           main] c.expense.logger.config.LoggingFilter    : Incoming Request: POST /api/v1/auth/forgot-password | Client IP: 127.0.0.1
+Hibernate: select u1_0.user_id,u1_0.created_at,u1_0.deleted_at,u1_0.email,u1_0.failed_login_attempts,u1_0.lockout_until,u1_0.password_hash,u1_0.updated_at,u1_0.username from users u1_0 where u1_0.email=? and u1_0.deleted_at is null
+Hibernate: select prt1_0.token_id,prt1_0.created_at,prt1_0.expires_at,prt1_0.request_ip,prt1_0.token_hash,prt1_0.used,prt1_0.used_at,prt1_0.user_id,prt1_0.user_agent from password_reset_tokens prt1_0 where prt1_0.user_id=? and not(prt1_0.used)
+Hibernate: insert into password_reset_tokens (created_at,expires_at,request_ip,token_hash,used,used_at,user_id,user_agent,token_id) values (?,?,?,?,?,?,?,?,?)
+Hibernate: insert into audit_logs (action_type,created_at,description,user_id,log_id) values (?,?,?,?,default)
+2026-06-25T19:12:03.229+05:30  INFO 47960 --- [           main] c.e.logger.service.AuthServiceImpl       : Password reset raw token for user testuser: 7239bd8d-7067-4eb2-a156-b7bb89355762
+2026-06-25T19:12:03.231+05:30  INFO 47960 --- [           main] c.expense.logger.config.LoggingFilter    : Outgoing Response: /api/v1/auth/forgot-password | Status: 200 | Duration: 66ms
+Hibernate: select prt1_0.token_id,prt1_0.created_at,prt1_0.expires_at,prt1_0.request_ip,prt1_0.token_hash,prt1_0.used,prt1_0.used_at,prt1_0.user_id,prt1_0.user_agent from password_reset_tokens prt1_0 where prt1_0.user_id=? and not(prt1_0.used)
+2026-06-25T19:12:03.246+05:30  INFO 47960 --- [           main] c.expense.logger.config.LoggingFilter    : Incoming Request: POST /api/v1/auth/reset-password | Client IP: 127.0.0.1
+Hibernate: insert into password_reset_tokens (created_at,expires_at,request_ip,token_hash,used,used_at,user_id,user_agent,token_id) values (?,?,?,?,?,?,?,?,?)
+Hibernate: insert into refresh_tokens (created_at,expires_at,family_id,ip_address,token_hash,used,user_id,user_agent,token_id) values (?,?,?,?,?,?,?,?,?)
+Hibernate: select prt1_0.token_id,prt1_0.created_at,prt1_0.expires_at,prt1_0.request_ip,prt1_0.token_hash,prt1_0.used,prt1_0.used_at,prt1_0.user_id,prt1_0.user_agent from password_reset_tokens prt1_0 where prt1_0.token_hash=?
+Hibernate: select rt1_0.token_id,rt1_0.created_at,rt1_0.expires_at,rt1_0.family_id,rt1_0.ip_address,rt1_0.token_hash,rt1_0.used,rt1_0.user_id,rt1_0.user_agent from refresh_tokens rt1_0 where rt1_0.user_id=?
+Hibernate: insert into audit_logs (action_type,created_at,description,user_id,log_id) values (?,?,?,?,default)
+2026-06-25T19:12:03.417+05:30  INFO 47960 --- [           main] c.expense.logger.config.LoggingFilter    : Outgoing Response: /api/v1/auth/reset-password | Status: 200 | Duration: 172ms
+Hibernate: update users set deleted_at=?,email=?,failed_login_attempts=?,lockout_until=?,password_hash=?,updated_at=?,username=? where user_id=?
+Hibernate: update password_reset_tokens set expires_at=?,request_ip=?,token_hash=?,used=?,used_at=?,user_id=?,user_agent=? where token_id=?
+Hibernate: delete from refresh_tokens where token_id=?
+Hibernate: select prt1_0.token_id,prt1_0.created_at,prt1_0.expires_at,prt1_0.request_ip,prt1_0.token_hash,prt1_0.used,prt1_0.used_at,prt1_0.user_id,prt1_0.user_agent from password_reset_tokens prt1_0 where prt1_0.token_hash=?
+Hibernate: select rt1_0.token_id,rt1_0.created_at,rt1_0.expires_at,rt1_0.family_id,rt1_0.ip_address,rt1_0.token_hash,rt1_0.used,rt1_0.user_id,rt1_0.user_agent from refresh_tokens rt1_0 where rt1_0.user_id=?
+2026-06-25T19:12:03.555+05:30  INFO 47960 --- [           main] c.expense.logger.config.LoggingFilter    : Incoming Request: POST /api/v1/auth/reset-password | Client IP: 127.0.0.1
+Hibernate: select prt1_0.token_id,prt1_0.created_at,prt1_0.expires_at,prt1_0.request_ip,prt1_0.token_hash,prt1_0.used,prt1_0.used_at,prt1_0.user_id,prt1_0.user_agent from password_reset_tokens prt1_0 where prt1_0.token_hash=?
+2026-06-25T19:12:03.561+05:30  INFO 47960 --- [           main] c.expense.logger.config.LoggingFilter    : Outgoing Response: /api/v1/auth/reset-password | Status: 400 | Duration: 6ms
+2026-06-25T19:12:03.565+05:30  INFO 47960 --- [           main] c.expense.logger.config.LoggingFilter    : Incoming Request: POST /api/v1/auth/reset-password | Client IP: 127.0.0.1
+Hibernate: insert into password_reset_tokens (created_at,expires_at,request_ip,token_hash,used,used_at,user_id,user_agent,token_id) values (?,?,?,?,?,?,?,?,?)
+Hibernate: select prt1_0.token_id,prt1_0.created_at,prt1_0.expires_at,prt1_0.request_ip,prt1_0.token_hash,prt1_0.used,prt1_0.used_at,prt1_0.user_id,prt1_0.user_agent from password_reset_tokens prt1_0 where prt1_0.token_hash=?
+2026-06-25T19:12:03.570+05:30  INFO 47960 --- [           main] c.expense.logger.config.LoggingFilter    : Outgoing Response: /api/v1/auth/reset-password | Status: 400 | Duration: 5ms
+]]></system-out>
+  </testcase>
+  <testcase name="testAsyncEmailSendingAndRetryPool" classname="com.expense.logger.AdvancedFeaturesTest" time="0.388">
+    <system-out><![CDATA[Hibernate: select n1_0.notification_id,n1_0.category,n1_0.created_at,n1_0.deleted_at,n1_0.message,n1_0.is_read,n1_0.read_at,n1_0.severity,n1_0.title,n1_0.user_id from notifications n1_0
+Hibernate: select np1_0.user_id,np1_0.budget_warnings_enabled,np1_0.quiet_hours_enabled,np1_0.quiet_hours_end,np1_0.quiet_hours_start,np1_0.system_alerts_enabled from notification_preferences np1_0
+Hibernate: select e1_0.expense_id,e1_0.amount,e1_0.category_id,e1_0.created_at,e1_0.deleted_at,e1_0.expense_name,e1_0.transaction_date,e1_0.updated_at,e1_0.user_id from expenses e1_0
+Hibernate: select ti1_0.todo_id,ti1_0.is_completed,ti1_0.created_at,ti1_0.deleted_at,ti1_0.todo_name,ti1_0.updated_at,ti1_0.user_id from todo_items ti1_0
+Hibernate: select c1_0.category_id,c1_0.category_color,c1_0.created_at,c1_0.deleted_at,c1_0.category_name from categories c1_0
+Hibernate: select u1_0.user_id,u1_0.created_at,u1_0.deleted_at,u1_0.email,u1_0.failed_login_attempts,u1_0.lockout_until,u1_0.password_hash,u1_0.updated_at,u1_0.username from users u1_0
+Hibernate: insert into users (created_at,deleted_at,email,failed_login_attempts,lockout_until,password_hash,updated_at,username,user_id) values (?,?,?,?,?,?,?,?,?)
+Hibernate: insert into users (created_at,deleted_at,email,failed_login_attempts,lockout_until,password_hash,updated_at,username,user_id) values (?,?,?,?,?,?,?,?,?)
+Hibernate: insert into categories (category_color,created_at,deleted_at,category_name,category_id) values (?,?,?,?,default)
+Hibernate: insert into categories (category_color,created_at,deleted_at,category_name,category_id) values (?,?,?,?,default)
+2026-06-25T19:12:03.965+05:30  INFO 47960 --- [  LoggerAsync-1] c.e.logger.service.EmailServiceImpl      : Starting async email dispatch to: test@example.com
+]]></system-out>
+  </testcase>
+  <testcase name="testNotificationsAlertsAndPreferencesFlow" classname="com.expense.logger.AdvancedFeaturesTest" time="0.622">
+    <system-out><![CDATA[Hibernate: select n1_0.notification_id,n1_0.category,n1_0.created_at,n1_0.deleted_at,n1_0.message,n1_0.is_read,n1_0.read_at,n1_0.severity,n1_0.title,n1_0.user_id from notifications n1_0
+Hibernate: select np1_0.user_id,np1_0.budget_warnings_enabled,np1_0.quiet_hours_enabled,np1_0.quiet_hours_end,np1_0.quiet_hours_start,np1_0.system_alerts_enabled from notification_preferences np1_0
+Hibernate: select e1_0.expense_id,e1_0.amount,e1_0.category_id,e1_0.created_at,e1_0.deleted_at,e1_0.expense_name,e1_0.transaction_date,e1_0.updated_at,e1_0.user_id from expenses e1_0
+Hibernate: select ti1_0.todo_id,ti1_0.is_completed,ti1_0.created_at,ti1_0.deleted_at,ti1_0.todo_name,ti1_0.updated_at,ti1_0.user_id from todo_items ti1_0
+Hibernate: select c1_0.category_id,c1_0.category_color,c1_0.created_at,c1_0.deleted_at,c1_0.category_name from categories c1_0
+Hibernate: select u1_0.user_id,u1_0.created_at,u1_0.deleted_at,u1_0.email,u1_0.failed_login_attempts,u1_0.lockout_until,u1_0.password_hash,u1_0.updated_at,u1_0.username from users u1_0
+2026-06-25T19:12:04.258+05:30  WARN 47960 --- [  LoggerAsync-1] c.e.logger.service.EmailServiceImpl      : Failed to send email to test@example.com on attempt 1 of 3: Mail server connection failed. Failed messages: org.eclipse.angus.mail.util.MailConnectException: Couldn't connect to host, port: localhost, 2525; timeout -1;
+  nested exception is:
+	java.net.ConnectException: Connection refused
+Hibernate: insert into users (created_at,deleted_at,email,failed_login_attempts,lockout_until,password_hash,updated_at,username,user_id) values (?,?,?,?,?,?,?,?,?)
+Hibernate: insert into users (created_at,deleted_at,email,failed_login_attempts,lockout_until,password_hash,updated_at,username,user_id) values (?,?,?,?,?,?,?,?,?)
+Hibernate: insert into categories (category_color,created_at,deleted_at,category_name,category_id) values (?,?,?,?,default)
+Hibernate: insert into categories (category_color,created_at,deleted_at,category_name,category_id) values (?,?,?,?,default)
+2026-06-25T19:12:04.324+05:30  INFO 47960 --- [           main] c.expense.logger.config.LoggingFilter    : Incoming Request: GET /api/v1/notifications | Client IP: 127.0.0.1
+2026-06-25T19:12:04.362+05:30  WARN 47960 --- [  LoggerAsync-1] c.e.logger.service.EmailServiceImpl      : Failed to send email to test@example.com on attempt 2 of 3: Mail server connection failed. Failed messages: org.eclipse.angus.mail.util.MailConnectException: Couldn't connect to host, port: localhost, 2525; timeout -1;
+  nested exception is:
+	java.net.ConnectException: Connection refused
+Hibernate: select u1_0.user_id,u1_0.created_at,u1_0.deleted_at,u1_0.email,u1_0.failed_login_attempts,u1_0.lockout_until,u1_0.password_hash,u1_0.updated_at,u1_0.username from users u1_0 where u1_0.username=? and u1_0.deleted_at is null
+Hibernate: select n1_0.notification_id,n1_0.category,n1_0.created_at,n1_0.deleted_at,n1_0.message,n1_0.is_read,n1_0.read_at,n1_0.severity,n1_0.title,n1_0.user_id from notifications n1_0 where n1_0.user_id=? and n1_0.deleted_at is null offset ? rows fetch first ? rows only
+2026-06-25T19:12:04.385+05:30  INFO 47960 --- [           main] c.expense.logger.config.LoggingFilter    : Outgoing Response: /api/v1/notifications | Status: 200 | Duration: 61ms
+2026-06-25T19:12:04.394+05:30  INFO 47960 --- [           main] c.expense.logger.config.LoggingFilter    : Incoming Request: PUT /api/v1/notifications/preferences | Client IP: 127.0.0.1
+Hibernate: select u1_0.user_id,u1_0.created_at,u1_0.deleted_at,u1_0.email,u1_0.failed_login_attempts,u1_0.lockout_until,u1_0.password_hash,u1_0.updated_at,u1_0.username from users u1_0 where u1_0.username=? and u1_0.deleted_at is null
+Hibernate: select np1_0.user_id,np1_0.budget_warnings_enabled,np1_0.quiet_hours_enabled,np1_0.quiet_hours_end,np1_0.quiet_hours_start,np1_0.system_alerts_enabled from notification_preferences np1_0 where np1_0.user_id=?
+2026-06-25T19:12:04.420+05:30  INFO 47960 --- [           main] c.expense.logger.config.LoggingFilter    : Outgoing Response: /api/v1/notifications/preferences | Status: 200 | Duration: 26ms
+2026-06-25T19:12:04.429+05:30  INFO 47960 --- [           main] c.expense.logger.config.LoggingFilter    : Incoming Request: GET /api/v1/notifications/unread-count | Client IP: 127.0.0.1
+Hibernate: select u1_0.user_id,u1_0.created_at,u1_0.deleted_at,u1_0.email,u1_0.failed_login_attempts,u1_0.lockout_until,u1_0.password_hash,u1_0.updated_at,u1_0.username from users u1_0 where u1_0.username=? and u1_0.deleted_at is null
+Hibernate: insert into notification_preferences (budget_warnings_enabled,quiet_hours_enabled,quiet_hours_end,quiet_hours_start,system_alerts_enabled,user_id) values (?,?,?,?,?,?)
+Hibernate: insert into notifications (category,created_at,deleted_at,message,is_read,read_at,severity,title,user_id,notification_id) values (?,?,?,?,?,?,?,?,?,?)
+Hibernate: insert into notifications (category,created_at,deleted_at,message,is_read,read_at,severity,title,user_id,notification_id) values (?,?,?,?,?,?,?,?,?,?)
+Hibernate: select count(n1_0.notification_id) from notifications n1_0 where n1_0.user_id=? and not(n1_0.is_read) and n1_0.deleted_at is null
+2026-06-25T19:12:04.467+05:30  INFO 47960 --- [           main] c.expense.logger.config.LoggingFilter    : Outgoing Response: /api/v1/notifications/unread-count | Status: 200 | Duration: 38ms
+2026-06-25T19:12:04.477+05:30  INFO 47960 --- [           main] c.expense.logger.config.LoggingFilter    : Incoming Request: GET /api/v1/notifications | Client IP: 127.0.0.1
+Hibernate: select u1_0.user_id,u1_0.created_at,u1_0.deleted_at,u1_0.email,u1_0.failed_login_attempts,u1_0.lockout_until,u1_0.password_hash,u1_0.updated_at,u1_0.username from users u1_0 where u1_0.username=? and u1_0.deleted_at is null
+Hibernate: select n1_0.notification_id,n1_0.category,n1_0.created_at,n1_0.deleted_at,n1_0.message,n1_0.is_read,n1_0.read_at,n1_0.severity,n1_0.title,n1_0.user_id from notifications n1_0 where n1_0.user_id=? and n1_0.deleted_at is null offset ? rows fetch first ? rows only
+2026-06-25T19:12:04.491+05:30  INFO 47960 --- [           main] c.expense.logger.config.LoggingFilter    : Outgoing Response: /api/v1/notifications | Status: 200 | Duration: 14ms
+2026-06-25T19:12:04.495+05:30  INFO 47960 --- [           main] c.expense.logger.config.LoggingFilter    : Incoming Request: PUT /api/v1/notifications/2690b1ad-0a41-46a6-8ccb-04ab1f887d4b/read | Client IP: 127.0.0.1
+Hibernate: select u1_0.user_id,u1_0.created_at,u1_0.deleted_at,u1_0.email,u1_0.failed_login_attempts,u1_0.lockout_until,u1_0.password_hash,u1_0.updated_at,u1_0.username from users u1_0 where u1_0.username=? and u1_0.deleted_at is null
+Hibernate: select n1_0.notification_id,n1_0.category,n1_0.created_at,n1_0.deleted_at,n1_0.message,n1_0.is_read,n1_0.read_at,n1_0.severity,n1_0.title,n1_0.user_id from notifications n1_0 where n1_0.notification_id=? and n1_0.user_id=? and n1_0.deleted_at is null
+2026-06-25T19:12:04.507+05:30  INFO 47960 --- [           main] c.expense.logger.config.LoggingFilter    : Outgoing Response: /api/v1/notifications/2690b1ad-0a41-46a6-8ccb-04ab1f887d4b/read | Status: 200 | Duration: 12ms
+2026-06-25T19:12:04.509+05:30  INFO 47960 --- [           main] c.expense.logger.config.LoggingFilter    : Incoming Request: GET /api/v1/notifications/unread-count | Client IP: 127.0.0.1
+Hibernate: select u1_0.user_id,u1_0.created_at,u1_0.deleted_at,u1_0.email,u1_0.failed_login_attempts,u1_0.lockout_until,u1_0.password_hash,u1_0.updated_at,u1_0.username from users u1_0 where u1_0.username=? and u1_0.deleted_at is null
+Hibernate: update notifications set category=?,deleted_at=?,message=?,is_read=?,read_at=?,severity=?,title=?,user_id=? where notification_id=?
+Hibernate: select count(n1_0.notification_id) from notifications n1_0 where n1_0.user_id=? and not(n1_0.is_read) and n1_0.deleted_at is null
+2026-06-25T19:12:04.518+05:30  INFO 47960 --- [           main] c.expense.logger.config.LoggingFilter    : Outgoing Response: /api/v1/notifications/unread-count | Status: 200 | Duration: 9ms
+2026-06-25T19:12:04.523+05:30  INFO 47960 --- [           main] c.expense.logger.config.LoggingFilter    : Incoming Request: PUT /api/v1/notifications/read-all | Client IP: 127.0.0.1
+Hibernate: select u1_0.user_id,u1_0.created_at,u1_0.deleted_at,u1_0.email,u1_0.failed_login_attempts,u1_0.lockout_until,u1_0.password_hash,u1_0.updated_at,u1_0.username from users u1_0 where u1_0.username=? and u1_0.deleted_at is null
+Hibernate: select n1_0.notification_id,n1_0.category,n1_0.created_at,n1_0.deleted_at,n1_0.message,n1_0.is_read,n1_0.read_at,n1_0.severity,n1_0.title,n1_0.user_id from notifications n1_0 where n1_0.user_id=? and not(n1_0.is_read) and n1_0.deleted_at is null
+2026-06-25T19:12:04.535+05:30  INFO 47960 --- [           main] c.expense.logger.config.LoggingFilter    : Outgoing Response: /api/v1/notifications/read-all | Status: 200 | Duration: 12ms
+2026-06-25T19:12:04.540+05:30  INFO 47960 --- [           main] c.expense.logger.config.LoggingFilter    : Incoming Request: GET /api/v1/notifications/unread-count | Client IP: 127.0.0.1
+Hibernate: select u1_0.user_id,u1_0.created_at,u1_0.deleted_at,u1_0.email,u1_0.failed_login_attempts,u1_0.lockout_until,u1_0.password_hash,u1_0.updated_at,u1_0.username from users u1_0 where u1_0.username=? and u1_0.deleted_at is null
+Hibernate: update notifications set category=?,deleted_at=?,message=?,is_read=?,read_at=?,severity=?,title=?,user_id=? where notification_id=?
+Hibernate: select count(n1_0.notification_id) from notifications n1_0 where n1_0.user_id=? and not(n1_0.is_read) and n1_0.deleted_at is null
+2026-06-25T19:12:04.552+05:30  INFO 47960 --- [           main] c.expense.logger.config.LoggingFilter    : Outgoing Response: /api/v1/notifications/unread-count | Status: 200 | Duration: 13ms
+2026-06-25T19:12:04.559+05:30  INFO 47960 --- [           main] c.expense.logger.config.LoggingFilter    : Incoming Request: DELETE /api/v1/notifications/2690b1ad-0a41-46a6-8ccb-04ab1f887d4b | Client IP: 127.0.0.1
+2026-06-25T19:12:04.565+05:30  WARN 47960 --- [  LoggerAsync-1] c.e.logger.service.EmailServiceImpl      : Failed to send email to test@example.com on attempt 3 of 3: Mail server connection failed. Failed messages: org.eclipse.angus.mail.util.MailConnectException: Couldn't connect to host, port: localhost, 2525; timeout -1;
+  nested exception is:
+	java.net.ConnectException: Connection refused
+Hibernate: select u1_0.user_id,u1_0.created_at,u1_0.deleted_at,u1_0.email,u1_0.failed_login_attempts,u1_0.lockout_until,u1_0.password_hash,u1_0.updated_at,u1_0.username from users u1_0 where u1_0.username=? and u1_0.deleted_at is null
+Hibernate: select n1_0.notification_id,n1_0.category,n1_0.created_at,n1_0.deleted_at,n1_0.message,n1_0.is_read,n1_0.read_at,n1_0.severity,n1_0.title,n1_0.user_id from notifications n1_0 where n1_0.notification_id=? and n1_0.user_id=? and n1_0.deleted_at is null
+2026-06-25T19:12:04.574+05:30  INFO 47960 --- [           main] c.expense.logger.config.LoggingFilter    : Outgoing Response: /api/v1/notifications/2690b1ad-0a41-46a6-8ccb-04ab1f887d4b | Status: 204 | Duration: 15ms
+2026-06-25T19:12:04.566+05:30 ERROR 47960 --- [  LoggerAsync-1] c.e.logger.service.EmailServiceImpl      : SMTP delivery permanently failed for to=test@example.com
+
+org.springframework.mail.MailSendException: Mail server connection failed. Failed messages: org.eclipse.angus.mail.util.MailConnectException: Couldn't connect to host, port: localhost, 2525; timeout -1;
+  nested exception is:
+	java.net.ConnectException: Connection refused
+	at org.springframework.mail.javamail.JavaMailSenderImpl.doSend(JavaMailSenderImpl.java:410) ~[spring-context-support-6.1.8.jar:6.1.8]
+	at org.springframework.mail.javamail.JavaMailSenderImpl.send(JavaMailSenderImpl.java:317) ~[spring-context-support-6.1.8.jar:6.1.8]
+	at org.springframework.mail.MailSender.send(MailSender.java:42) ~[spring-context-support-6.1.8.jar:6.1.8]
+	at com.expense.logger.service.EmailServiceImpl.sendEmail(EmailServiceImpl.java:35) ~[classes/:na]
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103) ~[na:na]
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580) ~[na:na]
+	at org.springframework.aop.support.AopUtils.invokeJoinpointUsingReflection(AopUtils.java:354) ~[spring-aop-6.1.8.jar:6.1.8]
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.invokeJoinpoint(ReflectiveMethodInvocation.java:196) ~[spring-aop-6.1.8.jar:6.1.8]
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:163) ~[spring-aop-6.1.8.jar:6.1.8]
+	at org.springframework.aop.interceptor.AsyncExecutionInterceptor.lambda$invoke$0(AsyncExecutionInterceptor.java:113) ~[spring-aop-6.1.8.jar:6.1.8]
+	at java.base/java.util.concurrent.FutureTask.run(FutureTask.java:317) ~[na:na]
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1144) ~[na:na]
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642) ~[na:na]
+	at java.base/java.lang.Thread.run(Thread.java:1583) ~[na:na]
+Caused by: org.eclipse.angus.mail.util.MailConnectException: Couldn't connect to host, port: localhost, 2525; timeout -1
+	at org.eclipse.angus.mail.smtp.SMTPTransport.openServer(SMTPTransport.java:2243) ~[jakarta.mail-2.0.3.jar:na]
+	at org.eclipse.angus.mail.smtp.SMTPTransport.protocolConnect(SMTPTransport.java:729) ~[jakarta.mail-2.0.3.jar:na]
+	at jakarta.mail.Service.connect(Service.java:345) ~[jakarta.mail-2.0.3.jar:na]
+	at org.springframework.mail.javamail.JavaMailSenderImpl.connectTransport(JavaMailSenderImpl.java:480) ~[spring-context-support-6.1.8.jar:6.1.8]
+	at org.springframework.mail.javamail.JavaMailSenderImpl.doSend(JavaMailSenderImpl.java:399) ~[spring-context-support-6.1.8.jar:6.1.8]
+	... 13 common frames omitted
+Caused by: java.net.ConnectException: Connection refused
+	at java.base/sun.nio.ch.Net.connect0(Native Method) ~[na:na]
+	at java.base/sun.nio.ch.Net.connect(Net.java:601) ~[na:na]
+	at java.base/sun.nio.ch.Net.connect(Net.java:590) ~[na:na]
+	at java.base/sun.nio.ch.NioSocketImpl.connect(NioSocketImpl.java:583) ~[na:na]
+	at java.base/java.net.SocksSocketImpl.connect(SocksSocketImpl.java:327) ~[na:na]
+	at java.base/java.net.Socket.connect(Socket.java:751) ~[na:na]
+	at java.base/java.net.Socket.connect(Socket.java:686) ~[na:na]
+	at org.eclipse.angus.mail.util.SocketFetcher.createSocket(SocketFetcher.java:368) ~[jakarta.mail-2.0.3.jar:na]
+	at org.eclipse.angus.mail.util.SocketFetcher.getSocket(SocketFetcher.java:243) ~[jakarta.mail-2.0.3.jar:na]
+	at org.eclipse.angus.mail.smtp.SMTPTransport.openServer(SMTPTransport.java:2193) ~[jakarta.mail-2.0.3.jar:na]
+	... 17 common frames omitted
+
+2026-06-25T19:12:04.578+05:30 ERROR 47960 --- [  LoggerAsync-1] .a.i.SimpleAsyncUncaughtExceptionHandler : Unexpected exception occurred invoking async method: public void com.expense.logger.service.EmailServiceImpl.sendEmail(java.lang.String,java.lang.String,java.lang.String)
+
+java.lang.RuntimeException: Permanently failed to send email
+	at com.expense.logger.service.EmailServiceImpl.sendEmail(EmailServiceImpl.java:42) ~[classes/:na]
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103) ~[na:na]
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580) ~[na:na]
+	at org.springframework.aop.support.AopUtils.invokeJoinpointUsingReflection(AopUtils.java:354) ~[spring-aop-6.1.8.jar:6.1.8]
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.invokeJoinpoint(ReflectiveMethodInvocation.java:196) ~[spring-aop-6.1.8.jar:6.1.8]
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:163) ~[spring-aop-6.1.8.jar:6.1.8]
+	at org.springframework.aop.interceptor.AsyncExecutionInterceptor.lambda$invoke$0(AsyncExecutionInterceptor.java:113) ~[spring-aop-6.1.8.jar:6.1.8]
+	at java.base/java.util.concurrent.FutureTask.run(FutureTask.java:317) ~[na:na]
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1144) ~[na:na]
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642) ~[na:na]
+	at java.base/java.lang.Thread.run(Thread.java:1583) ~[na:na]
+Caused by: org.springframework.mail.MailSendException: Mail server connection failed. Failed messages: org.eclipse.angus.mail.util.MailConnectException: Couldn't connect to host, port: localhost, 2525; timeout -1;
+  nested exception is:
+	java.net.ConnectException: Connection refused
+	at org.springframework.mail.javamail.JavaMailSenderImpl.doSend(JavaMailSenderImpl.java:410) ~[spring-context-support-6.1.8.jar:6.1.8]
+	at org.springframework.mail.javamail.JavaMailSenderImpl.send(JavaMailSenderImpl.java:317) ~[spring-context-support-6.1.8.jar:6.1.8]
+	at org.springframework.mail.MailSender.send(MailSender.java:42) ~[spring-context-support-6.1.8.jar:6.1.8]
+	at com.expense.logger.service.EmailServiceImpl.sendEmail(EmailServiceImpl.java:35) ~[classes/:na]
+	... 10 common frames omitted
+Caused by: org.eclipse.angus.mail.util.MailConnectException: Couldn't connect to host, port: localhost, 2525; timeout -1
+	at org.eclipse.angus.mail.smtp.SMTPTransport.openServer(SMTPTransport.java:2243) ~[jakarta.mail-2.0.3.jar:na]
+	at org.eclipse.angus.mail.smtp.SMTPTransport.protocolConnect(SMTPTransport.java:729) ~[jakarta.mail-2.0.3.jar:na]
+	at jakarta.mail.Service.connect(Service.java:345) ~[jakarta.mail-2.0.3.jar:na]
+	at org.springframework.mail.javamail.JavaMailSenderImpl.connectTransport(JavaMailSenderImpl.java:480) ~[spring-context-support-6.1.8.jar:6.1.8]
+	at org.springframework.mail.javamail.JavaMailSenderImpl.doSend(JavaMailSenderImpl.java:399) ~[spring-context-support-6.1.8.jar:6.1.8]
+	... 13 common frames omitted
+Caused by: java.net.ConnectException: Connection refused
+	at java.base/sun.nio.ch.Net.connect0(Native Method) ~[na:na]
+	at java.base/sun.nio.ch.Net.connect(Net.java:601) ~[na:na]
+	at java.base/sun.nio.ch.Net.connect(Net.java:590) ~[na:na]
+	at java.base/sun.nio.ch.NioSocketImpl.connect(NioSocketImpl.java:583) ~[na:na]
+	at java.base/java.net.SocksSocketImpl.connect(SocksSocketImpl.java:327) ~[na:na]
+	at java.base/java.net.Socket.connect(Socket.java:751) ~[na:na]
+	at java.base/java.net.Socket.connect(Socket.java:686) ~[na:na]
+	at org.eclipse.angus.mail.util.SocketFetcher.createSocket(SocketFetcher.java:368) ~[jakarta.mail-2.0.3.jar:na]
+	at org.eclipse.angus.mail.util.SocketFetcher.getSocket(SocketFetcher.java:243) ~[jakarta.mail-2.0.3.jar:na]
+	at org.eclipse.angus.mail.smtp.SMTPTransport.openServer(SMTPTransport.java:2193) ~[jakarta.mail-2.0.3.jar:na]
+	... 17 common frames omitted
+
+2026-06-25T19:12:04.580+05:30  INFO 47960 --- [           main] c.expense.logger.config.LoggingFilter    : Incoming Request: GET /api/v1/notifications | Client IP: 127.0.0.1
+Hibernate: select u1_0.user_id,u1_0.created_at,u1_0.deleted_at,u1_0.email,u1_0.failed_login_attempts,u1_0.lockout_until,u1_0.password_hash,u1_0.updated_at,u1_0.username from users u1_0 where u1_0.username=? and u1_0.deleted_at is null
+Hibernate: update notifications set category=?,deleted_at=?,message=?,is_read=?,read_at=?,severity=?,title=?,user_id=? where notification_id=?
+Hibernate: select n1_0.notification_id,n1_0.category,n1_0.created_at,n1_0.deleted_at,n1_0.message,n1_0.is_read,n1_0.read_at,n1_0.severity,n1_0.title,n1_0.user_id from notifications n1_0 where n1_0.user_id=? and n1_0.deleted_at is null offset ? rows fetch first ? rows only
+2026-06-25T19:12:04.591+05:30  INFO 47960 --- [           main] c.expense.logger.config.LoggingFilter    : Outgoing Response: /api/v1/notifications | Status: 200 | Duration: 11ms
+]]></system-out>
+  </testcase>
+  <testcase name="testCrossUserBudgetAccessIsForbidden" classname="com.expense.logger.AdvancedFeaturesTest" time="0.262">
+    <system-out><![CDATA[Hibernate: select n1_0.notification_id,n1_0.category,n1_0.created_at,n1_0.deleted_at,n1_0.message,n1_0.is_read,n1_0.read_at,n1_0.severity,n1_0.title,n1_0.user_id from notifications n1_0
+Hibernate: select np1_0.user_id,np1_0.budget_warnings_enabled,np1_0.quiet_hours_enabled,np1_0.quiet_hours_end,np1_0.quiet_hours_start,np1_0.system_alerts_enabled from notification_preferences np1_0
+Hibernate: select e1_0.expense_id,e1_0.amount,e1_0.category_id,e1_0.created_at,e1_0.deleted_at,e1_0.expense_name,e1_0.transaction_date,e1_0.updated_at,e1_0.user_id from expenses e1_0
+Hibernate: select ti1_0.todo_id,ti1_0.is_completed,ti1_0.created_at,ti1_0.deleted_at,ti1_0.todo_name,ti1_0.updated_at,ti1_0.user_id from todo_items ti1_0
+Hibernate: select c1_0.category_id,c1_0.category_color,c1_0.created_at,c1_0.deleted_at,c1_0.category_name from categories c1_0
+Hibernate: select u1_0.user_id,u1_0.created_at,u1_0.deleted_at,u1_0.email,u1_0.failed_login_attempts,u1_0.lockout_until,u1_0.password_hash,u1_0.updated_at,u1_0.username from users u1_0
+Hibernate: insert into users (created_at,deleted_at,email,failed_login_attempts,lockout_until,password_hash,updated_at,username,user_id) values (?,?,?,?,?,?,?,?,?)
+Hibernate: insert into users (created_at,deleted_at,email,failed_login_attempts,lockout_until,password_hash,updated_at,username,user_id) values (?,?,?,?,?,?,?,?,?)
+Hibernate: insert into categories (category_color,created_at,deleted_at,category_name,category_id) values (?,?,?,?,default)
+Hibernate: insert into categories (category_color,created_at,deleted_at,category_name,category_id) values (?,?,?,?,default)
+2026-06-25T19:12:04.823+05:30  INFO 47960 --- [           main] c.expense.logger.config.LoggingFilter    : Incoming Request: PUT /api/v1/budgets/b3ad27c8-b355-46cc-9cf8-6e91b1e446b1 | Client IP: 127.0.0.1
+Hibernate: select u1_0.user_id,u1_0.created_at,u1_0.deleted_at,u1_0.email,u1_0.failed_login_attempts,u1_0.lockout_until,u1_0.password_hash,u1_0.updated_at,u1_0.username from users u1_0 where u1_0.username=? and u1_0.deleted_at is null
+Hibernate: insert into budgets (category_id,created_at,deleted_at,end_date,monthly_limit,start_date,updated_at,user_id,warning_threshold_percent,budget_id) values (?,?,?,?,?,?,?,?,?,?)
+Hibernate: select b1_0.budget_id,b1_0.category_id,b1_0.created_at,b1_0.deleted_at,b1_0.end_date,b1_0.monthly_limit,b1_0.start_date,b1_0.updated_at,b1_0.user_id,b1_0.warning_threshold_percent from budgets b1_0 where b1_0.budget_id=? and b1_0.user_id=? and b1_0.deleted_at is null
+2026-06-25T19:12:04.837+05:30  INFO 47960 --- [           main] c.expense.logger.config.LoggingFilter    : Outgoing Response: /api/v1/budgets/b3ad27c8-b355-46cc-9cf8-6e91b1e446b1 | Status: 404 | Duration: 14ms
+2026-06-25T19:12:04.842+05:30  INFO 47960 --- [           main] c.expense.logger.config.LoggingFilter    : Incoming Request: DELETE /api/v1/budgets/b3ad27c8-b355-46cc-9cf8-6e91b1e446b1 | Client IP: 127.0.0.1
+Hibernate: select u1_0.user_id,u1_0.created_at,u1_0.deleted_at,u1_0.email,u1_0.failed_login_attempts,u1_0.lockout_until,u1_0.password_hash,u1_0.updated_at,u1_0.username from users u1_0 where u1_0.username=? and u1_0.deleted_at is null
+Hibernate: select b1_0.budget_id,b1_0.category_id,b1_0.created_at,b1_0.deleted_at,b1_0.end_date,b1_0.monthly_limit,b1_0.start_date,b1_0.updated_at,b1_0.user_id,b1_0.warning_threshold_percent from budgets b1_0 where b1_0.budget_id=? and b1_0.user_id=? and b1_0.deleted_at is null
+2026-06-25T19:12:04.853+05:30  INFO 47960 --- [           main] c.expense.logger.config.LoggingFilter    : Outgoing Response: /api/v1/budgets/b3ad27c8-b355-46cc-9cf8-6e91b1e446b1 | Status: 404 | Duration: 11ms
+]]></system-out>
+  </testcase>
+  <testcase name="testCrossUserTodoAccessIsForbidden" classname="com.expense.logger.AdvancedFeaturesTest" time="0.302">
+    <system-out><![CDATA[Hibernate: select n1_0.notification_id,n1_0.category,n1_0.created_at,n1_0.deleted_at,n1_0.message,n1_0.is_read,n1_0.read_at,n1_0.severity,n1_0.title,n1_0.user_id from notifications n1_0
+Hibernate: select np1_0.user_id,np1_0.budget_warnings_enabled,np1_0.quiet_hours_enabled,np1_0.quiet_hours_end,np1_0.quiet_hours_start,np1_0.system_alerts_enabled from notification_preferences np1_0
+Hibernate: select e1_0.expense_id,e1_0.amount,e1_0.category_id,e1_0.created_at,e1_0.deleted_at,e1_0.expense_name,e1_0.transaction_date,e1_0.updated_at,e1_0.user_id from expenses e1_0
+Hibernate: select ti1_0.todo_id,ti1_0.is_completed,ti1_0.created_at,ti1_0.deleted_at,ti1_0.todo_name,ti1_0.updated_at,ti1_0.user_id from todo_items ti1_0
+Hibernate: select c1_0.category_id,c1_0.category_color,c1_0.created_at,c1_0.deleted_at,c1_0.category_name from categories c1_0
+Hibernate: select u1_0.user_id,u1_0.created_at,u1_0.deleted_at,u1_0.email,u1_0.failed_login_attempts,u1_0.lockout_until,u1_0.password_hash,u1_0.updated_at,u1_0.username from users u1_0
+Hibernate: insert into users (created_at,deleted_at,email,failed_login_attempts,lockout_until,password_hash,updated_at,username,user_id) values (?,?,?,?,?,?,?,?,?)
+Hibernate: insert into users (created_at,deleted_at,email,failed_login_attempts,lockout_until,password_hash,updated_at,username,user_id) values (?,?,?,?,?,?,?,?,?)
+Hibernate: insert into categories (category_color,created_at,deleted_at,category_name,category_id) values (?,?,?,?,default)
+Hibernate: insert into categories (category_color,created_at,deleted_at,category_name,category_id) values (?,?,?,?,default)
+2026-06-25T19:12:05.127+05:30  INFO 47960 --- [           main] c.expense.logger.config.LoggingFilter    : Incoming Request: PATCH /api/v1/todos/84855bec-5813-4ed3-9d29-eee50c202fb5/toggle | Client IP: 127.0.0.1
+Hibernate: select u1_0.user_id,u1_0.created_at,u1_0.deleted_at,u1_0.email,u1_0.failed_login_attempts,u1_0.lockout_until,u1_0.password_hash,u1_0.updated_at,u1_0.username from users u1_0 where u1_0.username=? and u1_0.deleted_at is null
+Hibernate: insert into todo_items (is_completed,created_at,deleted_at,todo_name,updated_at,user_id,todo_id) values (?,?,?,?,?,?,?)
+Hibernate: select ti1_0.todo_id,ti1_0.is_completed,ti1_0.created_at,ti1_0.deleted_at,ti1_0.todo_name,ti1_0.updated_at,ti1_0.user_id from todo_items ti1_0 where ti1_0.todo_id=? and ti1_0.user_id=? and ti1_0.deleted_at is null
+2026-06-25T19:12:05.144+05:30  INFO 47960 --- [           main] c.expense.logger.config.LoggingFilter    : Outgoing Response: /api/v1/todos/84855bec-5813-4ed3-9d29-eee50c202fb5/toggle | Status: 404 | Duration: 18ms
+2026-06-25T19:12:05.150+05:30  INFO 47960 --- [           main] c.expense.logger.config.LoggingFilter    : Incoming Request: DELETE /api/v1/todos/84855bec-5813-4ed3-9d29-eee50c202fb5 | Client IP: 127.0.0.1
+Hibernate: select u1_0.user_id,u1_0.created_at,u1_0.deleted_at,u1_0.email,u1_0.failed_login_attempts,u1_0.lockout_until,u1_0.password_hash,u1_0.updated_at,u1_0.username from users u1_0 where u1_0.username=? and u1_0.deleted_at is null
+Hibernate: select ti1_0.todo_id,ti1_0.is_completed,ti1_0.created_at,ti1_0.deleted_at,ti1_0.todo_name,ti1_0.updated_at,ti1_0.user_id from todo_items ti1_0 where ti1_0.todo_id=? and ti1_0.user_id=? and ti1_0.deleted_at is null
+2026-06-25T19:12:05.162+05:30  INFO 47960 --- [           main] c.expense.logger.config.LoggingFilter    : Outgoing Response: /api/v1/todos/84855bec-5813-4ed3-9d29-eee50c202fb5 | Status: 404 | Duration: 12ms
+]]></system-out>
+  </testcase>
+  <testcase name="testBudgetAnalyticsCalculation" classname="com.expense.logger.AdvancedFeaturesTest" time="0.551">
+    <system-out><![CDATA[Hibernate: select n1_0.notification_id,n1_0.category,n1_0.created_at,n1_0.deleted_at,n1_0.message,n1_0.is_read,n1_0.read_at,n1_0.severity,n1_0.title,n1_0.user_id from notifications n1_0
+Hibernate: select np1_0.user_id,np1_0.budget_warnings_enabled,np1_0.quiet_hours_enabled,np1_0.quiet_hours_end,np1_0.quiet_hours_start,np1_0.system_alerts_enabled from notification_preferences np1_0
+Hibernate: select e1_0.expense_id,e1_0.amount,e1_0.category_id,e1_0.created_at,e1_0.deleted_at,e1_0.expense_name,e1_0.transaction_date,e1_0.updated_at,e1_0.user_id from expenses e1_0
+Hibernate: select ti1_0.todo_id,ti1_0.is_completed,ti1_0.created_at,ti1_0.deleted_at,ti1_0.todo_name,ti1_0.updated_at,ti1_0.user_id from todo_items ti1_0
+Hibernate: select c1_0.category_id,c1_0.category_color,c1_0.created_at,c1_0.deleted_at,c1_0.category_name from categories c1_0
+Hibernate: select u1_0.user_id,u1_0.created_at,u1_0.deleted_at,u1_0.email,u1_0.failed_login_attempts,u1_0.lockout_until,u1_0.password_hash,u1_0.updated_at,u1_0.username from users u1_0
+Hibernate: insert into users (created_at,deleted_at,email,failed_login_attempts,lockout_until,password_hash,updated_at,username,user_id) values (?,?,?,?,?,?,?,?,?)
+Hibernate: insert into users (created_at,deleted_at,email,failed_login_attempts,lockout_until,password_hash,updated_at,username,user_id) values (?,?,?,?,?,?,?,?,?)
+Hibernate: insert into categories (category_color,created_at,deleted_at,category_name,category_id) values (?,?,?,?,default)
+Hibernate: insert into categories (category_color,created_at,deleted_at,category_name,category_id) values (?,?,?,?,default)
+Hibernate: select b1_0.budget_id,b1_0.category_id,b1_0.created_at,b1_0.deleted_at,b1_0.end_date,b1_0.monthly_limit,b1_0.start_date,b1_0.updated_at,b1_0.user_id,b1_0.warning_threshold_percent from budgets b1_0
+Hibernate: select e1_0.expense_id,e1_0.amount,e1_0.category_id,e1_0.created_at,e1_0.deleted_at,e1_0.expense_name,e1_0.transaction_date,e1_0.updated_at,e1_0.user_id from expenses e1_0
+2026-06-25T19:12:05.673+05:30  INFO 47960 --- [           main] c.expense.logger.config.LoggingFilter    : Incoming Request: GET /api/v1/analytics/dashboard | Client IP: 127.0.0.1
+Hibernate: select u1_0.user_id,u1_0.created_at,u1_0.deleted_at,u1_0.email,u1_0.failed_login_attempts,u1_0.lockout_until,u1_0.password_hash,u1_0.updated_at,u1_0.username from users u1_0 where u1_0.username=? and u1_0.deleted_at is null
+Hibernate: insert into budgets (category_id,created_at,deleted_at,end_date,monthly_limit,start_date,updated_at,user_id,warning_threshold_percent,budget_id) values (?,?,?,?,?,?,?,?,?,?)
+Hibernate: insert into expenses (amount,category_id,created_at,deleted_at,expense_name,transaction_date,updated_at,user_id,expense_id) values (?,?,?,?,?,?,?,?,?)
+Hibernate: select e1_0.expense_id,e1_0.amount,e1_0.category_id,e1_0.created_at,e1_0.deleted_at,e1_0.expense_name,e1_0.transaction_date,e1_0.updated_at,e1_0.user_id from expenses e1_0 where e1_0.user_id=? and e1_0.transaction_date between ? and ? and e1_0.deleted_at is null offset ? rows fetch first ? rows only
+Hibernate: select b1_0.budget_id,b1_0.category_id,b1_0.created_at,b1_0.deleted_at,b1_0.end_date,b1_0.monthly_limit,b1_0.start_date,b1_0.updated_at,b1_0.user_id,b1_0.warning_threshold_percent from budgets b1_0 where b1_0.user_id=? and b1_0.deleted_at is null
+2026-06-25T19:12:05.715+05:30  INFO 47960 --- [           main] c.expense.logger.config.LoggingFilter    : Outgoing Response: /api/v1/analytics/dashboard | Status: 200 | Duration: 42ms
+]]></system-out>
+  </testcase>
+  <testcase name="testAccountLockoutFlow" classname="com.expense.logger.AdvancedFeaturesTest" time="1.716">
+    <system-out><![CDATA[Hibernate: select n1_0.notification_id,n1_0.category,n1_0.created_at,n1_0.deleted_at,n1_0.message,n1_0.is_read,n1_0.read_at,n1_0.severity,n1_0.title,n1_0.user_id from notifications n1_0
+Hibernate: select np1_0.user_id,np1_0.budget_warnings_enabled,np1_0.quiet_hours_enabled,np1_0.quiet_hours_end,np1_0.quiet_hours_start,np1_0.system_alerts_enabled from notification_preferences np1_0
+Hibernate: select e1_0.expense_id,e1_0.amount,e1_0.category_id,e1_0.created_at,e1_0.deleted_at,e1_0.expense_name,e1_0.transaction_date,e1_0.updated_at,e1_0.user_id from expenses e1_0
+Hibernate: select ti1_0.todo_id,ti1_0.is_completed,ti1_0.created_at,ti1_0.deleted_at,ti1_0.todo_name,ti1_0.updated_at,ti1_0.user_id from todo_items ti1_0
+Hibernate: select c1_0.category_id,c1_0.category_color,c1_0.created_at,c1_0.deleted_at,c1_0.category_name from categories c1_0
+Hibernate: select u1_0.user_id,u1_0.created_at,u1_0.deleted_at,u1_0.email,u1_0.failed_login_attempts,u1_0.lockout_until,u1_0.password_hash,u1_0.updated_at,u1_0.username from users u1_0
+Hibernate: insert into users (created_at,deleted_at,email,failed_login_attempts,lockout_until,password_hash,updated_at,username,user_id) values (?,?,?,?,?,?,?,?,?)
+Hibernate: insert into users (created_at,deleted_at,email,failed_login_attempts,lockout_until,password_hash,updated_at,username,user_id) values (?,?,?,?,?,?,?,?,?)
+Hibernate: insert into categories (category_color,created_at,deleted_at,category_name,category_id) values (?,?,?,?,default)
+Hibernate: insert into categories (category_color,created_at,deleted_at,category_name,category_id) values (?,?,?,?,default)
+2026-06-25T19:12:05.993+05:30  INFO 47960 --- [           main] c.expense.logger.config.LoggingFilter    : Incoming Request: POST /api/v1/auth/login | Client IP: 127.0.0.1
+Hibernate: select u1_0.user_id,u1_0.created_at,u1_0.deleted_at,u1_0.email,u1_0.failed_login_attempts,u1_0.lockout_until,u1_0.password_hash,u1_0.updated_at,u1_0.username from users u1_0 where u1_0.username=? and u1_0.deleted_at is null
+Hibernate: select u1_0.user_id,u1_0.created_at,u1_0.deleted_at,u1_0.email,u1_0.failed_login_attempts,u1_0.lockout_until,u1_0.password_hash,u1_0.updated_at,u1_0.username from users u1_0 where u1_0.username=? and u1_0.deleted_at is null
+2026-06-25T19:12:06.452+05:30  INFO 47960 --- [           main] c.expense.logger.config.LoggingFilter    : Outgoing Response: /api/v1/auth/login | Status: 400 | Duration: 459ms
+Hibernate: update users set deleted_at=?,email=?,failed_login_attempts=?,lockout_until=?,password_hash=?,updated_at=?,username=? where user_id=?
+Hibernate: select u1_0.user_id,u1_0.created_at,u1_0.deleted_at,u1_0.email,u1_0.failed_login_attempts,u1_0.lockout_until,u1_0.password_hash,u1_0.updated_at,u1_0.username from users u1_0 where u1_0.username=? and u1_0.deleted_at is null
+2026-06-25T19:12:06.727+05:30  INFO 47960 --- [           main] c.expense.logger.config.LoggingFilter    : Incoming Request: POST /api/v1/auth/login | Client IP: 127.0.0.1
+Hibernate: select u1_0.user_id,u1_0.created_at,u1_0.deleted_at,u1_0.email,u1_0.failed_login_attempts,u1_0.lockout_until,u1_0.password_hash,u1_0.updated_at,u1_0.username from users u1_0 where u1_0.username=? and u1_0.deleted_at is null
+Hibernate: select u1_0.user_id,u1_0.created_at,u1_0.deleted_at,u1_0.email,u1_0.failed_login_attempts,u1_0.lockout_until,u1_0.password_hash,u1_0.updated_at,u1_0.username from users u1_0 where u1_0.username=? and u1_0.deleted_at is null
+2026-06-25T19:12:06.822+05:30  INFO 47960 --- [           main] c.expense.logger.config.LoggingFilter    : Outgoing Response: /api/v1/auth/login | Status: 400 | Duration: 95ms
+Hibernate: update users set deleted_at=?,email=?,failed_login_attempts=?,lockout_until=?,password_hash=?,updated_at=?,username=? where user_id=?
+Hibernate: select u1_0.user_id,u1_0.created_at,u1_0.deleted_at,u1_0.email,u1_0.failed_login_attempts,u1_0.lockout_until,u1_0.password_hash,u1_0.updated_at,u1_0.username from users u1_0 where u1_0.username=? and u1_0.deleted_at is null
+2026-06-25T19:12:06.829+05:30  INFO 47960 --- [           main] c.expense.logger.config.LoggingFilter    : Incoming Request: POST /api/v1/auth/login | Client IP: 127.0.0.1
+Hibernate: select u1_0.user_id,u1_0.created_at,u1_0.deleted_at,u1_0.email,u1_0.failed_login_attempts,u1_0.lockout_until,u1_0.password_hash,u1_0.updated_at,u1_0.username from users u1_0 where u1_0.username=? and u1_0.deleted_at is null
+Hibernate: select u1_0.user_id,u1_0.created_at,u1_0.deleted_at,u1_0.email,u1_0.failed_login_attempts,u1_0.lockout_until,u1_0.password_hash,u1_0.updated_at,u1_0.username from users u1_0 where u1_0.username=? and u1_0.deleted_at is null
+2026-06-25T19:12:06.942+05:30  INFO 47960 --- [           main] c.expense.logger.config.LoggingFilter    : Outgoing Response: /api/v1/auth/login | Status: 400 | Duration: 113ms
+Hibernate: update users set deleted_at=?,email=?,failed_login_attempts=?,lockout_until=?,password_hash=?,updated_at=?,username=? where user_id=?
+Hibernate: select u1_0.user_id,u1_0.created_at,u1_0.deleted_at,u1_0.email,u1_0.failed_login_attempts,u1_0.lockout_until,u1_0.password_hash,u1_0.updated_at,u1_0.username from users u1_0 where u1_0.username=? and u1_0.deleted_at is null
+2026-06-25T19:12:06.950+05:30  INFO 47960 --- [           main] c.expense.logger.config.LoggingFilter    : Incoming Request: POST /api/v1/auth/login | Client IP: 127.0.0.1
+Hibernate: select u1_0.user_id,u1_0.created_at,u1_0.deleted_at,u1_0.email,u1_0.failed_login_attempts,u1_0.lockout_until,u1_0.password_hash,u1_0.updated_at,u1_0.username from users u1_0 where u1_0.username=? and u1_0.deleted_at is null
+Hibernate: select u1_0.user_id,u1_0.created_at,u1_0.deleted_at,u1_0.email,u1_0.failed_login_attempts,u1_0.lockout_until,u1_0.password_hash,u1_0.updated_at,u1_0.username from users u1_0 where u1_0.username=? and u1_0.deleted_at is null
+2026-06-25T19:12:07.079+05:30  INFO 47960 --- [           main] c.expense.logger.config.LoggingFilter    : Outgoing Response: /api/v1/auth/login | Status: 400 | Duration: 129ms
+Hibernate: update users set deleted_at=?,email=?,failed_login_attempts=?,lockout_until=?,password_hash=?,updated_at=?,username=? where user_id=?
+Hibernate: select u1_0.user_id,u1_0.created_at,u1_0.deleted_at,u1_0.email,u1_0.failed_login_attempts,u1_0.lockout_until,u1_0.password_hash,u1_0.updated_at,u1_0.username from users u1_0 where u1_0.username=? and u1_0.deleted_at is null
+2026-06-25T19:12:07.087+05:30  INFO 47960 --- [           main] c.expense.logger.config.LoggingFilter    : Incoming Request: POST /api/v1/auth/login | Client IP: 127.0.0.1
+Hibernate: select u1_0.user_id,u1_0.created_at,u1_0.deleted_at,u1_0.email,u1_0.failed_login_attempts,u1_0.lockout_until,u1_0.password_hash,u1_0.updated_at,u1_0.username from users u1_0 where u1_0.username=? and u1_0.deleted_at is null
+Hibernate: select u1_0.user_id,u1_0.created_at,u1_0.deleted_at,u1_0.email,u1_0.failed_login_attempts,u1_0.lockout_until,u1_0.password_hash,u1_0.updated_at,u1_0.username from users u1_0 where u1_0.username=? and u1_0.deleted_at is null
+2026-06-25T19:12:07.192+05:30  INFO 47960 --- [           main] c.expense.logger.config.LoggingFilter    : Outgoing Response: /api/v1/auth/login | Status: 400 | Duration: 105ms
+Hibernate: update users set deleted_at=?,email=?,failed_login_attempts=?,lockout_until=?,password_hash=?,updated_at=?,username=? where user_id=?
+Hibernate: select u1_0.user_id,u1_0.created_at,u1_0.deleted_at,u1_0.email,u1_0.failed_login_attempts,u1_0.lockout_until,u1_0.password_hash,u1_0.updated_at,u1_0.username from users u1_0 where u1_0.username=? and u1_0.deleted_at is null
+2026-06-25T19:12:07.197+05:30  INFO 47960 --- [           main] c.expense.logger.config.LoggingFilter    : Incoming Request: POST /api/v1/auth/login | Client IP: 127.0.0.1
+Hibernate: select u1_0.user_id,u1_0.created_at,u1_0.deleted_at,u1_0.email,u1_0.failed_login_attempts,u1_0.lockout_until,u1_0.password_hash,u1_0.updated_at,u1_0.username from users u1_0 where u1_0.username=? and u1_0.deleted_at is null
+2026-06-25T19:12:07.201+05:30  INFO 47960 --- [           main] c.expense.logger.config.LoggingFilter    : Outgoing Response: /api/v1/auth/login | Status: 400 | Duration: 4ms
+2026-06-25T19:12:07.204+05:30  INFO 47960 --- [           main] c.expense.logger.config.LoggingFilter    : Incoming Request: POST /api/v1/auth/login | Client IP: 127.0.0.1
+Hibernate: update users set deleted_at=?,email=?,failed_login_attempts=?,lockout_until=?,password_hash=?,updated_at=?,username=? where user_id=?
+Hibernate: select u1_0.user_id,u1_0.created_at,u1_0.deleted_at,u1_0.email,u1_0.failed_login_attempts,u1_0.lockout_until,u1_0.password_hash,u1_0.updated_at,u1_0.username from users u1_0 where u1_0.username=? and u1_0.deleted_at is null
+Hibernate: select u1_0.user_id,u1_0.created_at,u1_0.deleted_at,u1_0.email,u1_0.failed_login_attempts,u1_0.lockout_until,u1_0.password_hash,u1_0.updated_at,u1_0.username from users u1_0 where u1_0.username=? and u1_0.deleted_at is null
+Hibernate: insert into refresh_tokens (created_at,expires_at,family_id,ip_address,token_hash,used,user_id,user_agent,token_id) values (?,?,?,?,?,?,?,?,?)
+Hibernate: insert into audit_logs (action_type,created_at,description,user_id,log_id) values (?,?,?,?,default)
+2026-06-25T19:12:07.444+05:30  INFO 47960 --- [           main] c.expense.logger.config.LoggingFilter    : Outgoing Response: /api/v1/auth/login | Status: 200 | Duration: 240ms
+Hibernate: update users set deleted_at=?,email=?,failed_login_attempts=?,lockout_until=?,password_hash=?,updated_at=?,username=? where user_id=?
+Hibernate: select u1_0.user_id,u1_0.created_at,u1_0.deleted_at,u1_0.email,u1_0.failed_login_attempts,u1_0.lockout_until,u1_0.password_hash,u1_0.updated_at,u1_0.username from users u1_0 where u1_0.username=? and u1_0.deleted_at is null
+]]></system-out>
+  </testcase>
+  <testcase name="testUserProfileUpdateAndDuplicateValidation" classname="com.expense.logger.AdvancedFeaturesTest" time="0.263">
+    <system-out><![CDATA[Hibernate: select n1_0.notification_id,n1_0.category,n1_0.created_at,n1_0.deleted_at,n1_0.message,n1_0.is_read,n1_0.read_at,n1_0.severity,n1_0.title,n1_0.user_id from notifications n1_0
+Hibernate: select np1_0.user_id,np1_0.budget_warnings_enabled,np1_0.quiet_hours_enabled,np1_0.quiet_hours_end,np1_0.quiet_hours_start,np1_0.system_alerts_enabled from notification_preferences np1_0
+Hibernate: select e1_0.expense_id,e1_0.amount,e1_0.category_id,e1_0.created_at,e1_0.deleted_at,e1_0.expense_name,e1_0.transaction_date,e1_0.updated_at,e1_0.user_id from expenses e1_0
+Hibernate: select ti1_0.todo_id,ti1_0.is_completed,ti1_0.created_at,ti1_0.deleted_at,ti1_0.todo_name,ti1_0.updated_at,ti1_0.user_id from todo_items ti1_0
+Hibernate: select c1_0.category_id,c1_0.category_color,c1_0.created_at,c1_0.deleted_at,c1_0.category_name from categories c1_0
+Hibernate: select u1_0.user_id,u1_0.created_at,u1_0.deleted_at,u1_0.email,u1_0.failed_login_attempts,u1_0.lockout_until,u1_0.password_hash,u1_0.updated_at,u1_0.username from users u1_0
+Hibernate: insert into users (created_at,deleted_at,email,failed_login_attempts,lockout_until,password_hash,updated_at,username,user_id) values (?,?,?,?,?,?,?,?,?)
+Hibernate: insert into users (created_at,deleted_at,email,failed_login_attempts,lockout_until,password_hash,updated_at,username,user_id) values (?,?,?,?,?,?,?,?,?)
+Hibernate: insert into categories (category_color,created_at,deleted_at,category_name,category_id) values (?,?,?,?,default)
+Hibernate: insert into categories (category_color,created_at,deleted_at,category_name,category_id) values (?,?,?,?,default)
+2026-06-25T19:12:07.685+05:30  INFO 47960 --- [           main] c.expense.logger.config.LoggingFilter    : Incoming Request: PUT /api/v1/users/profile | Client IP: 127.0.0.1
+Hibernate: select u1_0.user_id,u1_0.created_at,u1_0.deleted_at,u1_0.email,u1_0.failed_login_attempts,u1_0.lockout_until,u1_0.password_hash,u1_0.updated_at,u1_0.username from users u1_0 where u1_0.username=? and u1_0.deleted_at is null
+Hibernate: select u1_0.user_id,u1_0.created_at,u1_0.deleted_at,u1_0.email,u1_0.failed_login_attempts,u1_0.lockout_until,u1_0.password_hash,u1_0.updated_at,u1_0.username from users u1_0 where u1_0.email=? and u1_0.deleted_at is null
+2026-06-25T19:12:07.699+05:30  INFO 47960 --- [           main] c.expense.logger.config.LoggingFilter    : Outgoing Response: /api/v1/users/profile | Status: 400 | Duration: 14ms
+2026-06-25T19:12:07.701+05:30  INFO 47960 --- [           main] c.expense.logger.config.LoggingFilter    : Incoming Request: PUT /api/v1/users/profile | Client IP: 127.0.0.1
+Hibernate: select u1_0.user_id,u1_0.created_at,u1_0.deleted_at,u1_0.email,u1_0.failed_login_attempts,u1_0.lockout_until,u1_0.password_hash,u1_0.updated_at,u1_0.username from users u1_0 where u1_0.username=? and u1_0.deleted_at is null
+Hibernate: select u1_0.user_id,u1_0.created_at,u1_0.deleted_at,u1_0.email,u1_0.failed_login_attempts,u1_0.lockout_until,u1_0.password_hash,u1_0.updated_at,u1_0.username from users u1_0 where u1_0.email=? and u1_0.deleted_at is null
+Hibernate: select u1_0.user_id,u1_0.created_at,u1_0.deleted_at,u1_0.email,u1_0.failed_login_attempts,u1_0.lockout_until,u1_0.password_hash,u1_0.updated_at,u1_0.username from users u1_0 where u1_0.username=? and u1_0.deleted_at is null
+Hibernate: insert into audit_logs (action_type,created_at,description,user_id,log_id) values (?,?,?,?,default)
+2026-06-25T19:12:07.718+05:30  INFO 47960 --- [           main] c.expense.logger.config.LoggingFilter    : Outgoing Response: /api/v1/users/profile | Status: 200 | Duration: 17ms
+]]></system-out>
+  </testcase>
+  <testcase name="testTokenCleanupScheduledTask" classname="com.expense.logger.AdvancedFeaturesTest" time="0.244">
+    <system-out><![CDATA[Hibernate: select n1_0.notification_id,n1_0.category,n1_0.created_at,n1_0.deleted_at,n1_0.message,n1_0.is_read,n1_0.read_at,n1_0.severity,n1_0.title,n1_0.user_id from notifications n1_0
+Hibernate: select np1_0.user_id,np1_0.budget_warnings_enabled,np1_0.quiet_hours_enabled,np1_0.quiet_hours_end,np1_0.quiet_hours_start,np1_0.system_alerts_enabled from notification_preferences np1_0
+Hibernate: select e1_0.expense_id,e1_0.amount,e1_0.category_id,e1_0.created_at,e1_0.deleted_at,e1_0.expense_name,e1_0.transaction_date,e1_0.updated_at,e1_0.user_id from expenses e1_0
+Hibernate: select ti1_0.todo_id,ti1_0.is_completed,ti1_0.created_at,ti1_0.deleted_at,ti1_0.todo_name,ti1_0.updated_at,ti1_0.user_id from todo_items ti1_0
+Hibernate: select c1_0.category_id,c1_0.category_color,c1_0.created_at,c1_0.deleted_at,c1_0.category_name from categories c1_0
+Hibernate: select u1_0.user_id,u1_0.created_at,u1_0.deleted_at,u1_0.email,u1_0.failed_login_attempts,u1_0.lockout_until,u1_0.password_hash,u1_0.updated_at,u1_0.username from users u1_0
+Hibernate: insert into users (created_at,deleted_at,email,failed_login_attempts,lockout_until,password_hash,updated_at,username,user_id) values (?,?,?,?,?,?,?,?,?)
+Hibernate: insert into users (created_at,deleted_at,email,failed_login_attempts,lockout_until,password_hash,updated_at,username,user_id) values (?,?,?,?,?,?,?,?,?)
+Hibernate: insert into categories (category_color,created_at,deleted_at,category_name,category_id) values (?,?,?,?,default)
+Hibernate: insert into categories (category_color,created_at,deleted_at,category_name,category_id) values (?,?,?,?,default)
+Hibernate: select prt1_0.token_id,prt1_0.created_at,prt1_0.expires_at,prt1_0.request_ip,prt1_0.token_hash,prt1_0.used,prt1_0.used_at,prt1_0.user_id,prt1_0.user_agent from password_reset_tokens prt1_0
+Hibernate: select rt1_0.token_id,rt1_0.created_at,rt1_0.expires_at,rt1_0.family_id,rt1_0.ip_address,rt1_0.token_hash,rt1_0.used,rt1_0.user_id,rt1_0.user_agent from refresh_tokens rt1_0
+2026-06-25T19:12:07.949+05:30  INFO 47960 --- [           main] c.e.l.service.TokenCleanupScheduledTask  : Starting scheduled cleanup task for expired tokens...
+Hibernate: insert into password_reset_tokens (created_at,expires_at,request_ip,token_hash,used,used_at,user_id,user_agent,token_id) values (?,?,?,?,?,?,?,?,?)
+Hibernate: insert into password_reset_tokens (created_at,expires_at,request_ip,token_hash,used,used_at,user_id,user_agent,token_id) values (?,?,?,?,?,?,?,?,?)
+Hibernate: insert into refresh_tokens (created_at,expires_at,family_id,ip_address,token_hash,used,user_id,user_agent,token_id) values (?,?,?,?,?,?,?,?,?)
+Hibernate: select prt1_0.token_id,prt1_0.created_at,prt1_0.expires_at,prt1_0.request_ip,prt1_0.token_hash,prt1_0.used,prt1_0.used_at,prt1_0.user_id,prt1_0.user_agent from password_reset_tokens prt1_0 where prt1_0.expires_at<?
+Hibernate: select rt1_0.token_id,rt1_0.created_at,rt1_0.expires_at,rt1_0.family_id,rt1_0.ip_address,rt1_0.token_hash,rt1_0.used,rt1_0.user_id,rt1_0.user_agent from refresh_tokens rt1_0 where rt1_0.expires_at<?
+2026-06-25T19:12:07.958+05:30  INFO 47960 --- [           main] c.e.l.service.TokenCleanupScheduledTask  : Scheduled token cleanup successfully finished in 9 ms.
+Hibernate: delete from password_reset_tokens where token_id=?
+Hibernate: delete from refresh_tokens where token_id=?
+Hibernate: select prt1_0.token_id,prt1_0.created_at,prt1_0.expires_at,prt1_0.request_ip,prt1_0.token_hash,prt1_0.used,prt1_0.used_at,prt1_0.user_id,prt1_0.user_agent from password_reset_tokens prt1_0 where prt1_0.token_hash=?
+Hibernate: select prt1_0.token_id,prt1_0.created_at,prt1_0.expires_at,prt1_0.request_ip,prt1_0.token_hash,prt1_0.used,prt1_0.used_at,prt1_0.user_id,prt1_0.user_agent from password_reset_tokens prt1_0 where prt1_0.token_hash=?
+Hibernate: select rt1_0.token_id,rt1_0.created_at,rt1_0.expires_at,rt1_0.family_id,rt1_0.ip_address,rt1_0.token_hash,rt1_0.used,rt1_0.user_id,rt1_0.user_agent from refresh_tokens rt1_0 where rt1_0.token_hash=?
+]]></system-out>
+  </testcase>
+  <testcase name="testTodoSoftDelete" classname="com.expense.logger.AdvancedFeaturesTest" time="0.254">
+    <system-out><![CDATA[Hibernate: select n1_0.notification_id,n1_0.category,n1_0.created_at,n1_0.deleted_at,n1_0.message,n1_0.is_read,n1_0.read_at,n1_0.severity,n1_0.title,n1_0.user_id from notifications n1_0
+Hibernate: select np1_0.user_id,np1_0.budget_warnings_enabled,np1_0.quiet_hours_enabled,np1_0.quiet_hours_end,np1_0.quiet_hours_start,np1_0.system_alerts_enabled from notification_preferences np1_0
+Hibernate: select e1_0.expense_id,e1_0.amount,e1_0.category_id,e1_0.created_at,e1_0.deleted_at,e1_0.expense_name,e1_0.transaction_date,e1_0.updated_at,e1_0.user_id from expenses e1_0
+Hibernate: select ti1_0.todo_id,ti1_0.is_completed,ti1_0.created_at,ti1_0.deleted_at,ti1_0.todo_name,ti1_0.updated_at,ti1_0.user_id from todo_items ti1_0
+Hibernate: select c1_0.category_id,c1_0.category_color,c1_0.created_at,c1_0.deleted_at,c1_0.category_name from categories c1_0
+Hibernate: select u1_0.user_id,u1_0.created_at,u1_0.deleted_at,u1_0.email,u1_0.failed_login_attempts,u1_0.lockout_until,u1_0.password_hash,u1_0.updated_at,u1_0.username from users u1_0
+Hibernate: insert into users (created_at,deleted_at,email,failed_login_attempts,lockout_until,password_hash,updated_at,username,user_id) values (?,?,?,?,?,?,?,?,?)
+Hibernate: insert into users (created_at,deleted_at,email,failed_login_attempts,lockout_until,password_hash,updated_at,username,user_id) values (?,?,?,?,?,?,?,?,?)
+Hibernate: insert into categories (category_color,created_at,deleted_at,category_name,category_id) values (?,?,?,?,default)
+Hibernate: insert into categories (category_color,created_at,deleted_at,category_name,category_id) values (?,?,?,?,default)
+2026-06-25T19:12:08.199+05:30  INFO 47960 --- [           main] c.expense.logger.config.LoggingFilter    : Incoming Request: DELETE /api/v1/todos/e49502a9-880c-4193-bf9d-4fbed6c867d3 | Client IP: 127.0.0.1
+Hibernate: select u1_0.user_id,u1_0.created_at,u1_0.deleted_at,u1_0.email,u1_0.failed_login_attempts,u1_0.lockout_until,u1_0.password_hash,u1_0.updated_at,u1_0.username from users u1_0 where u1_0.username=? and u1_0.deleted_at is null
+Hibernate: insert into todo_items (is_completed,created_at,deleted_at,todo_name,updated_at,user_id,todo_id) values (?,?,?,?,?,?,?)
+Hibernate: select ti1_0.todo_id,ti1_0.is_completed,ti1_0.created_at,ti1_0.deleted_at,ti1_0.todo_name,ti1_0.updated_at,ti1_0.user_id from todo_items ti1_0 where ti1_0.todo_id=? and ti1_0.user_id=? and ti1_0.deleted_at is null
+Hibernate: insert into audit_logs (action_type,created_at,description,user_id,log_id) values (?,?,?,?,default)
+2026-06-25T19:12:08.210+05:30  INFO 47960 --- [           main] c.expense.logger.config.LoggingFilter    : Outgoing Response: /api/v1/todos/e49502a9-880c-4193-bf9d-4fbed6c867d3 | Status: 204 | Duration: 11ms
+2026-06-25T19:12:08.214+05:30  INFO 47960 --- [           main] c.expense.logger.config.LoggingFilter    : Incoming Request: GET /api/v1/todos | Client IP: 127.0.0.1
+Hibernate: select u1_0.user_id,u1_0.created_at,u1_0.deleted_at,u1_0.email,u1_0.failed_login_attempts,u1_0.lockout_until,u1_0.password_hash,u1_0.updated_at,u1_0.username from users u1_0 where u1_0.username=? and u1_0.deleted_at is null
+Hibernate: update todo_items set is_completed=?,deleted_at=?,todo_name=?,updated_at=?,user_id=? where todo_id=?
+Hibernate: select ti1_0.todo_id,ti1_0.is_completed,ti1_0.created_at,ti1_0.deleted_at,ti1_0.todo_name,ti1_0.updated_at,ti1_0.user_id from todo_items ti1_0 where ti1_0.user_id=? and ti1_0.deleted_at is null
+2026-06-25T19:12:08.224+05:30  INFO 47960 --- [           main] c.expense.logger.config.LoggingFilter    : Outgoing Response: /api/v1/todos | Status: 200 | Duration: 10ms
+]]></system-out>
+  </testcase>
+  <testcase name="testTodoCrudAndSecurity" classname="com.expense.logger.AdvancedFeaturesTest" time="0.306">
+    <system-out><![CDATA[Hibernate: select n1_0.notification_id,n1_0.category,n1_0.created_at,n1_0.deleted_at,n1_0.message,n1_0.is_read,n1_0.read_at,n1_0.severity,n1_0.title,n1_0.user_id from notifications n1_0
+Hibernate: select np1_0.user_id,np1_0.budget_warnings_enabled,np1_0.quiet_hours_enabled,np1_0.quiet_hours_end,np1_0.quiet_hours_start,np1_0.system_alerts_enabled from notification_preferences np1_0
+Hibernate: select e1_0.expense_id,e1_0.amount,e1_0.category_id,e1_0.created_at,e1_0.deleted_at,e1_0.expense_name,e1_0.transaction_date,e1_0.updated_at,e1_0.user_id from expenses e1_0
+Hibernate: select ti1_0.todo_id,ti1_0.is_completed,ti1_0.created_at,ti1_0.deleted_at,ti1_0.todo_name,ti1_0.updated_at,ti1_0.user_id from todo_items ti1_0
+Hibernate: select c1_0.category_id,c1_0.category_color,c1_0.created_at,c1_0.deleted_at,c1_0.category_name from categories c1_0
+Hibernate: select u1_0.user_id,u1_0.created_at,u1_0.deleted_at,u1_0.email,u1_0.failed_login_attempts,u1_0.lockout_until,u1_0.password_hash,u1_0.updated_at,u1_0.username from users u1_0
+Hibernate: insert into users (created_at,deleted_at,email,failed_login_attempts,lockout_until,password_hash,updated_at,username,user_id) values (?,?,?,?,?,?,?,?,?)
+Hibernate: insert into users (created_at,deleted_at,email,failed_login_attempts,lockout_until,password_hash,updated_at,username,user_id) values (?,?,?,?,?,?,?,?,?)
+Hibernate: insert into categories (category_color,created_at,deleted_at,category_name,category_id) values (?,?,?,?,default)
+Hibernate: insert into categories (category_color,created_at,deleted_at,category_name,category_id) values (?,?,?,?,default)
+2026-06-25T19:12:08.444+05:30  INFO 47960 --- [           main] c.expense.logger.config.LoggingFilter    : Incoming Request: POST /api/v1/todos | Client IP: 127.0.0.1
+Hibernate: select u1_0.user_id,u1_0.created_at,u1_0.deleted_at,u1_0.email,u1_0.failed_login_attempts,u1_0.lockout_until,u1_0.password_hash,u1_0.updated_at,u1_0.username from users u1_0 where u1_0.username=? and u1_0.deleted_at is null
+Hibernate: insert into todo_items (is_completed,created_at,deleted_at,todo_name,updated_at,user_id,todo_id) values (?,?,?,?,?,?,?)
+Hibernate: insert into audit_logs (action_type,created_at,description,user_id,log_id) values (?,?,?,?,default)
+2026-06-25T19:12:08.468+05:30  INFO 47960 --- [           main] c.expense.logger.config.LoggingFilter    : Outgoing Response: /api/v1/todos | Status: 201 | Duration: 24ms
+Hibernate: select ti1_0.todo_id,ti1_0.is_completed,ti1_0.created_at,ti1_0.deleted_at,ti1_0.todo_name,ti1_0.updated_at,ti1_0.user_id from todo_items ti1_0 where ti1_0.todo_id=? and ti1_0.user_id=? and ti1_0.deleted_at is null
+2026-06-25T19:12:08.477+05:30  INFO 47960 --- [           main] c.expense.logger.config.LoggingFilter    : Incoming Request: GET /api/v1/todos | Client IP: 127.0.0.1
+Hibernate: select u1_0.user_id,u1_0.created_at,u1_0.deleted_at,u1_0.email,u1_0.failed_login_attempts,u1_0.lockout_until,u1_0.password_hash,u1_0.updated_at,u1_0.username from users u1_0 where u1_0.username=? and u1_0.deleted_at is null
+Hibernate: select ti1_0.todo_id,ti1_0.is_completed,ti1_0.created_at,ti1_0.deleted_at,ti1_0.todo_name,ti1_0.updated_at,ti1_0.user_id from todo_items ti1_0 where ti1_0.user_id=? and ti1_0.is_completed=? and ti1_0.deleted_at is null
+2026-06-25T19:12:08.485+05:30  INFO 47960 --- [           main] c.expense.logger.config.LoggingFilter    : Outgoing Response: /api/v1/todos | Status: 200 | Duration: 8ms
+2026-06-25T19:12:08.488+05:30  INFO 47960 --- [           main] c.expense.logger.config.LoggingFilter    : Incoming Request: PATCH /api/v1/todos/58e4794b-4a3b-4720-81a3-cef2d18de459/toggle | Client IP: 127.0.0.1
+Hibernate: select u1_0.user_id,u1_0.created_at,u1_0.deleted_at,u1_0.email,u1_0.failed_login_attempts,u1_0.lockout_until,u1_0.password_hash,u1_0.updated_at,u1_0.username from users u1_0 where u1_0.username=? and u1_0.deleted_at is null
+Hibernate: select ti1_0.todo_id,ti1_0.is_completed,ti1_0.created_at,ti1_0.deleted_at,ti1_0.todo_name,ti1_0.updated_at,ti1_0.user_id from todo_items ti1_0 where ti1_0.todo_id=? and ti1_0.user_id=? and ti1_0.deleted_at is null
+Hibernate: insert into audit_logs (action_type,created_at,description,user_id,log_id) values (?,?,?,?,default)
+2026-06-25T19:12:08.495+05:30  INFO 47960 --- [           main] c.expense.logger.config.LoggingFilter    : Outgoing Response: /api/v1/todos/58e4794b-4a3b-4720-81a3-cef2d18de459/toggle | Status: 200 | Duration: 7ms
+2026-06-25T19:12:08.499+05:30  INFO 47960 --- [           main] c.expense.logger.config.LoggingFilter    : Incoming Request: GET /api/v1/todos | Client IP: 127.0.0.1
+Hibernate: select u1_0.user_id,u1_0.created_at,u1_0.deleted_at,u1_0.email,u1_0.failed_login_attempts,u1_0.lockout_until,u1_0.password_hash,u1_0.updated_at,u1_0.username from users u1_0 where u1_0.username=? and u1_0.deleted_at is null
+Hibernate: update todo_items set is_completed=?,deleted_at=?,todo_name=?,updated_at=?,user_id=? where todo_id=?
+Hibernate: select ti1_0.todo_id,ti1_0.is_completed,ti1_0.created_at,ti1_0.deleted_at,ti1_0.todo_name,ti1_0.updated_at,ti1_0.user_id from todo_items ti1_0 where ti1_0.user_id=? and ti1_0.is_completed=? and ti1_0.deleted_at is null
+2026-06-25T19:12:08.511+05:30  INFO 47960 --- [           main] c.expense.logger.config.LoggingFilter    : Outgoing Response: /api/v1/todos | Status: 200 | Duration: 12ms
+2026-06-25T19:12:08.514+05:30  INFO 47960 --- [           main] c.expense.logger.config.LoggingFilter    : Incoming Request: GET /api/v1/todos | Client IP: 127.0.0.1
+Hibernate: select u1_0.user_id,u1_0.created_at,u1_0.deleted_at,u1_0.email,u1_0.failed_login_attempts,u1_0.lockout_until,u1_0.password_hash,u1_0.updated_at,u1_0.username from users u1_0 where u1_0.username=? and u1_0.deleted_at is null
+Hibernate: select ti1_0.todo_id,ti1_0.is_completed,ti1_0.created_at,ti1_0.deleted_at,ti1_0.todo_name,ti1_0.updated_at,ti1_0.user_id from todo_items ti1_0 where ti1_0.user_id=? and ti1_0.is_completed=? and ti1_0.deleted_at is null
+2026-06-25T19:12:08.520+05:30  INFO 47960 --- [           main] c.expense.logger.config.LoggingFilter    : Outgoing Response: /api/v1/todos | Status: 200 | Duration: 6ms
+2026-06-25T19:12:08.523+05:30  INFO 47960 --- [           main] c.expense.logger.config.LoggingFilter    : Incoming Request: PUT /api/v1/todos/58e4794b-4a3b-4720-81a3-cef2d18de459 | Client IP: 127.0.0.1
+Hibernate: select u1_0.user_id,u1_0.created_at,u1_0.deleted_at,u1_0.email,u1_0.failed_login_attempts,u1_0.lockout_until,u1_0.password_hash,u1_0.updated_at,u1_0.username from users u1_0 where u1_0.username=? and u1_0.deleted_at is null
+Hibernate: select ti1_0.todo_id,ti1_0.is_completed,ti1_0.created_at,ti1_0.deleted_at,ti1_0.todo_name,ti1_0.updated_at,ti1_0.user_id from todo_items ti1_0 where ti1_0.todo_id=? and ti1_0.user_id=? and ti1_0.deleted_at is null
+Hibernate: insert into audit_logs (action_type,created_at,description,user_id,log_id) values (?,?,?,?,default)
+2026-06-25T19:12:08.534+05:30  INFO 47960 --- [           main] c.expense.logger.config.LoggingFilter    : Outgoing Response: /api/v1/todos/58e4794b-4a3b-4720-81a3-cef2d18de459 | Status: 200 | Duration: 11ms
+]]></system-out>
+  </testcase>
+</testsuite>
