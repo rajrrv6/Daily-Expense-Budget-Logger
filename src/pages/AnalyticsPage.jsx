@@ -1,0 +1,404 @@
+import React, { useState, useEffect, useCallback, useMemo, Suspense } from 'react';
+import { getMonthlyTrends, getCategoryComparison, getRangeAggregation, getBudgetForecast } from '../services/expenseService';
+import { useNotification } from '../context/NotificationContext';
+import SkeletonCard from '../components/common/SkeletonCard';
+
+// Lazy-load Recharts wrappers to split chunks
+const CategoryPieChart = React.lazy(() => import('../components/charts/CategoryPieChart'));
+const MonthlyTrendChart = React.lazy(() => import('../components/charts/MonthlyTrendChart'));
+const CategoryComparisonChart = React.lazy(() => import('../components/charts/CategoryComparisonChart'));
+
+const ChartPlaceholder = () => (
+  <div className="h-64 w-full flex items-center justify-center bg-slate-950/30 rounded-lg border border-slate-800/60 animate-pulse">
+    <span className="text-xs text-slate-500">Loading visual data...</span>
+  </div>
+);
+
+export default function AnalyticsPage() {
+  const { showNotification } = useNotification();
+
+  // Active Tab state: 'overview' | 'comparison' | 'custom' | 'forecast'
+  const [activeTab, setActiveTab] = useState('overview');
+
+  // Analytical data states
+  const [trends, setTrends] = useState([]);
+  const [comparison, setComparison] = useState([]);
+  const [forecast, setForecast] = useState(null);
+
+  // Custom date range state
+  const [startDate, setStartDate] = useState(
+    new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().split('T')[0]
+  );
+  const [endDate, setEndDate] = useState(new Date().toISOString().split('T')[0]);
+  const [customAggregation, setCustomAggregation] = useState(null);
+
+  // Loading and Error states
+  const [loading, setLoading] = useState(false);
+  const [customLoading, setCustomLoading] = useState(false);
+
+  // Load baseline statistics
+  const loadBaselineData = useCallback(async () => {
+    setLoading(true);
+    try {
+      const [trendData, compData, forecastData] = await Promise.all([
+        getMonthlyTrends(),
+        getCategoryComparison(),
+        getBudgetForecast(),
+      ]);
+      setTrends(trendData);
+      setComparison(compData);
+      setForecast(forecastData);
+    } catch (err) {
+      showNotification(err.response?.data?.message || 'Failed to load analytical metrics.', 'error');
+    } finally {
+      setLoading(false);
+    }
+  }, [showNotification]);
+
+  // Load custom range data
+  const handleCustomQuery = useCallback(async () => {
+    if (!startDate || !endDate) {
+      showNotification('Both Start Date and End Date are required.', 'error');
+      return;
+    }
+
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+
+    if (start > end) {
+      showNotification('Start Date must be before or equal to End Date.', 'error');
+      return;
+    }
+
+    const diffDays = Math.ceil(Math.abs(end - start) / (1000 * 60 * 60 * 24)) + 1;
+    if (diffDays > 366) {
+      showNotification('Custom aggregation window cannot exceed 1 year (366 days).', 'error');
+      return;
+    }
+
+    setCustomLoading(true);
+    try {
+      const result = await getRangeAggregation(startDate, endDate);
+      setCustomAggregation(result);
+    } catch (err) {
+      showNotification(err.response?.data?.message || 'Failed to retrieve range aggregation data.', 'error');
+    } finally {
+      setCustomLoading(false);
+    }
+  }, [startDate, endDate, showNotification]);
+
+  useEffect(() => {
+    loadBaselineData();
+  }, [loadBaselineData]);
+
+  // Trigger custom query automatically if we are in custom tab and have values
+  useEffect(() => {
+    if (activeTab === 'custom' && !customAggregation) {
+      handleCustomQuery();
+    }
+  }, [activeTab, customAggregation, handleCustomQuery]);
+
+  // Memoize mapped dataset transformations to prevent inline object/array recreation in props
+  const trendsChartData = useMemo(() => {
+    return trends.map(t => ({
+      month: t.month,
+      totalAmount: parseFloat(t.totalAmount),
+    }));
+  }, [trends]);
+
+  const comparisonChartData = useMemo(() => {
+    return comparison.map(c => ({
+      categoryName: c.categoryName,
+      currentMonthAmount: parseFloat(c.currentMonthAmount),
+      previousMonthAmount: parseFloat(c.previousMonthAmount),
+      color: c.color,
+    }));
+  }, [comparison]);
+
+  const customPieData = useMemo(() => {
+    return customAggregation?.categoryBreakdown?.map(item => ({
+      name: item.categoryName,
+      value: parseFloat(item.totalAmount),
+      color: item.color || '#4F46E5',
+    })) || [];
+  }, [customAggregation?.categoryBreakdown]);
+
+  return (
+    <div className="space-y-6">
+      {/* Title Header */}
+      <div className="p-6 bg-slate-900 border border-slate-800 rounded-xl">
+        <h3 className="text-xl font-semibold text-slate-100">Advanced Analytics &amp; Reports</h3>
+        <p className="text-sm text-slate-400 mt-1">
+          Detailed metrics, spending visual graphs, and forecasting insights.
+        </p>
+      </div>
+
+      {/* Tab controls - Accessibility enabled */}
+      <div className="flex border-b border-slate-800 gap-2" role="tablist" aria-label="Analytics Tab Categories">
+        <button
+          onClick={() => setActiveTab('overview')}
+          className={`px-4 py-2 text-sm font-semibold transition-all border-b-2 outline-none ${
+            activeTab === 'overview'
+              ? 'border-brand-500 text-slate-100'
+              : 'border-transparent text-slate-400 hover:text-slate-200'
+          }`}
+          role="tab"
+          aria-selected={activeTab === 'overview'}
+          aria-controls="panel-overview"
+          id="tab-overview"
+        >
+          Monthly Spending Trends
+        </button>
+        <button
+          onClick={() => setActiveTab('comparison')}
+          className={`px-4 py-2 text-sm font-semibold transition-all border-b-2 outline-none ${
+            activeTab === 'comparison'
+              ? 'border-brand-500 text-slate-100'
+              : 'border-transparent text-slate-400 hover:text-slate-200'
+          }`}
+          role="tab"
+          aria-selected={activeTab === 'comparison'}
+          aria-controls="panel-comparison"
+          id="tab-comparison"
+        >
+          MoM Category Comparison
+        </button>
+        <button
+          onClick={() => setActiveTab('custom')}
+          className={`px-4 py-2 text-sm font-semibold transition-all border-b-2 outline-none ${
+            activeTab === 'custom'
+              ? 'border-brand-500 text-slate-100'
+              : 'border-transparent text-slate-400 hover:text-slate-200'
+          }`}
+          role="tab"
+          aria-selected={activeTab === 'custom'}
+          aria-controls="panel-custom"
+          id="tab-custom"
+        >
+          Custom Range Breakdown
+        </button>
+        <button
+          onClick={() => setActiveTab('forecast')}
+          className={`px-4 py-2 text-sm font-semibold transition-all border-b-2 outline-none ${
+            activeTab === 'forecast'
+              ? 'border-brand-500 text-slate-100'
+              : 'border-transparent text-slate-400 hover:text-slate-200'
+          }`}
+          role="tab"
+          aria-selected={activeTab === 'forecast'}
+          aria-controls="panel-forecast"
+          id="tab-forecast"
+        >
+          Budget Forecasting
+        </button>
+      </div>
+
+      {/* Tab Panels */}
+      {loading ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <SkeletonCard />
+          <SkeletonCard />
+        </div>
+      ) : (
+        <div className="min-h-[400px]">
+          {/* Tab 1: Monthly Trends */}
+          {activeTab === 'overview' && (
+            <div
+              id="panel-overview"
+              role="tabpanel"
+              aria-labelledby="tab-overview"
+              className="p-6 bg-slate-900 border border-slate-800 rounded-xl space-y-4"
+            >
+              <div>
+                <h4 className="text-base font-semibold text-slate-200">Historical Spending Trends</h4>
+                <p className="text-xs text-slate-400 mt-0.5">Chronological summary of your monthly spending.</p>
+              </div>
+              <div className="pt-4">
+                <Suspense fallback={<ChartPlaceholder />}>
+                  <MonthlyTrendChart data={trendsChartData} />
+                </Suspense>
+              </div>
+            </div>
+          )}
+
+          {/* Tab 2: MoM Category Comparison */}
+          {activeTab === 'comparison' && (
+            <div
+              id="panel-comparison"
+              role="tabpanel"
+              aria-labelledby="tab-comparison"
+              className="p-6 bg-slate-900 border border-slate-800 rounded-xl space-y-4"
+            >
+              <div>
+                <h4 className="text-base font-semibold text-slate-200">Month-Over-Month Comparison</h4>
+                <p className="text-xs text-slate-400 mt-0.5">Compares category-specific spending between the current month and the previous month.</p>
+              </div>
+              <div className="pt-4">
+                <Suspense fallback={<ChartPlaceholder />}>
+                  <CategoryComparisonChart data={comparisonChartData} />
+                </Suspense>
+              </div>
+            </div>
+          )}
+
+          {/* Tab 3: Custom Range Breakdown */}
+          {activeTab === 'custom' && (
+            <div
+              id="panel-custom"
+              role="tabpanel"
+              aria-labelledby="tab-custom"
+              className="space-y-6"
+            >
+              {/* Date Filters Panel */}
+              <div className="p-6 bg-slate-900 border border-slate-800 rounded-xl flex flex-wrap gap-4 items-end">
+                <div className="space-y-1">
+                  <label htmlFor="custom-start-date" className="block text-xs font-semibold text-slate-400">
+                    Start Date
+                  </label>
+                  <input
+                    id="custom-start-date"
+                    type="date"
+                    value={startDate}
+                    onChange={(e) => setStartDate(e.target.value)}
+                    className="px-3 py-2 text-sm text-slate-200 bg-slate-950 border border-slate-850 rounded-lg outline-none focus:border-brand-500"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label htmlFor="custom-end-date" className="block text-xs font-semibold text-slate-400">
+                    End Date
+                  </label>
+                  <input
+                    id="custom-end-date"
+                    type="date"
+                    value={endDate}
+                    onChange={(e) => setEndDate(e.target.value)}
+                    className="px-3 py-2 text-sm text-slate-200 bg-slate-950 border border-slate-850 rounded-lg outline-none focus:border-brand-500"
+                  />
+                </div>
+                <button
+                  onClick={handleCustomQuery}
+                  disabled={customLoading}
+                  className="px-4 py-2 text-sm font-semibold text-white bg-brand-500 hover:bg-brand-600 rounded-lg transition-colors disabled:opacity-50"
+                  aria-label="Calculate spending metrics for selected range"
+                >
+                  {customLoading ? 'Calculating...' : 'Run Query'}
+                </button>
+              </div>
+
+              {/* Aggregation results output */}
+              {customLoading ? (
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  <SkeletonCard />
+                  <SkeletonCard />
+                  <SkeletonCard />
+                </div>
+              ) : customAggregation ? (
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                  {/* Aggregation Metrics Cards */}
+                  <div className="lg:col-span-1 space-y-6">
+                    <div className="p-6 bg-slate-900 border border-slate-800 rounded-xl">
+                      <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider block">
+                        Total Spent (Selected Range)
+                      </span>
+                      <h4 className="text-3xl font-bold text-slate-100 mt-2">
+                        ${parseFloat(customAggregation.totalSpent).toFixed(2)}
+                      </h4>
+                    </div>
+
+                    <div className="p-6 bg-slate-900 border border-slate-800 rounded-xl">
+                      <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider block">
+                        Daily Average Spends
+                      </span>
+                      <h4 className="text-3xl font-bold text-slate-100 mt-2">
+                        ${parseFloat(customAggregation.averageSpentPerDay).toFixed(2)}
+                      </h4>
+                    </div>
+                  </div>
+
+                  {/* Range Pie Chart */}
+                  <div className="lg:col-span-2 p-6 bg-slate-900 border border-slate-800 rounded-xl flex flex-col justify-between">
+                    <h4 className="text-sm font-semibold text-slate-200 mb-4">Range Category Breakdown</h4>
+                    {customPieData.length === 0 ? (
+                      <div className="flex-1 flex items-center justify-center text-slate-500 text-sm h-64">
+                        No transactions recorded in this range.
+                      </div>
+                    ) : (
+                      <Suspense fallback={<ChartPlaceholder />}>
+                        <CategoryPieChart data={customPieData} />
+                      </Suspense>
+                    )}
+                  </div>
+                </div>
+              ) : (
+                <div className="p-12 text-center border border-slate-850 rounded-xl text-slate-500 text-sm bg-slate-900/50">
+                  Select a date range and click Run Query to view breakdown metrics.
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Tab 4: Budget Forecasting */}
+          {activeTab === 'forecast' && forecast && (
+            <div
+              id="panel-forecast"
+              role="tabpanel"
+              aria-labelledby="tab-forecast"
+              className="space-y-6"
+            >
+              {/* Forecast Header Panel */}
+              <div className="p-6 bg-slate-900 border border-slate-800 rounded-xl grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div>
+                  <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider block">
+                    Forecasted Next-Month Spend
+                  </span>
+                  <h4 className="text-3xl font-bold text-slate-100 mt-2">
+                    ${parseFloat(forecast.forecastedAmount).toFixed(2)}
+                  </h4>
+                </div>
+                <div>
+                  <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider block">
+                    Projection Confidence
+                  </span>
+                  <div className="mt-2.5">
+                    <span
+                      className={`inline-block px-3 py-1 text-xs font-bold rounded-full border ${
+                        forecast.confidenceLevel === 'HIGH'
+                          ? 'bg-emerald-950/40 text-emerald-400 border-emerald-800'
+                          : forecast.confidenceLevel === 'MEDIUM'
+                          ? 'bg-amber-950/40 text-amber-400 border-amber-800'
+                          : 'bg-slate-950/40 text-slate-400 border-slate-800'
+                      }`}
+                    >
+                      {forecast.confidenceLevel} CONFIDENCE
+                    </span>
+                  </div>
+                </div>
+                <div>
+                  <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider block">
+                    Calculation Basis
+                  </span>
+                  <p className="text-xs text-slate-300 mt-2 font-medium">
+                    {forecast.basis}
+                  </p>
+                </div>
+              </div>
+
+              {/* Recommendations panel */}
+              <div className="p-6 bg-slate-900 border border-slate-800 rounded-xl space-y-4">
+                <h4 className="text-sm font-semibold text-slate-200">Personalized Budgeting Recommendations</h4>
+                <ul className="space-y-3.5 pl-1">
+                  {forecast.recommendations.map((rec, index) => (
+                    <li key={index} className="flex gap-3 text-sm text-slate-300 leading-relaxed items-start">
+                      <span className="text-brand-300 font-semibold text-base mt-[-2px]">•</span>
+                      <span>{rec}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}

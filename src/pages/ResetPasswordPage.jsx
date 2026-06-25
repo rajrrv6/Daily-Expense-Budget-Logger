@@ -1,0 +1,163 @@
+import React, { useState } from 'react';
+import { Link, useSearchParams } from 'react-router-dom';
+import { useForm } from 'react-hook-form';
+import { z } from 'zod';
+import { zodResolver } from '@hookform/resolvers/zod';
+import apiClient from '../services/apiClient';
+
+const resetPasswordSchema = z.object({
+  token: z.string().trim().min(1, 'Reset token is required'),
+  newPassword: z.string().min(6, 'Password must be at least 6 characters'),
+  confirmPassword: z.string().min(1, 'Confirm password cannot be empty'),
+}).refine((data) => data.newPassword === data.confirmPassword, {
+  message: 'Passwords do not match',
+  path: ['confirmPassword'],
+});
+
+export default function ResetPasswordPage() {
+  const [searchParams] = useSearchParams();
+  const tokenFromUrl = searchParams.get('token') || '';
+
+  const [successMessage, setSuccessMessage] = useState('');
+  const [submitError, setSubmitError] = useState('');
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = useForm({
+    resolver: zodResolver(resetPasswordSchema),
+    defaultValues: {
+      token: tokenFromUrl,
+      newPassword: '',
+      confirmPassword: '',
+    },
+  });
+
+  const onSubmit = async (data) => {
+    setSuccessMessage('');
+    setSubmitError('');
+    try {
+      await apiClient.post('/api/v1/auth/reset-password', {
+        token: data.token,
+        newPassword: data.newPassword,
+      });
+      setSuccessMessage('Password has been reset successfully. You can now sign in.');
+    } catch (err) {
+      setSubmitError(err.response?.data?.message || 'Failed to reset password. The link may be invalid or expired.');
+    }
+  };
+
+  return (
+    <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-brand-600/20 p-4">
+      <div className="w-full max-w-md p-8 bg-slate-900/60 backdrop-blur-xl border border-slate-800 rounded-2xl shadow-2xl">
+        {/* Title */}
+        <div className="text-center mb-8">
+          <span className="text-4xl">🔄</span>
+          <h2 className="mt-4 text-2xl font-bold tracking-tight text-slate-100">Set New Password</h2>
+          <p className="mt-2 text-sm text-slate-400">Complete the form below to restore your account access</p>
+        </div>
+
+        {/* Success Alert */}
+        {successMessage && (
+          <div className="space-y-4">
+            <div className="p-4 text-sm text-emerald-200 bg-emerald-950/40 border border-emerald-800 rounded-lg">
+              ✅ {successMessage}
+            </div>
+            <Link
+              to="/login"
+              className="block w-full py-3 text-center text-sm font-semibold text-white bg-brand-500 rounded-lg hover:bg-brand-600 focus:outline-none transition-all hover:shadow-lg hover:shadow-brand-500/25"
+            >
+              Go to Sign In
+            </Link>
+          </div>
+        )}
+
+        {/* Error Alert */}
+        {submitError && (
+          <div className="p-4 mb-6 text-sm text-red-200 bg-red-950/40 border border-red-800 rounded-lg">
+            ⚠️ {submitError}
+          </div>
+        )}
+
+        {/* Reset Form */}
+        {!successMessage && (
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+            {/* Reset Token Input (Hidden if provided via URL) */}
+            {!tokenFromUrl && (
+              <div>
+                <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">
+                  Reset Token
+                </label>
+                <input
+                  type="text"
+                  {...register('token')}
+                  placeholder="Enter the reset token sent to your email"
+                  className={`w-full px-4 py-3 text-sm text-slate-100 bg-slate-950/80 border ${
+                    errors.token ? 'border-red-800 focus:border-red-800' : 'border-slate-800 focus:border-brand-500'
+                  } rounded-lg focus:outline-none transition-colors`}
+                />
+                {errors.token && (
+                  <span className="block text-xs text-red-400 mt-1">{errors.token.message}</span>
+                )}
+              </div>
+            )}
+
+            {/* New Password */}
+            <div>
+              <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">
+                New Password
+              </label>
+              <input
+                type="password"
+                {...register('newPassword')}
+                placeholder="••••••••"
+                className={`w-full px-4 py-3 text-sm text-slate-100 bg-slate-950/80 border ${
+                  errors.newPassword ? 'border-red-800 focus:border-red-800' : 'border-slate-800 focus:border-brand-500'
+                } rounded-lg focus:outline-none transition-colors`}
+              />
+              {errors.newPassword && (
+                <span className="block text-xs text-red-400 mt-1">{errors.newPassword.message}</span>
+              )}
+            </div>
+
+            {/* Confirm Password */}
+            <div>
+              <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">
+                Confirm New Password
+              </label>
+              <input
+                type="password"
+                {...register('confirmPassword')}
+                placeholder="••••••••"
+                className={`w-full px-4 py-3 text-sm text-slate-100 bg-slate-950/80 border ${
+                  errors.confirmPassword ? 'border-red-800 focus:border-red-800' : 'border-slate-800 focus:border-brand-500'
+                } rounded-lg focus:outline-none transition-colors`}
+              />
+              {errors.confirmPassword && (
+                <span className="block text-xs text-red-400 mt-1">{errors.confirmPassword.message}</span>
+              )}
+            </div>
+
+            <button
+              type="submit"
+              disabled={isSubmitting}
+              className="w-full py-3 text-sm font-semibold text-white bg-brand-500 rounded-lg hover:bg-brand-600 focus:outline-none transition-all disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-lg hover:shadow-brand-500/25"
+            >
+              {isSubmitting ? 'Resetting password...' : 'Update Password'}
+            </button>
+          </form>
+        )}
+
+        {!successMessage && (
+          <div className="mt-6 text-center text-sm text-slate-400">
+            Cancel and return to{' '}
+            <Link to="/login" className="font-semibold text-brand-100 hover:text-white transition-colors">
+              Sign In
+            </Link>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
