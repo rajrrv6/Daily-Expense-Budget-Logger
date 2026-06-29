@@ -57,6 +57,7 @@ public class AnalyticsServiceImpl implements AnalyticsService {
 
         // Fetch user active budgets
         List<Budget> activeBudgets = budgetRepository.findAllByUserIdAndDeletedAtIsNull(userId);
+        List<Expense> allUserExpenses = expenseRepository.findAllByUserIdAndDeletedAtIsNull(userId);
 
         // 2. Budget Limit Calculation
         BigDecimal budgetLimit = BigDecimal.ZERO;
@@ -119,11 +120,17 @@ public class AnalyticsServiceImpl implements AnalyticsService {
         List<BudgetSummaryDto> budgetSummaries = new java.util.ArrayList<>();
         for (Budget budget : activeBudgets) {
             BigDecimal spent = BigDecimal.ZERO;
+            final LocalDate budgetStart = budget.getStartDate();
+            final LocalDate budgetEnd = budget.getEndDate();
             if (budget.getCategory() == null) {
-                spent = totalExpenses;
+                spent = allUserExpenses.stream()
+                        .filter(e -> !e.getTransactionDate().isBefore(budgetStart) && !e.getTransactionDate().isAfter(budgetEnd))
+                        .map(Expense::getAmount)
+                        .reduce(BigDecimal.ZERO, BigDecimal::add);
             } else {
                 final Long categoryId = budget.getCategory().getId();
-                spent = monthExpenses.stream()
+                spent = allUserExpenses.stream()
+                        .filter(e -> !e.getTransactionDate().isBefore(budgetStart) && !e.getTransactionDate().isAfter(budgetEnd))
                         .filter(e -> e.getCategory() != null && e.getCategory().getId().equals(categoryId))
                         .map(Expense::getAmount)
                         .reduce(BigDecimal.ZERO, BigDecimal::add);
@@ -181,6 +188,7 @@ public class AnalyticsServiceImpl implements AnalyticsService {
     @Override
     public List<MonthlyTrendDto> getMonthlyTrends(UUID userId) {
         List<Expense> expenses = expenseRepository.findAllByUserIdAndDeletedAtIsNull(userId);
+        List<Budget> budgets = budgetRepository.findAllByUserIdAndDeletedAtIsNull(userId);
 
         Map<String, BigDecimal> monthlyTotals = expenses.stream()
                 .collect(Collectors.groupingBy(
@@ -188,8 +196,50 @@ public class AnalyticsServiceImpl implements AnalyticsService {
                         Collectors.reducing(BigDecimal.ZERO, Expense::getAmount, BigDecimal::add)
                 ));
 
-        return monthlyTotals.entrySet().stream()
-                .map(entry -> new MonthlyTrendDto(entry.getKey(), entry.getValue()))
+        // Create a unique set of all months covered by expenses and budget configurations
+        java.util.Set<String> allMonths = new java.util.HashSet<>(monthlyTotals.keySet());
+        for (Budget budget : budgets) {
+            LocalDate current = budget.getStartDate();
+            while (!current.isAfter(budget.getEndDate())) {
+                String monthKey = current.getYear() + "-" + String.format("%02d", current.getMonthValue());
+                allMonths.add(monthKey);
+                current = current.plusMonths(1);
+            }
+        }
+
+        List<MonthlyTrendDto> trends = new java.util.ArrayList<>();
+        for (String monthKey : allMonths) {
+            String[] parts = monthKey.split("-");
+            int year = Integer.parseInt(parts[0]);
+            int monthVal = Integer.parseInt(parts[1]);
+            LocalDate monthStart = LocalDate.of(year, monthVal, 1);
+            LocalDate monthEnd = monthStart.with(java.time.temporal.TemporalAdjusters.lastDayOfMonth());
+
+            BigDecimal spent = monthlyTotals.getOrDefault(monthKey, BigDecimal.ZERO);
+
+            // Find global budget configuration overlapping this month range
+            Budget globalBudget = budgets.stream()
+                    .filter(b -> b.getCategory() == null)
+                    .filter(b -> !b.getStartDate().isAfter(monthEnd) && !b.getEndDate().isBefore(monthStart))
+                    .findFirst()
+                    .orElse(null);
+
+            BigDecimal limit = BigDecimal.ZERO;
+            if (globalBudget != null) {
+                limit = globalBudget.getMonthlyLimit();
+            } else {
+                // Otherwise sum all active category budgets for this month
+                limit = budgets.stream()
+                        .filter(b -> b.getCategory() != null)
+                        .filter(b -> !b.getStartDate().isAfter(monthEnd) && !b.getEndDate().isBefore(monthStart))
+                        .map(Budget::getMonthlyLimit)
+                        .reduce(BigDecimal.ZERO, BigDecimal::add);
+            }
+
+            trends.add(new MonthlyTrendDto(monthKey, spent, limit));
+        }
+
+        return trends.stream()
                 .sorted(Comparator.comparing(MonthlyTrendDto::getMonth))
                 .collect(Collectors.toList());
     }

@@ -23,6 +23,14 @@ public class BudgetResponseDto {
     private int warningThresholdPercent;
     private LocalDate startDate;
     private LocalDate endDate;
+    
+    // Period-specific dynamic calculation fields
+    private BigDecimal spent;
+    private BigDecimal remaining;
+    private BigDecimal utilizationPercentage;
+    private boolean exceeded;
+    private boolean warningTriggered;
+    
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }

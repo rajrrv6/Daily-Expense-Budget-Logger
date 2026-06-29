@@ -8,13 +8,17 @@ import com.expense.logger.model.AuditLog;
 import com.expense.logger.model.Budget;
 import com.expense.logger.model.Category;
 import com.expense.logger.model.User;
+import com.expense.logger.model.Expense;
 import com.expense.logger.repository.AuditLogRepository;
 import com.expense.logger.repository.BudgetRepository;
 import com.expense.logger.repository.CategoryRepository;
 import com.expense.logger.repository.UserRepository;
+import com.expense.logger.repository.ExpenseRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
@@ -28,15 +32,18 @@ public class BudgetServiceImpl implements BudgetService {
     private final UserRepository userRepository;
     private final CategoryRepository categoryRepository;
     private final AuditLogRepository auditLogRepository;
+    private final ExpenseRepository expenseRepository;
 
     public BudgetServiceImpl(BudgetRepository budgetRepository,
                              UserRepository userRepository,
                              CategoryRepository categoryRepository,
-                             AuditLogRepository auditLogRepository) {
+                             AuditLogRepository auditLogRepository,
+                             ExpenseRepository expenseRepository) {
         this.budgetRepository = budgetRepository;
         this.userRepository = userRepository;
         this.categoryRepository = categoryRepository;
         this.auditLogRepository = auditLogRepository;
+        this.expenseRepository = expenseRepository;
     }
 
     @Override
@@ -68,15 +75,17 @@ public class BudgetServiceImpl implements BudgetService {
         logEvent("BUDGET_CREATE", "Budget created: limit=" + budget.getMonthlyLimit() + ", category=" + 
                 (category != null ? category.getName() : "Global"), user);
 
-        return mapToDto(budget);
+        List<Expense> expenses = expenseRepository.findAllByUserIdAndDeletedAtIsNull(userId);
+        return mapToDto(budget, expenses);
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<BudgetResponseDto> getBudgets(UUID userId) {
         List<Budget> budgets = budgetRepository.findAllByUserIdAndDeletedAtIsNull(userId);
+        List<Expense> expenses = expenseRepository.findAllByUserIdAndDeletedAtIsNull(userId);
         return budgets.stream()
-                .map(this::mapToDto)
+                .map(b -> mapToDto(b, expenses))
                 .collect(Collectors.toList());
     }
 
@@ -105,7 +114,8 @@ public class BudgetServiceImpl implements BudgetService {
 
         logEvent("BUDGET_UPDATE", "Budget updated: id=" + budget.getId() + ", limit=" + budget.getMonthlyLimit(), budget.getUser());
 
-        return mapToDto(budget);
+        List<Expense> expenses = expenseRepository.findAllByUserIdAndDeletedAtIsNull(userId);
+        return mapToDto(budget, expenses);
     }
 
     @Override
@@ -128,7 +138,40 @@ public class BudgetServiceImpl implements BudgetService {
         auditLogRepository.save(auditLog);
     }
 
-    private BudgetResponseDto mapToDto(Budget budget) {
+    private BudgetResponseDto mapToDto(Budget budget, List<Expense> userExpenses) {
+        BigDecimal spent = BigDecimal.ZERO;
+        LocalDate start = budget.getStartDate();
+        LocalDate end = budget.getEndDate();
+        
+        if (budget.getCategory() == null) {
+            // Global budget: sum all user expenses within budget validity date range
+            spent = userExpenses.stream()
+                    .filter(e -> !e.getTransactionDate().isBefore(start) && !e.getTransactionDate().isAfter(end))
+                    .map(Expense::getAmount)
+                    .reduce(BigDecimal.ZERO, BigDecimal::add);
+        } else {
+            // Category-specific budget: filter by category and date range
+            final Long categoryId = budget.getCategory().getId();
+            spent = userExpenses.stream()
+                    .filter(e -> !e.getTransactionDate().isBefore(start) && !e.getTransactionDate().isAfter(end))
+                    .filter(e -> e.getCategory() != null && e.getCategory().getId().equals(categoryId))
+                    .map(Expense::getAmount)
+                    .reduce(BigDecimal.ZERO, BigDecimal::add);
+        }
+
+        BigDecimal remaining = budget.getMonthlyLimit().subtract(spent);
+        
+        BigDecimal util = BigDecimal.ZERO;
+        if (budget.getMonthlyLimit().compareTo(BigDecimal.ZERO) > 0) {
+            util = spent.multiply(new BigDecimal("100")).divide(budget.getMonthlyLimit(), 2, java.math.RoundingMode.HALF_UP);
+        }
+
+        boolean exceeded = spent.compareTo(budget.getMonthlyLimit()) > 0;
+        BigDecimal thresholdAmount = budget.getMonthlyLimit()
+                .multiply(new BigDecimal(budget.getWarningThresholdPercent()))
+                .divide(new BigDecimal("100"), 2, java.math.RoundingMode.HALF_UP);
+        boolean warningTriggered = spent.compareTo(thresholdAmount) >= 0;
+
         return BudgetResponseDto.builder()
                 .id(budget.getId())
                 .categoryId(budget.getCategory() != null ? budget.getCategory().getId() : null)
@@ -138,6 +181,11 @@ public class BudgetServiceImpl implements BudgetService {
                 .warningThresholdPercent(budget.getWarningThresholdPercent())
                 .startDate(budget.getStartDate())
                 .endDate(budget.getEndDate())
+                .spent(spent)
+                .remaining(remaining)
+                .utilizationPercentage(util)
+                .exceeded(exceeded)
+                .warningTriggered(warningTriggered)
                 .createdAt(budget.getCreatedAt())
                 .updatedAt(budget.getUpdatedAt())
                 .build();

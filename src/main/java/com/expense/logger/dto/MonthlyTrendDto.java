@@ -11,4 +11,5 @@ import java.math.BigDecimal;
 public class MonthlyTrendDto {
     private String month; // Format: YYYY-MM
     private BigDecimal totalAmount;
+    private BigDecimal budgetLimit;
 }
