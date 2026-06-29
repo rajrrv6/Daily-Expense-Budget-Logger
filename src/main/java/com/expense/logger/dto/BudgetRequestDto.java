@@ -20,18 +20,18 @@ public class BudgetRequestDto {
 
     private Long categoryId;
 
-    @NotNull(message = "Monthly limit is required")
-    @DecimalMin(value = "0.01", message = "Monthly limit must be greater than 0")
+    @NotNull(message = "Monthly limit is required.")
+    @DecimalMin(value = "0.01", message = "Monthly limit must be greater than 0.")
     private BigDecimal monthlyLimit;
 
-    @NotNull(message = "Warning threshold is required")
-    @Min(value = 1, message = "Warning threshold must be between 1 and 100")
-    @Max(value = 100, message = "Warning threshold must be between 1 and 100")
+    @NotNull(message = "Warning threshold is required.")
+    @Min(value = 1, message = "Warning threshold must be between 1 and 100.")
+    @Max(value = 100, message = "Warning threshold must be between 1 and 100.")
     private Integer warningThresholdPercent;
 
-    @NotNull(message = "Start date is required")
+    @NotNull(message = "Start date is required.")
     private LocalDate startDate;
 
-    @NotNull(message = "End date is required")
+    @NotNull(message = "End date is required.")
     private LocalDate endDate;
 }

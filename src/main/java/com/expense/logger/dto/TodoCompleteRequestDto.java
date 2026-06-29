@@ -13,11 +13,11 @@ import java.math.BigDecimal;
 @Builder
 public class TodoCompleteRequestDto {
 
-    @NotNull(message = "Final price is required")
-    @DecimalMin(value = "0.01", message = "Price must be greater than zero")
+    @NotNull(message = "Final price is required.")
+    @DecimalMin(value = "0.01", message = "Price must be greater than zero.")
     private BigDecimal price;
 
-    @NotNull(message = "Category is required for logging the expense")
+    @NotNull(message = "Category is required for logging the expense.")
     private Long categoryId;
 
     private String receiptPath;

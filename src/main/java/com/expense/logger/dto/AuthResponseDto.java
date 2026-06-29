@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import java.math.BigDecimal;
+import java.util.Set;
 
 @Data
 @NoArgsConstructor
@@ -19,4 +20,6 @@ public class AuthResponseDto {
     private String lastName;
     private String phoneNumber;
     private BigDecimal monthlyIncome;
+    private String profilePicturePath;
+    private Set<String> roles;
 }

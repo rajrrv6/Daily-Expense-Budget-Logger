@@ -13,10 +13,10 @@ import lombok.NoArgsConstructor;
 @Builder
 public class ResetPasswordRequestDto {
 
-    @NotBlank(message = "Reset token is required")
+    @NotBlank(message = "Reset token is required.")
     private String token;
 
-    @NotBlank(message = "New password cannot be blank")
-    @Size(min = 6, max = 255, message = "Password must be at least 6 characters")
+    @NotBlank(message = "New password cannot be blank.")
+    @Size(min = 6, max = 255, message = "Password must be at least 6 characters.")
     private String newPassword;
 }

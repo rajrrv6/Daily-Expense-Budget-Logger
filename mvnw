@@ -32,6 +32,12 @@
 set -euf
 [ "${MVNW_VERBOSE-}" != debug ] || set -x
 
+# Always use local JDK 21 from the workspace if it exists
+_MVNW_DIR="$(cd -- "$(dirname "$0")" && pwd)"
+if [ -d "$_MVNW_DIR/../jdk21/Contents/Home" ]; then
+  export JAVA_HOME="$_MVNW_DIR/../jdk21/Contents/Home"
+fi
+
 # OS specific support.
 native_path() { printf %s\\n "$1"; }
 case "$(uname)" in

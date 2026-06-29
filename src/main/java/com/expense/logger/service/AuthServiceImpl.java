@@ -17,12 +17,17 @@ import com.expense.logger.repository.PasswordResetTokenRepository;
 import com.expense.logger.repository.RefreshTokenRepository;
 import com.expense.logger.repository.UserRepository;
 import com.expense.logger.repository.VerificationOtpRepository;
+import com.expense.logger.repository.RoleRepository;
 import com.expense.logger.model.VerificationOtp;
 import com.expense.logger.model.PendingRegistration;
 import com.expense.logger.repository.PendingRegistrationRepository;
 import com.expense.logger.security.JwtTokenProvider;
 import lombok.extern.slf4j.Slf4j;
 import java.util.List;
+import java.util.Set;
+import java.util.HashSet;
+import java.util.stream.Collectors;
+import com.expense.logger.model.Role;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -55,6 +60,7 @@ public class AuthServiceImpl implements AuthService {
     private final VerificationOtpRepository verificationOtpRepository;
     private final PendingRegistrationRepository pendingRegistrationRepository;
     private final EmailService emailService;
+    private final RoleRepository roleRepository;
 
     @Value("${app.jwt.accessTokenExpirationMs}")
     private long accessTokenExpirationMs;
@@ -71,7 +77,8 @@ public class AuthServiceImpl implements AuthService {
                            PasswordResetTokenRepository passwordResetTokenRepository,
                            VerificationOtpRepository verificationOtpRepository,
                            PendingRegistrationRepository pendingRegistrationRepository,
-                           EmailService emailService) {
+                           EmailService emailService,
+                           RoleRepository roleRepository) {
         this.userRepository = userRepository;
         this.refreshTokenRepository = refreshTokenRepository;
         this.auditLogRepository = auditLogRepository;
@@ -82,6 +89,7 @@ public class AuthServiceImpl implements AuthService {
         this.verificationOtpRepository = verificationOtpRepository;
         this.pendingRegistrationRepository = pendingRegistrationRepository;
         this.emailService = emailService;
+        this.roleRepository = roleRepository;
     }
 
     @Override
@@ -137,9 +145,7 @@ public class AuthServiceImpl implements AuthService {
             emailService.sendEmail(
                 registerDto.getEmail(),
                 "Daily Expense Logger - Verify Your Email",
-                "Hello " + registerDto.getFirstName() + ",\n\n" +
-                "Thank you for registering. Your verification code is: " + otpCode + "\n\n" +
-                "This code will expire in 15 minutes."
+                buildVerificationEmailHtml(registerDto.getFirstName(), otpCode)
             );
         } catch (Exception e) {
             log.warn("Asynchronous trigger of email dispatch failed for {}: {}", registerDto.getEmail(), e.getMessage());
@@ -170,6 +176,7 @@ public class AuthServiceImpl implements AuthService {
                 .firstName(registerDto.getFirstName())
                 .lastName(registerDto.getLastName())
                 .phoneNumber(registerDto.getPhoneNumber())
+                .roles(Set.of())
                 .build();
     }
 
@@ -232,6 +239,8 @@ public class AuthServiceImpl implements AuthService {
                 .lastName(user.getLastName())
                 .phoneNumber(user.getPhoneNumber())
                 .monthlyIncome(user.getMonthlyIncome())
+                .profilePicturePath(user.getProfilePicturePath())
+                .roles(user.getRoles().stream().map(Role::getName).collect(Collectors.toSet()))
                 .build();
     }
 
@@ -288,6 +297,8 @@ public class AuthServiceImpl implements AuthService {
                 .lastName(user.getLastName())
                 .phoneNumber(user.getPhoneNumber())
                 .monthlyIncome(user.getMonthlyIncome())
+                .profilePicturePath(user.getProfilePicturePath())
+                .roles(user.getRoles().stream().map(Role::getName).collect(Collectors.toSet()))
                 .build();
     }
 
@@ -318,7 +329,9 @@ public class AuthServiceImpl implements AuthService {
                 .lastName(user.getLastName())
                 .phoneNumber(user.getPhoneNumber())
                 .monthlyIncome(user.getMonthlyIncome())
+                .profilePicturePath(user.getProfilePicturePath())
                 .createdAt(user.getCreatedAt())
+                .roles(user.getRoles().stream().map(Role::getName).collect(Collectors.toSet()))
                 .build();
     }
 
@@ -396,6 +409,18 @@ public class AuthServiceImpl implements AuthService {
             logEvent("PASSWORD_RESET_REQUEST", "Password reset requested for user: " + user.getUsername(), user);
             
             log.info("Password reset raw token for user {}: {}", user.getUsername(), rawToken);
+
+            // Dispatch real email asynchronously
+            try {
+                String resetLink = "http://localhost:5173/reset-password?token=" + rawToken;
+                emailService.sendEmail(
+                    user.getEmail(),
+                    "Daily Expense Logger - Reset Your Password",
+                    buildResetPasswordEmailHtml(user.getFirstName(), resetLink, rawToken)
+                );
+            } catch (Exception e) {
+                log.warn("Asynchronous trigger of email dispatch failed for {}: {}", user.getEmail(), e.getMessage());
+            }
         } else {
             log.info("Password reset requested for non-existent email: {}", requestDto.getEmail());
         }
@@ -466,6 +491,11 @@ public class AuthServiceImpl implements AuthService {
                 .passwordHash(pending.getPasswordHash())
                 .verified(true)
                 .build();
+
+        Role userRole = roleRepository.findByName("ROLE_USER")
+                .orElseThrow(() -> new ResourceNotFoundException("Default ROLE_USER not found"));
+        user.setRoles(new HashSet<>(List.of(userRole)));
+
         userRepository.save(user);
 
         // Delete the temporary pending registration payload
@@ -491,6 +521,8 @@ public class AuthServiceImpl implements AuthService {
                 .lastName(user.getLastName())
                 .phoneNumber(user.getPhoneNumber())
                 .monthlyIncome(user.getMonthlyIncome())
+                .profilePicturePath(user.getProfilePicturePath())
+                .roles(user.getRoles().stream().map(Role::getName).collect(Collectors.toSet()))
                 .build();
     }
 
@@ -516,7 +548,7 @@ public class AuthServiceImpl implements AuthService {
             emailService.sendEmail(
                 pending.getEmail(),
                 "Daily Expense Logger - Verify Your Email",
-                "Your verification code is: " + otpCode + "\n\nThis code will expire in 15 minutes."
+                buildVerificationEmailHtml(pending.getFirstName(), otpCode)
             );
         } catch (Exception e) {
             log.warn("Asynchronous trigger of email dispatch failed for {}: {}", pending.getEmail(), e.getMessage());
@@ -527,5 +559,66 @@ public class AuthServiceImpl implements AuthService {
         log.info("RESENT PENDING REGISTRATION EMAIL OTP FOR {}: {}", pending.getEmail(), otpCode);
         log.info("====================================================");
         System.out.println("RESENT PENDING REGISTRATION EMAIL OTP FOR " + pending.getEmail() + ": " + otpCode);
+    }
+
+    private String buildVerificationEmailHtml(String firstName, String otpCode) {
+        return "<!DOCTYPE html>\n" +
+                "<html>\n" +
+                "<body style=\"font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #f1f5f9; margin: 0; padding: 40px 20px;\">\n" +
+                "  <div style=\"max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -2px rgba(0,0,0,0.1); border: 1px solid #e2e8f0;\">\n" +
+                "    <div style=\"background: linear-gradient(135deg, #4f46e5 0%, #3730a3 100%); padding: 32px 24px; text-align: center;\">\n" +
+                "      <h1 style=\"color: #ffffff; margin: 0; font-size: 24px; font-weight: 700; letter-spacing: -0.025em;\">Daily Expense Logger</h1>\n" +
+                "    </div>\n" +
+                "    <div style=\"padding: 40px 32px; color: #334155; line-height: 1.6;\">\n" +
+                "      <div style=\"font-size: 18px; font-weight: 600; color: #0f172a; margin-bottom: 16px;\">Hello " + (firstName == null ? "there" : firstName) + ",</div>\n" +
+                "      <div style=\"font-size: 15px; margin-bottom: 24px;\">Thank you for joining Daily Expense Logger! To complete your registration and verify your email address, please use the following one-time verification code:</div>\n" +
+                "      <div style=\"text-align: center; margin: 32px 0;\">\n" +
+                "        <div style=\"display: inline-block; font-family: 'Courier New', Courier, monospace; font-size: 32px; font-weight: 700; color: #4f46e5; letter-spacing: 4px; padding: 12px 28px; background-color: #e0e7ff; border-radius: 8px; border: 1px dashed #818cf8;\">" + otpCode + "</div>\n" +
+                "        <div style=\"font-size: 13px; color: #64748b; text-align: center; margin-top: 16px;\">This verification code is valid for <strong>15 minutes</strong>.</div>\n" +
+                "      </div>\n" +
+                "      <div style=\"margin-top: 32px; border-top: 1px solid #e2e8f0; padding-top: 20px; font-size: 14px; color: #64748b;\">\n" +
+                "        If you did not request this, please ignore this email or contact support.\n" +
+                "      </div>\n" +
+                "    </div>\n" +
+                "    <div style=\"background-color: #f8fafc; padding: 24px; text-align: center; font-size: 12px; color: #94a3b8; border-top: 1px solid #f1f5f9;\">\n" +
+                "      &copy; 2026 Daily Expense Logger. All rights reserved.<br>\n" +
+                "      <a href=\"http://localhost:5173\" style=\"color: #4f46e5; text-decoration: none;\">Visit Dashboard</a> &bull; <a href=\"mailto:support@budgetlogger.com\" style=\"color: #4f46e5; text-decoration: none;\">Contact Support</a>\n" +
+                "    </div>\n" +
+                "  </div>\n" +
+                "</body>\n" +
+                "</html>";
+    }
+
+    private String buildResetPasswordEmailHtml(String firstName, String resetLink, String rawToken) {
+        return "<!DOCTYPE html>\n" +
+                "<html>\n" +
+                "<body style=\"font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #f1f5f9; margin: 0; padding: 40px 20px;\">\n" +
+                "  <div style=\"max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -2px rgba(0,0,0,0.1); border: 1px solid #e2e8f0;\">\n" +
+                "    <div style=\"background: linear-gradient(135deg, #4f46e5 0%, #3730a3 100%); padding: 32px 24px; text-align: center;\">\n" +
+                "      <h1 style=\"color: #ffffff; margin: 0; font-size: 24px; font-weight: 700; letter-spacing: -0.025em;\">Daily Expense Logger</h1>\n" +
+                "    </div>\n" +
+                "    <div style=\"padding: 40px 32px; color: #334155; line-height: 1.6;\">\n" +
+                "      <div style=\"font-size: 18px; font-weight: 600; color: #0f172a; margin-bottom: 16px;\">Hello " + (firstName == null ? "there" : firstName) + ",</div>\n" +
+                "      <div style=\"font-size: 15px; margin-bottom: 24px;\">We received a request to reset your password for your Daily Expense Logger account. Click the button below to choose a new password:</div>\n" +
+                "      <div style=\"text-align: center; margin: 32px 0;\">\n" +
+                "        <a href=\"" + resetLink + "\" style=\"display: inline-block; padding: 12px 28px; font-weight: 600; font-size: 15px; color: #ffffff !important; background-color: #4f46e5; text-decoration: none; border-radius: 8px; box-shadow: 0 2px 4px rgba(79, 70, 229, 0.3);\">Reset Password</a>\n" +
+                "      </div>\n" +
+                "      <div style=\"font-size: 15px; margin-bottom: 12px;\">Alternatively, you can manually enter the following reset token on the password reset page:</div>\n" +
+                "      <div style=\"background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 16px; text-align: center; margin: 24px 0;\">\n" +
+                "        <div style=\"font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em; color: #64748b; margin-bottom: 6px;\">Reset Token</div>\n" +
+                "        <div style=\"font-family: monospace; font-size: 16px; font-weight: 600; color: #0f172a; word-break: break-all;\">" + rawToken + "</div>\n" +
+                "      </div>\n" +
+                "      <div style=\"font-size: 13px; color: #64748b; text-align: center; margin-top: 16px;\">This link and token will expire in <strong>15 minutes</strong>.</div>\n" +
+                "      <div style=\"margin-top: 32px; border-top: 1px solid #e2e8f0; padding-top: 20px; font-size: 14px; color: #64748b;\">\n" +
+                "        If you did not request a password reset, please ignore this email or contact support.\n" +
+                "      </div>\n" +
+                "    </div>\n" +
+                "    <div style=\"background-color: #f8fafc; padding: 24px; text-align: center; font-size: 12px; color: #94a3b8; border-top: 1px solid #f1f5f9;\">\n" +
+                "      &copy; 2026 Daily Expense Logger. All rights reserved.<br>\n" +
+                "      <a href=\"http://localhost:5173\" style=\"color: #4f46e5; text-decoration: none;\">Visit Dashboard</a> &bull; <a href=\"mailto:support@budgetlogger.com\" style=\"color: #4f46e5; text-decoration: none;\">Contact Support</a>\n" +
+                "    </div>\n" +
+                "  </div>\n" +
+                "</body>\n" +
+                "</html>";
     }
 }

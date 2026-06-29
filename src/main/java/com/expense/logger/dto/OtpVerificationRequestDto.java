@@ -7,11 +7,11 @@ import lombok.Data;
 
 @Data
 public class OtpVerificationRequestDto {
-    @NotBlank(message = "Email cannot be blank")
-    @Email(message = "Invalid email format")
+    @NotBlank(message = "Email cannot be blank.")
+    @Email(message = "Invalid email format.")
     private String email;
 
-    @NotBlank(message = "OTP code cannot be blank")
-    @Size(min = 6, max = 6, message = "OTP must be exactly 6 digits")
+    @NotBlank(message = "OTP code cannot be blank.")
+    @Size(min = 6, max = 6, message = "OTP must be exactly 6 digits.")
     private String otpCode;
 }

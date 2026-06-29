@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.Set;
 import java.util.UUID;
 
 @Data
@@ -21,5 +22,8 @@ public class UserResponseDto {
     private String lastName;
     private String phoneNumber;
     private BigDecimal monthlyIncome;
+    private String profilePicturePath;
     private LocalDateTime createdAt;
+    private Set<String> roles;
+    private boolean locked;
 }

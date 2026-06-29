@@ -7,6 +7,8 @@ import org.hibernate.annotations.UpdateTimestamp;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
 
 @Entity
@@ -35,7 +37,8 @@ public class User {
     @Column(name = "last_name", length = 50)
     private String lastName;
 
-    @Column(name = "phone_number", length = 20)
+    @Column(name = "phone_number", length = 255)
+    @Convert(converter = com.expense.logger.security.AesEncryptionConverter.class)
     private String phoneNumber;
 
     @Column(name = "monthly_income", precision = 12, scale = 2)
@@ -65,4 +68,16 @@ public class User {
 
     @Column(name = "lockout_until")
     private LocalDateTime lockoutUntil;
+
+    @Column(name = "profile_picture_path")
+    private String profilePicturePath;
+
+    @Builder.Default
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(
+        name = "user_roles",
+        joinColumns = @JoinColumn(name = "user_id"),
+        inverseJoinColumns = @JoinColumn(name = "role_id")
+    )
+    private Set<Role> roles = new HashSet<>();
 }

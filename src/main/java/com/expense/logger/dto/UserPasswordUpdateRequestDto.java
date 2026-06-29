@@ -13,10 +13,10 @@ import lombok.NoArgsConstructor;
 @Builder
 public class UserPasswordUpdateRequestDto {
 
-    @NotBlank(message = "Current password is required")
+    @NotBlank(message = "Current password is required.")
     private String currentPassword;
 
-    @NotBlank(message = "New password is required")
-    @Size(min = 6, max = 255, message = "New password must be at least 6 characters")
+    @NotBlank(message = "New password is required.")
+    @Size(min = 6, max = 255, message = "New password must be at least 6 characters.")
     private String newPassword;
 }

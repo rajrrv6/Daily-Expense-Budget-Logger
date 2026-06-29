@@ -31,7 +31,8 @@ public class PendingRegistration {
     @Column(name = "last_name", length = 50)
     private String lastName;
 
-    @Column(name = "phone_number", length = 20)
+    @Column(name = "phone_number", length = 255)
+    @Convert(converter = com.expense.logger.security.AesEncryptionConverter.class)
     private String phoneNumber;
 
     @Column(name = "password_hash", nullable = false, length = 255)

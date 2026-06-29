@@ -8,7 +8,7 @@ CREATE TABLE IF NOT EXISTS users (
     email VARCHAR(100) NOT NULL,
     first_name VARCHAR(50) NULL,
     last_name VARCHAR(50) NULL,
-    phone_number VARCHAR(20) NULL,
+    phone_number VARCHAR(255) NULL,
     monthly_income DECIMAL(12, 2) NULL,
     verified BOOLEAN NOT NULL DEFAULT false,
     password_hash VARCHAR(255) NOT NULL,
@@ -16,7 +16,8 @@ CREATE TABLE IF NOT EXISTS users (
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     deleted_at TIMESTAMP NULL,
     failed_login_attempts INT NOT NULL DEFAULT 0,
-    lockout_until TIMESTAMP NULL
+    lockout_until TIMESTAMP NULL,
+    profile_picture_path VARCHAR(255) NULL
 );
 
 -- Table: categories
@@ -164,10 +165,39 @@ CREATE TABLE IF NOT EXISTS pending_registrations (
     email VARCHAR(100) NOT NULL,
     first_name VARCHAR(50) NULL,
     last_name VARCHAR(50) NULL,
-    phone_number VARCHAR(20) NULL,
+    phone_number VARCHAR(255) NULL,
     password_hash VARCHAR(255) NOT NULL,
     otp_code VARCHAR(6) NOT NULL,
     expires_at TIMESTAMP NOT NULL,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
+
+-- Table: roles
+CREATE TABLE IF NOT EXISTS roles (
+    role_id BIGSERIAL PRIMARY KEY,
+    role_name VARCHAR(50) UNIQUE NOT NULL,
+    description VARCHAR(255) NULL
+);
+
+-- Table: permissions
+CREATE TABLE IF NOT EXISTS permissions (
+    permission_id BIGSERIAL PRIMARY KEY,
+    permission_name VARCHAR(100) UNIQUE NOT NULL,
+    description VARCHAR(255) NULL
+);
+
+-- Join Table: user_roles
+CREATE TABLE IF NOT EXISTS user_roles (
+    user_id UUID NOT NULL REFERENCES users(user_id) ON DELETE CASCADE,
+    role_id BIGINT NOT NULL REFERENCES roles(role_id) ON DELETE CASCADE,
+    PRIMARY KEY (user_id, role_id)
+);
+
+-- Join Table: role_permissions
+CREATE TABLE IF NOT EXISTS role_permissions (
+    role_id BIGINT NOT NULL REFERENCES roles(role_id) ON DELETE CASCADE,
+    permission_id BIGINT NOT NULL REFERENCES permissions(permission_id) ON DELETE CASCADE,
+    PRIMARY KEY (role_id, permission_id)
+);
+
 

@@ -13,8 +13,8 @@ import java.time.LocalDate;
 @Builder
 public class TodoRequestDto {
 
-    @NotBlank(message = "Todo item name is required")
-    @Size(max = 100, message = "Todo item name must not exceed 100 characters")
+    @NotBlank(message = "Todo item name is required.")
+    @Size(max = 100, message = "Todo item name must not exceed 100 characters.")
     private String name;
 
     private BigDecimal price;

@@ -21,18 +21,29 @@ public class EmailServiceImpl implements EmailService {
     public void sendEmail(String to, String subject, String body) {
         log.info("Starting async email dispatch to: {}", to);
         
-        SimpleMailMessage message = new SimpleMailMessage();
-        message.setTo(to);
-        message.setSubject(subject);
-        message.setText(body);
-        message.setFrom("no-reply@budgetlogger.com");
-
         int maxAttempts = 3;
         int delayMs = 100; // Small delay for test run efficiency, standard exponential backoff
         
         for (int attempt = 1; attempt <= maxAttempts; attempt++) {
             try {
-                mailSender.send(message);
+                jakarta.mail.internet.MimeMessage mimeMessage = mailSender.createMimeMessage();
+                org.springframework.mail.javamail.MimeMessageHelper helper = 
+                        new org.springframework.mail.javamail.MimeMessageHelper(mimeMessage, true, "UTF-8");
+                
+                helper.setTo(to);
+                helper.setSubject(subject);
+                helper.setFrom("no-reply@budgetlogger.com");
+                
+                // Auto-detect if body content is HTML or plaintext
+                boolean isHtml = body != null && (
+                        body.trim().startsWith("<html") || 
+                        body.trim().startsWith("<!DOCTYPE") || 
+                        body.trim().startsWith("<div")
+                );
+                
+                helper.setText(body, isHtml);
+
+                mailSender.send(mimeMessage);
                 log.info("Email successfully sent to {} on attempt {}", to, attempt);
                 return;
             } catch (Exception e) {
