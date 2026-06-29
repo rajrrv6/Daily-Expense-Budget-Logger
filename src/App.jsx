@@ -19,6 +19,7 @@ const TodosPage = lazy(() => import('./pages/TodosPage'));
 const AnalyticsPage = lazy(() => import('./pages/AnalyticsPage'));
 const SettingsPage = lazy(() => import('./pages/SettingsPage'));
 const BudgetsPage = lazy(() => import('./pages/BudgetsPage'));
+const CategoriesPage = lazy(() => import('./pages/CategoriesPage'));
 const LandingPage = lazy(() => import('./pages/LandingPage'));
 const EmailVerificationPage = lazy(() => import('./pages/EmailVerificationPage'));
 const AccessDeniedPage = lazy(() => import('./pages/AccessDeniedPage'));
@@ -64,6 +65,7 @@ export default function App() {
                 <Route path="analytics" element={<AnalyticsPage />} />
                 <Route path="settings" element={<SettingsPage />} />
                 <Route path="budgets" element={<BudgetsPage />} />
+                <Route path="categories" element={<CategoriesPage />} />
 
                 {/* Protected Administrative Routes */}
                 <Route

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import Modal from '../common/Modal';
+import SlideOver from '../common/SlideOver';
 import { getCategories, createCategory } from '../../services/categoryService';
 import { createExpense, updateExpense, uploadReceipt } from '../../services/expenseService';
 import { useNotification } from '../../context/NotificationContext';
@@ -211,7 +211,7 @@ export default function ExpenseFormModal({ isOpen, onClose, expense, onSubmitSuc
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title={isEditMode ? 'Edit Expense Record' : 'Add New Expense'}>
+    <SlideOver isOpen={isOpen} onClose={onClose} title={isEditMode ? 'Edit Expense Record' : 'Add New Expense'}>
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
         {/* Name */}
         <div>
@@ -405,6 +405,6 @@ export default function ExpenseFormModal({ isOpen, onClose, expense, onSubmitSuc
           {isSubmitting ? 'Saving record...' : isEditMode ? 'Update Record' : 'Save Expense'}
         </button>
       </form>
-    </Modal>
+    </SlideOver>
   );
 }

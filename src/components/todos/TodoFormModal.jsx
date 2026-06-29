@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import Modal from '../common/Modal';
+import SlideOver from '../common/SlideOver';
 import { createTodo, updateTodo } from '../../services/todoService';
 import { getCategories, createCategory } from '../../services/categoryService';
 import { useNotification } from '../../context/NotificationContext';
@@ -154,15 +154,15 @@ export default function TodoFormModal({ isOpen, onClose, todo, onSubmitSuccess }
   };
 
   return (
-    <Modal
+    <SlideOver
       isOpen={isOpen}
       onClose={onClose}
       title={isEditMode ? 'Edit Checklist Item' : 'Add New Checklist Item'}
     >
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <form onSubmit={handleSubmit} className="space-y-5">
         {/* Item Name */}
-        <div>
-          <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">
+        <div className="space-y-1.5">
+          <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
             Item Name
           </label>
           <input
@@ -171,15 +171,15 @@ export default function TodoFormModal({ isOpen, onClose, todo, onSubmitSuccess }
             disabled={submitting}
             value={name}
             onChange={(e) => setName(e.target.value)}
-            placeholder="e.g. Office rent, Groceries"
-            className="w-full px-4 py-2.5 text-sm text-slate-900 dark:text-slate-100 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg focus:outline-none focus:border-brand-500 transition-colors placeholder-slate-400 dark:placeholder-slate-650"
+            placeholder="e.g. Office supplies, Snacks"
+            className="w-full px-4 py-3 text-sm text-slate-805 dark:text-slate-205 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl focus:outline-none focus:border-brand-500 transition-colors placeholder-slate-400 font-semibold"
           />
         </div>
 
         {/* Grid Estimated Price & Date to Buy */}
         <div className="grid grid-cols-2 gap-4">
-          <div>
-            <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">
+          <div className="space-y-1.5">
+            <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
               Estimated Price (₹)
             </label>
             <input
@@ -190,12 +190,12 @@ export default function TodoFormModal({ isOpen, onClose, todo, onSubmitSuccess }
               value={price}
               onChange={(e) => setPrice(e.target.value)}
               placeholder="0.00"
-              className="w-full px-4 py-2.5 text-sm text-slate-900 dark:text-slate-100 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg focus:outline-none focus:border-brand-500 transition-colors placeholder-slate-400 dark:placeholder-slate-650"
+              className="w-full px-4 py-3 text-sm text-slate-855 dark:text-slate-205 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl focus:outline-none focus:border-brand-500 transition-colors placeholder-slate-400 font-semibold"
             />
           </div>
 
-          <div>
-            <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">
+          <div className="space-y-1.5">
+            <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
               Date to Buy
             </label>
             <input
@@ -205,12 +205,12 @@ export default function TodoFormModal({ isOpen, onClose, todo, onSubmitSuccess }
               value={targetDate}
               onChange={handleDateChange}
               onBlur={handleDateChange}
-              className={`w-full px-4 py-2.5 text-sm text-slate-900 dark:text-slate-100 bg-slate-50 dark:bg-slate-950 border rounded-lg focus:outline-none focus:border-brand-500 transition-colors ${
+              className={`w-full px-4 py-3 text-sm text-slate-855 dark:text-slate-205 bg-slate-50 dark:bg-slate-950 border rounded-xl focus:outline-none focus:border-brand-500 transition-colors font-semibold ${
                 dateError ? 'border-red-500 focus:border-red-500' : 'border-slate-200 dark:border-slate-800'
               }`}
             />
             {dateError && (
-              <span className="block text-xs text-red-500 dark:text-red-400 mt-1">
+              <span className="block text-xs text-red-500 dark:text-red-400 mt-1 font-semibold">
                 {dateError}
               </span>
             )}
@@ -218,43 +218,43 @@ export default function TodoFormModal({ isOpen, onClose, todo, onSubmitSuccess }
         </div>
 
         {/* Category Selector */}
-        <div>
-          <div className="flex justify-between items-center mb-2">
-            <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+        <div className="space-y-1.5">
+          <div className="flex justify-between items-center">
+            <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
               Category
             </label>
             <button
               type="button"
               disabled={submitting}
               onClick={() => setShowAddCategory(!showAddCategory)}
-              className="text-xs text-brand-600 dark:text-brand-100 hover:text-brand-500 dark:hover:text-white font-semibold transition-colors"
+              className="text-xs text-brand-600 dark:text-brand-100 hover:text-brand-500 font-bold transition-colors"
             >
-              {showAddCategory ? 'Cancel' : '+ Add New Category'}
+              {showAddCategory ? 'Cancel' : '+ New Category'}
             </button>
           </div>
 
           {/* Quick Add Category Form */}
           {showAddCategory && (
-            <div className="p-3 mb-3 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg space-y-3 transition-colors duration-200">
+            <div className="p-3 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl space-y-3 transition-colors duration-200">
               <div className="flex gap-2">
                 <input
                   type="text"
                   value={newCatName}
                   onChange={(e) => setNewCatName(e.target.value)}
                   placeholder="New category name"
-                  className="flex-1 px-3 py-1.5 text-xs text-slate-900 dark:text-slate-100 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded focus:outline-none focus:border-brand-500 placeholder-slate-400 dark:placeholder-slate-650"
+                  className="flex-1 px-3 py-1.5 text-xs text-slate-900 dark:text-slate-100 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg focus:outline-none focus:border-brand-500 placeholder-slate-400 font-semibold"
                 />
                 <input
                   type="color"
                   value={newCatColor}
                   onChange={(e) => setNewCatColor(e.target.value)}
-                  className="w-8 h-8 rounded border border-slate-200 dark:border-slate-800 bg-transparent cursor-pointer"
+                  className="w-8 h-8 rounded-lg border border-slate-200 dark:border-slate-800 bg-transparent cursor-pointer"
                 />
                 <button
                   type="button"
                   disabled={catLoading}
                   onClick={handleAddNewCategory}
-                  className="px-3 py-1.5 text-xs text-slate-700 dark:text-white bg-slate-200 hover:bg-slate-350 dark:bg-slate-850 dark:hover:bg-slate-750 rounded disabled:opacity-50 transition-colors"
+                  className="px-3 py-1.5 text-xs text-slate-700 dark:text-white bg-slate-200 hover:bg-slate-300 dark:bg-slate-800 rounded disabled:opacity-50 transition-colors font-bold"
                 >
                   Save
                 </button>
@@ -267,7 +267,7 @@ export default function TodoFormModal({ isOpen, onClose, todo, onSubmitSuccess }
               type="button"
               disabled={submitting}
               onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-              className="w-full pl-4 pr-10 py-2.5 text-left text-sm text-slate-900 dark:text-slate-100 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg focus:outline-none focus:border-brand-500 transition-colors flex items-center justify-between"
+              className="w-full pl-4 pr-10 py-2.5 text-left text-sm text-slate-900 dark:text-slate-100 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl focus:outline-none focus:border-brand-500 transition-colors flex items-center justify-between font-semibold"
             >
               <span className="truncate">{selectedCategoryName}</span>
               <svg className="h-4 w-4 text-slate-550 dark:text-slate-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -278,7 +278,7 @@ export default function TodoFormModal({ isOpen, onClose, todo, onSubmitSuccess }
             {isDropdownOpen && (
               <>
                 <div className="fixed inset-0 z-10" onClick={() => setIsDropdownOpen(false)} />
-                <div className="absolute z-20 mt-1 w-full max-h-60 overflow-y-auto bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg shadow-lg py-1">
+                <div className="absolute z-20 mt-1.5 w-full max-h-60 overflow-y-auto bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl shadow-lg py-1">
                   <div
                     onClick={() => {
                       setCategoryId('');
@@ -310,24 +310,15 @@ export default function TodoFormModal({ isOpen, onClose, todo, onSubmitSuccess }
           </div>
         </div>
 
-        {/* Footer Actions */}
-        <div className="flex justify-end gap-3 pt-4 mt-6">
-          <button
-            type="button"
-            onClick={onClose}
-            className="px-4 py-2 text-sm font-semibold text-slate-600 dark:text-slate-350 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors"
-          >
-            Cancel
-          </button>
-          <button
-            type="submit"
-            disabled={submitting}
-            className="px-5 py-2.5 text-sm font-semibold text-white bg-brand-500 hover:bg-brand-600 rounded-lg transition-colors disabled:opacity-50"
-          >
-            {submitting ? 'Saving...' : isEditMode ? 'Save Changes' : 'Add Item'}
-          </button>
-        </div>
+        {/* Action Button */}
+        <button
+          type="submit"
+          disabled={submitting}
+          className="w-full mt-6 py-3.5 bg-brand-500 hover:bg-brand-600 disabled:opacity-50 text-white font-bold text-sm rounded-xl transition-all shadow-lg shadow-brand-500/15"
+        >
+          {submitting ? 'Saving changes...' : isEditMode ? 'Confirm & Update' : 'Confirm & Create'}
+        </button>
       </form>
-    </Modal>
+    </SlideOver>
   );
 }

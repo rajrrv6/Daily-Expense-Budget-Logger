@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
-import Modal from '../common/Modal';
+import SlideOver from '../common/SlideOver';
 import { getCategories } from '../../services/categoryService';
 
 const budgetFormSchema = z.object({
@@ -101,17 +101,17 @@ export default function BudgetFormModal({ isOpen, onClose, onSubmit, budget }) {
   };
 
   return (
-    <Modal
+    <SlideOver
       isOpen={isOpen}
       onClose={onClose}
-      title={isEditMode ? 'Modify Budget Configuration' : 'Setup New Budget limit'}
+      title={isEditMode ? 'Modify Budget Configuration' : 'Setup New Budget Limit'}
     >
       {/* Form Body */}
-      <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-4">
+      <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-5">
         
         {/* Category Dropdown */}
-        <div>
-          <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-1.5">
+        <div className="space-y-1.5">
+          <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide">
             Category Scope
           </label>
           <input type="hidden" {...register('categoryId')} />
@@ -119,7 +119,7 @@ export default function BudgetFormModal({ isOpen, onClose, onSubmit, budget }) {
             <button
               type="button"
               onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-              className="w-full pl-3 pr-10 py-2 text-left text-sm text-slate-800 dark:text-slate-200 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg focus:outline-none focus:border-brand-500 transition-colors flex items-center justify-between"
+              className="w-full pl-4 pr-10 py-2.5 text-left text-sm text-slate-800 dark:text-slate-200 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl focus:outline-none focus:border-brand-500 transition-colors flex items-center justify-between font-semibold"
             >
               <span className="truncate">{selectedCategoryName}</span>
               <svg className="h-4 w-4 text-slate-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -130,7 +130,7 @@ export default function BudgetFormModal({ isOpen, onClose, onSubmit, budget }) {
             {isDropdownOpen && (
               <>
                 <div className="fixed inset-0 z-10" onClick={() => setIsDropdownOpen(false)} />
-                <div className="absolute z-20 mt-1 w-full max-h-60 overflow-y-auto bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg shadow-lg py-1">
+                <div className="absolute z-20 mt-1.5 w-full max-h-60 overflow-y-auto bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl shadow-lg py-1">
                   <div
                     onClick={() => {
                       setValue('categoryId', '', { shouldValidate: true });
@@ -160,99 +160,89 @@ export default function BudgetFormModal({ isOpen, onClose, onSubmit, budget }) {
               </>
             )}
           </div>
-          <p className="text-[10px] text-slate-400 mt-1">Assign to a single category or leave as Global.</p>
+          <p className="text-[10px] text-slate-400 font-semibold">Assign to a single category or leave as Global.</p>
         </div>
 
         {/* Monthly Limit */}
-        <div>
-          <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-1.5">
+        <div className="space-y-1.5">
+          <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide">
             Monthly Limit Amount (₹)
           </label>
           <input
             type="text"
             {...register('monthlyLimit')}
             placeholder="e.g. 1500.00"
-            className={`w-full px-3 py-2 text-sm text-slate-800 dark:text-slate-200 bg-slate-50 dark:bg-slate-950 border ${
+            className={`w-full px-4 py-3 text-sm text-slate-805 dark:text-slate-205 bg-slate-50 dark:bg-slate-950 border ${
               errors.monthlyLimit ? 'border-red-500' : 'border-slate-200 dark:border-slate-800'
-            } rounded-lg focus:outline-none focus:border-brand-500 transition-colors`}
+            } rounded-xl focus:outline-none focus:border-brand-500 transition-colors font-semibold`}
           />
           {errors.monthlyLimit && (
-            <span className="block text-xs text-red-500 mt-1">{errors.monthlyLimit.message}</span>
+            <span className="block text-xs text-red-500 mt-1 font-semibold">{errors.monthlyLimit.message}</span>
           )}
         </div>
 
         {/* Warning Threshold */}
-        <div>
-          <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-1.5">
+        <div className="space-y-1.5">
+          <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide">
             Warning Threshold (%)
           </label>
           <input
             type="number"
             {...register('warningThresholdPercent')}
             placeholder="e.g. 80"
-            className={`w-full px-3 py-2 text-sm text-slate-800 dark:text-slate-200 bg-slate-50 dark:bg-slate-950 border ${
+            className={`w-full px-4 py-3 text-sm text-slate-805 dark:text-slate-205 bg-slate-50 dark:bg-slate-950 border ${
               errors.warningThresholdPercent ? 'border-red-500' : 'border-slate-200 dark:border-slate-800'
-            } rounded-lg focus:outline-none focus:border-brand-500 transition-colors`}
+            } rounded-xl focus:outline-none focus:border-brand-500 transition-colors font-semibold`}
           />
           {errors.warningThresholdPercent && (
-            <span className="block text-xs text-red-500 mt-1">{errors.warningThresholdPercent.message}</span>
+            <span className="block text-xs text-red-500 mt-1 font-semibold">{errors.warningThresholdPercent.message}</span>
           )}
-          <p className="text-[10px] text-slate-400 mt-1">Triggers alert warnings when category spending reaches this percentage.</p>
+          <p className="text-[10px] text-slate-400 font-semibold">Triggers alert warnings when category spending reaches this percentage.</p>
         </div>
 
         {/* Date Ranges */}
         <div className="grid grid-cols-2 gap-4">
-          <div>
-            <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-1.5">
+          <div className="space-y-1.5">
+            <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide">
               Start Date
             </label>
             <input
               type="date"
               {...register('startDate')}
-              className="w-full px-3 py-2 text-sm text-slate-800 dark:text-slate-200 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg focus:outline-none focus:border-brand-500 transition-colors"
+              className="w-full px-4 py-3 text-sm text-slate-805 dark:text-slate-205 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl focus:outline-none focus:border-brand-500 transition-colors"
             />
             {errors.startDate && (
-              <span className="block text-xs text-red-500 mt-1">{errors.startDate.message}</span>
+              <span className="block text-xs text-red-500 mt-1 font-semibold">{errors.startDate.message}</span>
             )}
           </div>
 
-          <div>
-            <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-1.5">
+          <div className="space-y-1.5">
+            <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide">
               End Date
             </label>
             <input
               type="date"
               {...register('endDate')}
-              className={`w-full px-3 py-2 text-sm text-slate-800 dark:text-slate-200 bg-slate-50 dark:bg-slate-950 border ${
+              className={`w-full px-4 py-3 text-sm text-slate-805 dark:text-slate-205 bg-slate-50 dark:bg-slate-950 border ${
                 errors.endDate ? 'border-red-500' : 'border-slate-200 dark:border-slate-800'
-              } rounded-lg focus:outline-none focus:border-brand-500 transition-colors`}
+              } rounded-xl focus:outline-none focus:border-brand-500 transition-colors`}
             />
             {errors.endDate && (
-              <span className="block text-xs text-red-500 mt-1">{errors.endDate.message}</span>
+              <span className="block text-xs text-red-500 mt-1 font-semibold">{errors.endDate.message}</span>
             )}
           </div>
         </div>
 
-        {/* Actions */}
-        <div className="flex justify-end gap-3 pt-4 border-t border-slate-100 dark:border-slate-850 mt-6">
-          <button
-            type="button"
-            onClick={onClose}
-            disabled={isSubmitting}
-            className="px-4 py-2 text-sm font-semibold text-slate-600 dark:text-slate-350 hover:bg-slate-50 dark:hover:bg-slate-950 border border-slate-200 dark:border-slate-850 rounded-lg transition-colors"
-          >
-            Cancel
-          </button>
-          <button
-            type="submit"
-            disabled={isSubmitting}
-            className="px-5 py-2 text-sm font-semibold text-white bg-brand-500 hover:bg-brand-600 rounded-lg transition-colors disabled:opacity-50"
-          >
-            {isSubmitting ? 'Processing...' : isEditMode ? 'Update Budget' : 'Save Budget'}
-          </button>
-        </div>
+        {/* Action Button */}
+        <button
+          type="submit"
+          disabled={isSubmitting}
+          className="w-full mt-6 py-3.5 bg-brand-500 hover:bg-brand-600 disabled:opacity-50 text-white font-bold text-sm rounded-xl transition-all shadow-lg shadow-brand-500/15"
+        >
+          {isSubmitting ? 'Saving changes...' : isEditMode ? 'Confirm & Update' : 'Confirm & Create'}
+        </button>
 
       </form>
-    </Modal>
+    </SlideOver>
   );
 }

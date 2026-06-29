@@ -1,19 +1,18 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { getBudgets, createBudget, updateBudget, deleteBudget } from '../services/budgetService';
 import { getCategories } from '../services/categoryService';
-import apiClient from '../services/apiClient';
 import { useNotification } from '../context/NotificationContext';
 import BudgetCard from '../components/expenses/BudgetCard';
 import BudgetFormModal from '../components/expenses/BudgetFormModal';
 import SkeletonCard from '../components/common/SkeletonCard';
 import EmptyState from '../components/common/EmptyState';
+import { Target, Plus } from 'lucide-react';
 
 export default function BudgetsPage() {
   const { showNotification } = useNotification();
   
   const [budgets, setBudgets] = useState([]);
   const [categories, setCategories] = useState([]);
-  const [dashboardSummary, setDashboardSummary] = useState(null);
   
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -22,14 +21,12 @@ export default function BudgetsPage() {
   const fetchBudgetData = useCallback(async () => {
     setLoading(true);
     try {
-      const [rawBudgets, cats, summary] = await Promise.all([
+      const [rawBudgets, cats] = await Promise.all([
         getBudgets(),
         getCategories(),
-        apiClient.get('/api/v1/analytics/dashboard').then(res => res.data),
       ]);
       setBudgets(rawBudgets);
       setCategories(cats);
-      setDashboardSummary(summary);
     } catch (err) {
       showNotification('Failed to load budget and category metrics.', 'error');
     } finally {
@@ -51,9 +48,6 @@ export default function BudgetsPage() {
       try {
         await updateBudget(editingBudget.id, formData);
         showNotification('Budget configuration updated.', 'success');
-        // Refresh to pull exact calculated spent values
-        const summary = await apiClient.get('/api/v1/analytics/dashboard').then(res => res.data);
-        setDashboardSummary(summary);
         const refreshed = await getBudgets();
         setBudgets(refreshed);
       } catch (err) {
@@ -69,7 +63,9 @@ export default function BudgetsPage() {
         categoryName: formData.categoryId 
           ? categories.find(c => c.id === formData.categoryId)?.name || 'Category'
           : 'Global Budget',
-        spentAmount: 0,
+        spent: 0,
+        remaining: formData.monthlyLimit,
+        utilizationPercentage: 0,
         exceeded: false,
         warningTriggered: false,
       };
@@ -78,9 +74,6 @@ export default function BudgetsPage() {
       try {
         await createBudget(formData);
         showNotification('Budget successfully configured.', 'success');
-        // Refresh parameters
-        const summary = await apiClient.get('/api/v1/analytics/dashboard').then(res => res.data);
-        setDashboardSummary(summary);
         const refreshed = await getBudgets();
         setBudgets(refreshed);
       } catch (err) {
@@ -99,8 +92,8 @@ export default function BudgetsPage() {
     try {
       await deleteBudget(id);
       showNotification('Budget deleted successfully.', 'success');
-      const summary = await apiClient.get('/api/v1/analytics/dashboard').then(res => res.data);
-      setDashboardSummary(summary);
+      const refreshed = await getBudgets();
+      setBudgets(refreshed);
     } catch (err) {
       setBudgets(originalBudgets);
       showNotification('Failed to delete budget. Rolled back.', 'error');
@@ -117,36 +110,36 @@ export default function BudgetsPage() {
     setIsModalOpen(true);
   };
 
-  // Merge budget configs with live analytics spent values
+  // Map budget values directly from the API response (dynamic backend dates calculation)
   const mergedBudgets = budgets.map(b => {
-    // Find live analytics calculations matching categoryId
-    const calc = dashboardSummary?.budgets?.find(cb => cb.categoryId === b.categoryId) || {};
     return {
       ...b,
-      spentAmount: calc.spentAmount || 0,
-      remainingAmount: calc.remainingAmount !== undefined ? calc.remainingAmount : b.monthlyLimit - (calc.spentAmount || 0),
-      utilizationPercent: calc.utilizationPercent || 0,
-      exceeded: calc.exceeded || false,
-      warningTriggered: calc.warningTriggered || false,
+      spentAmount: b.spent !== undefined ? b.spent : 0,
+      remainingAmount: b.remaining !== undefined ? b.remaining : b.monthlyLimit,
+      utilizationPercent: b.utilizationPercentage !== undefined ? b.utilizationPercentage : 0,
+      exceeded: b.exceeded !== undefined ? b.exceeded : false,
+      warningTriggered: b.warningTriggered !== undefined ? b.warningTriggered : false,
     };
   });
 
   return (
     <>
-      <div className="space-y-6 max-w-6xl mx-auto animate-slide-in">
-        {/* Header Panel */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 p-6 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl transition-colors duration-200 shadow-sm">
+      <div className="space-y-6 max-w-[1600px] mx-auto animate-slide-in">
+        {/* Standardized B2B Header Area */}
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 p-6 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl transition-colors duration-200 shadow-sm">
           <div>
-            <h3 className="text-xl font-bold text-slate-850 dark:text-slate-100">Budget Configurations</h3>
-            <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
+            <h3 className="text-xl font-bold text-slate-850 dark:text-slate-100 flex items-center gap-2">
+              <Target className="w-5 h-5 text-brand-500" /> Budget Configurations
+            </h3>
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1.5 font-medium">
               Monitor and restrict monthly spending limits per category or globally.
             </p>
           </div>
           <button
             onClick={handleAddClick}
-            className="px-5 py-2.5 text-sm font-semibold text-white bg-brand-500 hover:bg-brand-600 rounded-lg transition-colors shadow-md hover:shadow-lg focus:outline-none"
+            className="flex items-center gap-1.5 px-5 py-2.5 bg-brand-500 hover:bg-brand-600 text-white text-xs font-bold rounded-xl transition-all duration-200 shadow-lg shadow-brand-500/15"
           >
-            Setup New Budget
+            <Plus className="w-4 h-4" /> Setup New Budget
           </button>
         </div>
 

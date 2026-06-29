@@ -1,36 +1,77 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import useQueryParams from '../hooks/useQueryParams';
 import { getExpenses, deleteExpense, exportExpenses, getReceiptFile } from '../services/expenseService';
-import Table from '../components/common/Table';
+import { getCategories } from '../services/categoryService';
 import ExpenseFormModal from '../components/expenses/ExpenseFormModal';
 import SkeletonCard from '../components/common/SkeletonCard';
 import EmptyState from '../components/common/EmptyState';
 import ErrorRetryState from '../components/common/ErrorRetryState';
 import { useNotification } from '../context/NotificationContext';
-import { CreditCard } from 'lucide-react';
 import Modal from '../components/common/Modal';
+import { 
+  CreditCard, 
+  ArrowUpDown, 
+  ChevronDown, 
+  MoreVertical, 
+  Trash2, 
+  Download, 
+  Plus, 
+  Eye, 
+  Edit3, 
+  Calendar,
+  Filter
+} from 'lucide-react';
 
 export default function ExpensesPage() {
   const { showNotification } = useNotification();
   const { params, setParam, setPageNumber, resetFilters } = useQueryParams();
 
-  const handleViewReceipt = async (filename) => {
-    try {
-      const blob = await getReceiptFile(filename);
-      const fileUrl = window.URL.createObjectURL(blob);
-      window.open(fileUrl, '_blank');
-    } catch (err) {
-      showNotification('Failed to download receipt file. It may have been deleted or is inaccessible.', 'error');
-    }
-  };
+  // Primary data states
+  const [data, setData] = useState({ content: [], totalElements: 0, totalPages: 0, isLast: true });
+  const [categories, setCategories] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [exporting, setExporting] = useState(false);
+  const [error, setError] = useState('');
+  
+  // SlideOver form state
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const [selectedExpense, setSelectedExpense] = useState(null);
 
-  const todayStr = (() => {
+  // Kebab menu active state per row
+  const [activeMenuId, setActiveMenuId] = useState(null);
+
+  // Bulk action selection state
+  const [selectedIds, setSelectedIds] = useState(new Set());
+
+  // Client-side additional filters state
+  const [filterCategory, setFilterCategory] = useState('');
+  const [filterMinAmount, setFilterMinAmount] = useState('');
+  const [filterMaxAmount, setFilterMaxAmount] = useState('');
+  const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
+
+  // Receipt view modal state
+  const [isReceiptModalOpen, setIsReceiptModalOpen] = useState(false);
+  const [receiptUrl, setReceiptUrl] = useState('');
+  const [receiptFilename, setReceiptFilename] = useState('');
+
+  // Delete confirmation modals states
+  const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
+  const [deleteTargetId, setDeleteTargetId] = useState(null);
+  const [deleteTargetName, setDeleteTargetName] = useState('');
+  const [isBulkDeleteConfirmOpen, setIsBulkDeleteConfirmOpen] = useState(false);
+
+  const todayStr = useMemo(() => {
     const d = new Date();
     const year = d.getFullYear();
     const month = String(d.getMonth() + 1).padStart(2, '0');
     const day = String(d.getDate()).padStart(2, '0');
     return `${year}-${month}-${day}`;
-  })();
+  }, []);
+
+  // Fetch baseline categories initially
+  useEffect(() => {
+    getCategories().then(setCategories).catch(err => console.error('Failed to load categories', err));
+  }, []);
 
   const handleStartDateChange = (e) => {
     const val = e.target.value;
@@ -52,28 +93,6 @@ export default function ExpensesPage() {
     }
   };
 
-  const [data, setData] = useState({ content: [], totalElements: 0, totalPages: 0, isLast: true });
-  const [loading, setLoading] = useState(true);
-  const [exporting, setExporting] = useState(false);
-  const [error, setError] = useState('');
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedExpense, setSelectedExpense] = useState(null);
-
-  // Deletion confirmation states
-  const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
-  const [deleteTargetId, setDeleteTargetId] = useState(null);
-  const [deleteTargetName, setDeleteTargetName] = useState('');
-
-  const confirmDeleteAction = async () => {
-    if (!deleteTargetId) return;
-    const targetId = deleteTargetId;
-    setIsDeleteConfirmOpen(false);
-    setDeleteTargetId(null);
-    setDeleteTargetName('');
-    await handleDelete(targetId);
-  };
-
-  // Fetch expenses
   const fetchExpensesList = useCallback(async () => {
     setLoading(true);
     setError('');
@@ -89,6 +108,8 @@ export default function ExpensesPage() {
 
       const result = await getExpenses(queryParams);
       setData(result);
+      // Reset bulk selection on page navigation
+      setSelectedIds(new Set());
     } catch (err) {
       setError(err.response?.data?.message || 'Failed to retrieve expense records.');
     } finally {
@@ -100,25 +121,95 @@ export default function ExpensesPage() {
     fetchExpensesList();
   }, [fetchExpensesList]);
 
-  // Optimistic Delete handler
+  // Client-side category & amount filters on top of current page content
+  const filteredExpenses = useMemo(() => {
+    let list = [...data.content];
+    
+    if (filterCategory) {
+      list = list.filter(item => item.category?.id?.toString() === filterCategory.toString());
+    }
+
+    if (filterMinAmount) {
+      list = list.filter(item => item.amount >= parseFloat(filterMinAmount));
+    }
+
+    if (filterMaxAmount) {
+      list = list.filter(item => item.amount <= parseFloat(filterMaxAmount));
+    }
+
+    return list;
+  }, [data.content, filterCategory, filterMinAmount, filterMaxAmount]);
+
+  const handleSortHeader = (field) => {
+    if (params.sortBy === field) {
+      setParam('sortDirection', params.sortDirection === 'ASC' ? 'DESC' : 'ASC');
+    } else {
+      setParam('sortBy', field);
+      setParam('sortDirection', 'DESC');
+    }
+  };
+
+  // Bulk Actions
+  const handleToggleSelectAll = (e) => {
+    if (e.target.checked) {
+      const ids = new Set(filteredExpenses.map(item => item.id));
+      setSelectedIds(ids);
+    } else {
+      setSelectedIds(new Set());
+    }
+  };
+
+  const handleToggleSelectRow = (id) => {
+    setSelectedIds(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) {
+        next.delete(id);
+      } else {
+        next.add(id);
+      }
+      return next;
+    });
+  };
+
+  const handleBulkDelete = async () => {
+    setIsBulkDeleteConfirmOpen(false);
+    setLoading(true);
+    const ids = Array.from(selectedIds);
+    try {
+      await Promise.all(ids.map(id => deleteExpense(id)));
+      showNotification(`${ids.length} transactions deleted successfully.`, 'success');
+      setSelectedIds(new Set());
+      fetchExpensesList();
+    } catch (err) {
+      showNotification('Failed to complete some deletion actions.', 'error');
+      fetchExpensesList();
+    }
+  };
+
+  const confirmDeleteAction = async () => {
+    if (!deleteTargetId) return;
+    const targetId = deleteTargetId;
+    setIsDeleteConfirmOpen(false);
+    setDeleteTargetId(null);
+    setDeleteTargetName('');
+    await handleDelete(targetId);
+  };
+
   const handleDelete = async (id) => {
     const previousContent = [...data.content];
-    // Optimistic UI state update: immediately remove from view
     setData((prev) => ({
       ...prev,
       content: prev.content.filter((item) => item.id !== id),
-      totalElements: prev.totalElements - 1,
+      totalElements: Math.max(0, prev.totalElements - 1),
     }));
 
     try {
       await deleteExpense(id);
-      showNotification('Expense deleted successfully!', 'success');
-      // Refetch to align pagination bounds
+      showNotification('Expense transaction deleted.', 'success');
       fetchExpensesList();
     } catch (err) {
-      // Revert state on failure
-      setData((prev) => ({ ...prev, content: previousContent, totalElements: previousContent.length + prev.content.length }));
-      showNotification(err.response?.data?.message || 'Failed to delete record. Reverting action.', 'error');
+      setData((prev) => ({ ...prev, content: previousContent }));
+      showNotification(err.response?.data?.message || 'Failed to delete record. Reverted.', 'error');
     }
   };
 
@@ -129,7 +220,7 @@ export default function ExpensesPage() {
       const url = window.URL.createObjectURL(new Blob([blob], { type: 'application/pdf' }));
       const link = document.createElement('a');
       link.href = url;
-      link.setAttribute('download', `expenses_export_${new Date().toISOString().split('T')[0]}.pdf`);
+      link.setAttribute('download', `expenses_ledger_${new Date().toISOString().split('T')[0]}.pdf`);
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
@@ -141,114 +232,110 @@ export default function ExpensesPage() {
     }
   };
 
+  const handleViewReceipt = async (filename) => {
+    try {
+      const blob = await getReceiptFile(filename);
+      const fileUrl = window.URL.createObjectURL(blob);
+      setReceiptUrl(fileUrl);
+      setReceiptFilename(filename);
+      setIsReceiptModalOpen(true);
+    } catch (err) {
+      showNotification('Failed to download receipt file.', 'error');
+    }
+  };
+
   const handleEdit = (expense) => {
     setSelectedExpense(expense);
-    setIsModalOpen(true);
+    setIsDrawerOpen(true);
+    setActiveMenuId(null);
   };
 
   const handleAddNew = () => {
     setSelectedExpense(null);
-    setIsModalOpen(true);
+    setIsDrawerOpen(true);
   };
 
-  const headers = ['Expense Name', 'Category', 'Amount', 'Date', 'Receipt', 'Actions'];
-
-  const renderRow = (item) => (
-    <tr key={item.id} className="hover:bg-slate-100/50 dark:hover:bg-slate-900/40 transition-colors">
-      <td className="px-6 py-4 text-sm font-medium text-slate-700 dark:text-slate-200">{item.name}</td>
-      <td className="px-6 py-4 text-sm">
-        <span
-          className="px-2.5 py-1 text-xs font-semibold rounded-full text-white/90"
-          style={{ backgroundColor: item.category.color || '#4F46E5' }}
-        >
-          {item.category.name}
-        </span>
-      </td>
-      <td className="px-6 py-4 text-sm font-bold text-slate-800 dark:text-slate-100">₹{item.amount.toFixed(2)}</td>
-      <td className="px-6 py-4 text-sm text-slate-500 dark:text-slate-400">
-        {new Date(item.transactionDate).toLocaleDateString(undefined, {
-          year: 'numeric',
-          month: 'short',
-          day: 'numeric',
-        })}
-      </td>
-      <td className="px-6 py-4 text-sm">
-        {item.receiptPath ? (
-          <button
-            onClick={() => handleViewReceipt(item.receiptPath)}
-            className="text-emerald-650 dark:text-emerald-400 hover:text-emerald-500 dark:hover:text-emerald-300 transition-colors inline-flex items-center gap-1 font-semibold"
-            title="View Attached Receipt"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-            </svg>
-            <span>Receipt</span>
-          </button>
-        ) : (
-          <span className="text-slate-400 dark:text-slate-650">-</span>
-        )}
-      </td>
-      <td className="px-6 py-4 text-sm space-x-3">
-        <button
-          onClick={() => handleEdit(item)}
-          className="text-slate-500 hover:text-brand-500 dark:text-slate-400 dark:hover:text-white transition-colors"
-          title="Edit"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-          </svg>
-        </button>
-        <button
-          onClick={() => {
-            setDeleteTargetId(item.id);
-            setDeleteTargetName(item.name);
-            setIsDeleteConfirmOpen(true);
-          }}
-          className="text-red-500 hover:text-red-700 transition-colors"
-          title="Delete"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-          </svg>
-        </button>
-      </td>
-    </tr>
-  );
+  // Close menus on outside click
+  useEffect(() => {
+    const handleOutsideClick = () => setActiveMenuId(null);
+    document.addEventListener('click', handleOutsideClick);
+    return () => document.removeEventListener('click', handleOutsideClick);
+  }, []);
 
   return (
     <div className="space-y-6">
-      {/* Title Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 p-6 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl transition-colors duration-200">
+      
+      {/* Standardized B2B Header area */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 p-6 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800/80 rounded-2xl transition-all duration-200 shadow-sm">
         <div>
-          <h3 className="text-xl font-semibold text-slate-800 dark:text-slate-100">Expenses Log</h3>
-          <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
-            Review, add, and organize your ledger details here.
+          <h3 className="text-xl font-bold text-slate-850 dark:text-slate-100 flex items-center gap-2">
+            <CreditCard className="w-5 h-5 text-brand-500" /> Transaction Ledger
+          </h3>
+          <p className="text-xs text-slate-500 dark:text-slate-400 mt-1.5 font-medium">
+            Monitor, filter, and export transaction audit trails.
           </p>
         </div>
-        <div className="flex gap-3 self-start md:self-auto">
+        
+        {/* Alignment matches the top-right CTA rules */}
+        <div className="flex gap-2.5 self-start md:self-auto">
           <button
             onClick={handleExportPdf}
             disabled={exporting}
-            className="px-4 py-2.5 text-sm font-semibold text-slate-700 dark:text-slate-300 bg-slate-100 hover:bg-slate-200 dark:bg-slate-950 border border-slate-200 dark:border-slate-850 dark:hover:bg-slate-900 rounded-lg transition-colors disabled:opacity-50"
-            aria-label="Export expenses ledger to PDF report"
+            className="flex items-center gap-1.5 px-4 py-2.5 text-xs font-bold text-slate-700 dark:text-slate-200 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-750 rounded-xl transition-all disabled:opacity-50 border border-slate-200 dark:border-slate-850"
           >
-            {exporting ? 'Exporting...' : 'Export PDF'}
+            <Download className="w-4 h-4" /> {exporting ? 'Exporting...' : 'Export PDF'}
           </button>
           <button
             onClick={handleAddNew}
-            className="px-4 py-2.5 text-sm font-semibold text-white bg-brand-500 rounded-lg hover:bg-brand-600 transition-colors hover:shadow-lg hover:shadow-brand-500/20"
-            aria-label="Add new expense record"
+            className="flex items-center gap-1.5 px-5 py-2.5 text-xs font-bold text-white bg-brand-500 hover:bg-brand-600 rounded-xl transition-colors shadow-lg shadow-brand-500/15"
           >
-            + Add Expense
+            <Plus className="w-4 h-4" /> Add Expense
           </button>
         </div>
       </div>
 
-      {/* Filter Panel */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 p-6 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl transition-colors duration-200">
-        <div className="flex flex-wrap gap-4 items-end">
-          <div>
-            <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">
+      {/* Floating Bulk Action Bar */}
+      {selectedIds.size > 0 && (
+        <div className="flex items-center justify-between p-4 bg-brand-500 dark:bg-brand-600 text-white rounded-2xl shadow-lg animate-toast-in select-none">
+          <div className="flex items-center gap-3 pl-2">
+            <span className="text-xs font-bold uppercase tracking-wider">{selectedIds.size} row{selectedIds.size > 1 && 's'} selected</span>
+          </div>
+          <div className="flex gap-3">
+            <button
+              onClick={() => setSelectedIds(new Set())}
+              className="px-3.5 py-1.5 text-xs font-bold hover:bg-white/10 rounded-lg transition-all"
+            >
+              Clear Selection
+            </button>
+            <button
+              onClick={() => setIsBulkDeleteConfirmOpen(true)}
+              className="flex items-center gap-1 px-4 py-1.5 bg-rose-600 hover:bg-rose-700 text-xs font-bold rounded-lg transition-all shadow-md"
+            >
+              <Trash2 className="w-3.5 h-3.5" /> Delete Selected
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Advanced Filter Panel */}
+      <div className="p-6 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl transition-all duration-200 shadow-sm space-y-4">
+        <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-850 pb-3">
+          <h4 className="text-xs font-bold text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
+            <Filter className="w-4 h-4 text-slate-400" /> Filter Criteria
+          </h4>
+          <button
+            onClick={() => setShowAdvancedFilters(p => !p)}
+            className="text-xs font-bold text-brand-500 dark:text-brand-100 flex items-center gap-1"
+          >
+            {showAdvancedFilters ? 'Hide Advanced Filters' : 'Show Advanced Filters'}
+            <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${showAdvancedFilters ? 'rotate-185' : ''}`} />
+          </button>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 items-end">
+          {/* Start Date */}
+          <div className="space-y-1">
+            <label className="block text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
               Start Date
             </label>
             <input
@@ -256,12 +343,13 @@ export default function ExpensesPage() {
               value={params.startDate}
               onChange={handleStartDateChange}
               max={todayStr}
-              className="px-4 py-2 text-sm text-slate-800 dark:text-slate-100 bg-slate-550/5 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg focus:outline-none focus:border-brand-500"
+              className="w-full px-3 py-2 text-xs text-slate-800 dark:text-slate-200 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl focus:outline-none focus:border-brand-500"
             />
           </div>
 
-          <div>
-            <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">
+          {/* End Date */}
+          <div className="space-y-1">
+            <label className="block text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
               End Date
             </label>
             <input
@@ -269,49 +357,70 @@ export default function ExpensesPage() {
               value={params.endDate}
               onChange={handleEndDateChange}
               max={todayStr}
-              className="px-4 py-2 text-sm text-slate-800 dark:text-slate-100 bg-slate-550/5 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg focus:outline-none focus:border-brand-500"
+              className="w-full px-3 py-2 text-xs text-slate-800 dark:text-slate-200 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl focus:outline-none focus:border-brand-500"
             />
           </div>
 
-          {(params.startDate || params.endDate) && (
-            <button
-              onClick={resetFilters}
-              className="px-4 py-2 text-xs font-semibold text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-100 transition-colors"
-            >
-              Clear Filters
-            </button>
+          {/* Category Dropdown (Advanced) */}
+          {showAdvancedFilters && (
+            <div className="space-y-1">
+              <label className="block text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
+                Category
+              </label>
+              <select
+                value={filterCategory}
+                onChange={(e) => setFilterCategory(e.target.value)}
+                className="w-full pl-3 pr-10 py-2.5 text-xs text-slate-850 dark:text-slate-200 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl focus:outline-none focus:border-brand-500 appearance-none bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2020%2020%22%20fill%3D%22none%22%3E%3Cpath%20d%3D%22M7%209l3%203%203-3%22%20stroke%3D%22%2364748b%22%20stroke-width%3D%221.5%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%2F%3E%3C%2Fsvg%3E')] bg-[position:right_10px_center] bg-[size:18px_18px] bg-no-repeat font-bold"
+              >
+                <option value="">All Categories</option>
+                {categories.map((cat) => (
+                  <option key={cat.id} value={cat.id}>
+                    {cat.name}
+                  </option>
+                ))}
+              </select>
+            </div>
           )}
-        </div>
 
-        {/* Sorting Dropdowns */}
-        <div className="flex gap-4">
-          <div>
-            <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">
-              Sort By
-            </label>
-            <select
-              value={params.sortBy}
-              onChange={(e) => setParam('sortBy', e.target.value)}
-              className="pl-4 pr-10 py-2 text-sm text-slate-800 dark:text-slate-100 bg-slate-550/5 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg focus:outline-none focus:border-brand-500 appearance-none bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2020%2020%22%20fill%3D%22none%22%3E%3Cpath%20d%3D%22M7%209l3%203%203-3%22%20stroke%3D%22%2364748b%22%20stroke-width%3D%221.5%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%2F%3E%3C%2Fsvg%3E')] bg-[position:right_10px_center] bg-[size:18px_18px] bg-no-repeat"
-            >
-              <option value="transactionDate">Transaction Date</option>
-              <option value="name">Expense Name</option>
-              <option value="amount">Amount</option>
-            </select>
-          </div>
+          {/* Amount range (Advanced) */}
+          {showAdvancedFilters && (
+            <div className="space-y-1">
+              <label className="block text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
+                Amount Range (Min - Max)
+              </label>
+              <div className="flex gap-2">
+                <input
+                  type="number"
+                  placeholder="Min"
+                  value={filterMinAmount}
+                  onChange={(e) => setFilterMinAmount(e.target.value)}
+                  className="w-1/2 px-2.5 py-2.5 text-xs text-slate-800 dark:text-slate-200 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl focus:outline-none"
+                />
+                <input
+                  type="number"
+                  placeholder="Max"
+                  value={filterMaxAmount}
+                  onChange={(e) => setFilterMaxAmount(e.target.value)}
+                  className="w-1/2 px-2.5 py-2.5 text-xs text-slate-800 dark:text-slate-200 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl focus:outline-none"
+                />
+              </div>
+            </div>
+          )}
 
-          <div>
-            <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">
-              Direction
-            </label>
-            <select
-              value={params.sortDirection}
-              onChange={(e) => setParam('sortDirection', e.target.value)}
-              className="pl-4 pr-10 py-2 text-sm text-slate-800 dark:text-slate-100 bg-slate-550/5 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg focus:outline-none focus:border-brand-500 appearance-none bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2020%2020%22%20fill%3D%22none%22%3E%3Cpath%20d%3D%22M7%209l3%203%203-3%22%20stroke%3D%22%2364748b%22%20stroke-width%3D%221.5%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%2F%3E%3C%2Fsvg%3E')] bg-[position:right_10px_center] bg-[size:18px_18px] bg-no-repeat"
-            >
-              <option value="DESC">Descending</option>
-              <option value="ASC">Ascending</option>
-            </select>
+          <div className="flex items-center gap-3">
+            {(params.startDate || params.endDate || filterCategory || filterMinAmount || filterMaxAmount) && (
+              <button
+                onClick={() => {
+                  resetFilters();
+                  setFilterCategory('');
+                  setFilterMinAmount('');
+                  setFilterMaxAmount('');
+                }}
+                className="px-3.5 py-2.5 text-xs font-bold text-slate-500 hover:text-slate-700 dark:hover:text-slate-200 transition-colors"
+              >
+                Clear Filters
+              </button>
+            )}
           </div>
         </div>
       </div>
@@ -324,32 +433,169 @@ export default function ExpensesPage() {
         </div>
       ) : error ? (
         <ErrorRetryState message={error} onRetry={fetchExpensesList} />
-      ) : data.content.length === 0 ? (
+      ) : filteredExpenses.length === 0 ? (
         <EmptyState
-          icon={<CreditCard className="w-10 h-10 text-slate-400 dark:text-slate-500" />}
-          title="No expenses registered"
-          description="Click the Add Expense button above to record your first transaction."
-          actionLabel="Record Expense"
+          title="No Transactions Registered"
+          description="We couldn't find any transactions fitting your current filters. Setup parameters or add an expense."
+          actionText="Record First Expense"
           onAction={handleAddNew}
         />
       ) : (
         <div className="space-y-4">
-          <Table headers={headers} data={data.content} renderRow={renderRow} />
+          <div className="overflow-x-auto border border-slate-150 dark:border-slate-850 rounded-2xl bg-white dark:bg-slate-900 shadow-sm">
+            <table className="min-w-full divide-y divide-slate-150 dark:divide-slate-850 text-left">
+              <thead className="bg-slate-50 dark:bg-slate-950">
+                <tr>
+                  <th className="px-6 py-4 w-12 text-center">
+                    <input
+                      type="checkbox"
+                      onChange={handleToggleSelectAll}
+                      checked={filteredExpenses.length > 0 && selectedIds.size === filteredExpenses.length}
+                      className="w-4 h-4 rounded border-slate-350 bg-white dark:bg-slate-950 text-brand-500 focus:ring-brand-500 cursor-pointer"
+                      aria-label="Select all transactions"
+                    />
+                  </th>
+                  <th className="px-6 py-4 text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
+                    <button onClick={() => handleSortHeader('name')} className="flex items-center gap-1 hover:text-slate-700 dark:hover:text-slate-200 transition-colors">
+                      Expense Name <ArrowUpDown className="w-3.5 h-3.5" />
+                    </button>
+                  </th>
+                  <th className="px-6 py-4 text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
+                    Category
+                  </th>
+                  <th className="px-6 py-4 text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
+                    <button onClick={() => handleSortHeader('amount')} className="flex items-center gap-1 hover:text-slate-700 dark:hover:text-slate-200 transition-colors">
+                      Amount <ArrowUpDown className="w-3.5 h-3.5" />
+                    </button>
+                  </th>
+                  <th className="px-6 py-4 text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
+                    <button onClick={() => handleSortHeader('transactionDate')} className="flex items-center gap-1 hover:text-slate-700 dark:hover:text-slate-200 transition-colors">
+                      Date <ArrowUpDown className="w-3.5 h-3.5" />
+                    </button>
+                  </th>
+                  <th className="px-6 py-4 text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
+                    Receipt
+                  </th>
+                  {/* Sticky header right action column */}
+                  <th className="px-6 py-4 text-right text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider w-20 sticky right-0 bg-slate-50 dark:bg-slate-950 shadow-[-8px_0_12px_-8px_rgba(0,0,0,0.06)] dark:shadow-[-8px_0_12px_-8px_rgba(255,255,255,0.02)]">
+                    Actions
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100 dark:divide-slate-800/60 bg-white dark:bg-slate-900">
+                {filteredExpenses.map((item) => (
+                  <tr key={item.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-955/15 transition-all">
+                    <td className="px-6 py-4 text-center">
+                      <input
+                        type="checkbox"
+                        checked={selectedIds.has(item.id)}
+                        onChange={() => handleToggleSelectRow(item.id)}
+                        className="w-4 h-4 rounded border-slate-350 bg-white dark:bg-slate-950 text-brand-500 focus:ring-brand-500 cursor-pointer"
+                        aria-label={`Select transaction ${item.name}`}
+                      />
+                    </td>
+                    <td className="px-6 py-4 text-sm font-bold text-slate-800 dark:text-slate-200">{item.name}</td>
+                    <td className="px-6 py-4 text-xs">
+                      <span
+                        className="px-2.5 py-1 text-[10px] font-bold rounded-full text-white/90 shadow-sm"
+                        style={{ backgroundColor: item.category.color || '#4F46E5' }}
+                      >
+                        {item.category.name}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 text-sm font-black text-slate-850 dark:text-slate-100">
+                      ₹{item.amount.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                    </td>
+                    <td className="px-6 py-4 text-xs text-slate-500 dark:text-slate-400 font-semibold flex items-center gap-1.5 pt-6">
+                      <Calendar className="w-3.5 h-3.5 text-slate-400" />
+                      {new Date(item.transactionDate).toLocaleDateString(undefined, {
+                        year: 'numeric',
+                        month: 'short',
+                        day: 'numeric',
+                      })}
+                    </td>
+                    <td className="px-6 py-4 text-xs">
+                      {item.receiptPath ? (
+                        <button
+                          onClick={() => handleViewReceipt(item.receiptPath)}
+                          className="text-emerald-600 dark:text-emerald-450 hover:text-emerald-500 transition-colors inline-flex items-center gap-1 font-bold"
+                          title="View Attached Receipt"
+                        >
+                          View Receipt
+                        </button>
+                      ) : (
+                        <span className="text-slate-300 dark:text-slate-700 font-medium">-</span>
+                      )}
+                    </td>
+                    {/* Sticky right actions column */}
+                    <td className="px-6 py-4 text-right sticky right-0 bg-white dark:bg-slate-900 shadow-[-8px_0_12px_-8px_rgba(0,0,0,0.06)] dark:shadow-[-8px_0_12px_-8px_rgba(255,255,255,0.02)]">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setActiveMenuId(p => p === item.id ? null : item.id);
+                        }}
+                        className="p-1 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg transition-colors inline-block"
+                        aria-label="Transaction action menu"
+                      >
+                        <MoreVertical className="w-4 h-4" />
+                      </button>
 
-          {/* Pagination Footer */}
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 p-4 border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/20 rounded-xl transition-colors duration-200">
-            <div className="flex items-center gap-3">
-              <span className="text-xs text-slate-500 dark:text-slate-400">Rows per page:</span>
+                      {activeMenuId === item.id && (
+                        <>
+                          <div className="fixed inset-0 z-10" onClick={() => setActiveMenuId(null)} />
+                          <div className="absolute right-6 mt-1 w-32 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl shadow-lg py-1.5 z-20 text-left animate-slide-in">
+                            {item.receiptPath && (
+                              <button
+                                onClick={() => {
+                                  handleViewReceipt(item.receiptPath);
+                                  setActiveMenuId(null);
+                                }}
+                                className="w-full px-4 py-2 text-xs font-bold text-slate-700 dark:text-slate-350 hover:bg-slate-50 dark:hover:bg-slate-850 flex items-center gap-2"
+                              >
+                                <Eye className="w-3.5 h-3.5 text-slate-400" /> View Receipt
+                              </button>
+                            )}
+                            <button
+                              onClick={() => handleEdit(item)}
+                              className="w-full px-4 py-2 text-xs font-bold text-slate-700 dark:text-slate-350 hover:bg-slate-50 dark:hover:bg-slate-850 flex items-center gap-2"
+                            >
+                              <Edit3 className="w-3.5 h-3.5 text-slate-400" /> Edit Record
+                            </button>
+                            <button
+                              onClick={() => {
+                                setDeleteTargetId(item.id);
+                                setDeleteTargetName(item.name);
+                                setIsDeleteConfirmOpen(true);
+                                setActiveMenuId(null);
+                              }}
+                              className="w-full px-4 py-2 text-xs font-bold text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/20 border-t border-slate-100 dark:border-slate-850 flex items-center gap-2"
+                            >
+                              <Trash2 className="w-3.5 h-3.5 text-rose-500" /> Delete
+                            </button>
+                          </div>
+                        </>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Server-side Pagination Footer */}
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 p-4 border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 rounded-2xl transition-colors duration-200 text-xs font-semibold text-slate-500">
+            <div className="flex items-center gap-2">
+              <span>Rows per page:</span>
               <select
                 value={params.pageSize}
                 onChange={(e) => setParam('pageSize', parseInt(e.target.value))}
-                className="pl-2 pr-6 py-1 text-xs text-slate-700 dark:text-slate-250 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded focus:outline-none appearance-none bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2020%2020%22%20fill%3D%22none%22%3E%3Cpath%20d%3D%22M7%209l3%203%203-3%22%20stroke%3D%22%2364748b%22%20stroke-width%3D%221.5%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%2F%3E%3C%2Fsvg%3E')] bg-[position:right_4px_center] bg-[size:14px_14px] bg-no-repeat"
+                className="pl-2 pr-6 py-1 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded focus:outline-none appearance-none bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2020%2020%22%20fill%3D%22none%22%3E%3Cpath%20d%3D%22M7%209l3%203%203-3%22%20stroke%3D%22%2364748b%22%20stroke-width%3D%221.5%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%2F%3E%3C%2Fsvg%3E')] bg-[position:right_4px_center] bg-[size:14px_14px] bg-no-repeat font-bold"
               >
                 <option value="5">5</option>
                 <option value="10">10</option>
                 <option value="20">20</option>
               </select>
-              <span className="text-xs text-slate-500 dark:text-slate-400">
+              <span>
                 Showing {params.pageNumber * params.pageSize + 1} to{' '}
                 {Math.min((params.pageNumber + 1) * params.pageSize, data.totalElements)} of{' '}
                 {data.totalElements} entries
@@ -360,14 +606,14 @@ export default function ExpensesPage() {
               <button
                 disabled={params.pageNumber === 0}
                 onClick={() => setPageNumber(params.pageNumber - 1)}
-                className="px-3 py-1.5 text-xs font-semibold text-slate-700 dark:text-slate-300 bg-slate-50 hover:bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 dark:hover:bg-slate-800 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                className="px-3.5 py-1.5 bg-slate-50 hover:bg-slate-100 dark:bg-slate-950 dark:hover:bg-slate-850 border border-slate-200 dark:border-slate-800 rounded-lg disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
               >
                 Previous
               </button>
               <button
                 disabled={data.isLast}
                 onClick={() => setPageNumber(params.pageNumber + 1)}
-                className="px-3 py-1.5 text-xs font-semibold text-slate-700 dark:text-slate-300 bg-slate-50 hover:bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 dark:hover:bg-slate-800 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                className="px-3.5 py-1.5 bg-slate-50 hover:bg-slate-100 dark:bg-slate-950 dark:hover:bg-slate-850 border border-slate-200 dark:border-slate-800 rounded-lg disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
               >
                 Next
               </button>
@@ -376,40 +622,110 @@ export default function ExpensesPage() {
         </div>
       )}
 
-      {/* Expense Modal Form */}
+      {/* Drawer SlideOver for Add/Edit Expense */}
       <ExpenseFormModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
+        isOpen={isDrawerOpen}
+        onClose={() => setIsDrawerOpen(false)}
         expense={selectedExpense}
         onSubmitSuccess={fetchExpensesList}
       />
 
-      {/* Delete Confirmation Modal */}
+      {/* Single Delete Confirmation Modal */}
       <Modal
         isOpen={isDeleteConfirmOpen}
         onClose={() => setIsDeleteConfirmOpen(false)}
-        title="Confirm Deletion"
+        title="Delete Transaction Record"
       >
         <div className="space-y-4">
           <p className="text-sm text-slate-600 dark:text-slate-400">
-            Are you sure you want to delete the expense <strong className="text-slate-800 dark:text-slate-100">&quot;{deleteTargetName}&quot;</strong>? This action cannot be undone.
+            Are you sure you want to delete <strong className="text-slate-800 dark:text-slate-100">&quot;{deleteTargetName}&quot;</strong>? This action cannot be undone and will update MTD analytics.
           </p>
           <div className="flex justify-end gap-3 pt-2">
             <button
               onClick={() => setIsDeleteConfirmOpen(false)}
-              className="px-4 py-2 text-sm font-semibold text-slate-700 dark:text-slate-350 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-750 border border-slate-200 dark:border-slate-800 rounded-lg transition-colors"
+              className="px-4 py-2 text-xs font-bold text-slate-700 dark:text-slate-350 bg-slate-100 hover:bg-slate-200 dark:bg-slate-850 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-800 rounded-xl transition-colors"
             >
               Cancel
             </button>
             <button
               onClick={confirmDeleteAction}
-              className="px-4 py-2 text-sm font-semibold text-white bg-red-500 hover:bg-red-650 rounded-lg transition-colors hover:shadow-lg hover:shadow-red-500/20"
+              className="px-4 py-2 text-xs font-bold text-white bg-rose-600 hover:bg-rose-700 rounded-xl transition-colors shadow-md"
             >
-              Delete
+              Confirm Delete
             </button>
           </div>
         </div>
       </Modal>
+
+      {/* Bulk Delete Confirmation Modal */}
+      <Modal
+        isOpen={isBulkDeleteConfirmOpen}
+        onClose={() => setIsBulkDeleteConfirmOpen(false)}
+        title="Bulk Delete Transactions"
+      >
+        <div className="space-y-4">
+          <p className="text-sm text-slate-600 dark:text-slate-400">
+            Are you sure you want to delete <strong className="text-slate-850 dark:text-white font-extrabold">{selectedIds.size} selected transaction records</strong>? This will permanently remove them from the database audit trail.
+          </p>
+          <div className="flex justify-end gap-3 pt-2">
+            <button
+              onClick={() => setIsBulkDeleteConfirmOpen(false)}
+              className="px-4 py-2 text-xs font-bold text-slate-700 dark:text-slate-350 bg-slate-100 hover:bg-slate-200 dark:bg-slate-850 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-800 rounded-xl transition-colors"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={handleBulkDelete}
+              className="px-4 py-2 text-xs font-bold text-white bg-rose-600 hover:bg-rose-700 rounded-xl transition-colors shadow-md"
+            >
+              Confirm Bulk Delete
+            </button>
+          </div>
+        </div>
+      </Modal>
+
+      {/* Receipt Preview Lightbox Modal */}
+      <Modal
+        isOpen={isReceiptModalOpen}
+        onClose={() => {
+          setIsReceiptModalOpen(false);
+          setReceiptUrl('');
+          setReceiptFilename('');
+        }}
+        title="Receipt Document Viewer"
+      >
+        <div className="space-y-4">
+          <div className="border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden max-h-[500px] flex items-center justify-center bg-slate-100 dark:bg-slate-950">
+            {receiptFilename.toLowerCase().endsWith('.pdf') ? (
+              <iframe
+                src={receiptUrl}
+                title="Receipt PDF"
+                className="w-full h-[400px] border-none"
+              ></iframe>
+            ) : (
+              <img
+                src={receiptUrl}
+                alt="Receipt Attachment"
+                className="max-h-[400px] object-contain max-w-full"
+              />
+            )}
+          </div>
+          <div className="flex justify-between items-center text-xs font-semibold text-slate-500">
+            <span className="truncate max-w-[200px]">{receiptFilename.substring(receiptFilename.indexOf('_') + 1)}</span>
+            <button
+              onClick={() => {
+                setIsReceiptModalOpen(false);
+                setReceiptUrl('');
+                setReceiptFilename('');
+              }}
+              className="px-4 py-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-850 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-800 rounded-xl text-slate-700 dark:text-slate-200 font-bold transition-all"
+            >
+              Close Viewer
+            </button>
+          </div>
+        </div>
+      </Modal>
+
     </div>
   );
 }

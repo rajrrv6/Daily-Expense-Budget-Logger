@@ -11,10 +11,13 @@ import {
   Users,
   ClipboardList,
   LogOut,
-  Wallet
+  Wallet,
+  Tag,
+  ChevronLeft,
+  ChevronRight
 } from 'lucide-react';
 
-export default function Sidebar() {
+export default function Sidebar({ isCollapsed, toggleSidebar }) {
   const { logout, hasPermission } = useAuth();
   const navigate = useNavigate();
 
@@ -26,9 +29,10 @@ export default function Sidebar() {
   const navItems = [
     { name: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },
     { name: 'Expenses', path: '/expenses', icon: CreditCard },
+    { name: 'Budgets', path: '/budgets', icon: Target },
+    { name: 'Categories', path: '/categories', icon: Tag },
     { name: 'Checklist', path: '/todos', icon: CheckSquare },
     { name: 'Analytics', path: '/analytics', icon: BarChart3 },
-    { name: 'Budgets', path: '/budgets', icon: Target },
     { name: 'User Management', path: '/admin/users', icon: Users, requiredPermission: 'write:user_management' },
     { name: 'Audit Logs', path: '/admin/logs', icon: ClipboardList, requiredPermission: 'read:system_logs' },
     { name: 'Settings', path: '/settings', icon: Settings },
@@ -42,41 +46,70 @@ export default function Sidebar() {
   });
 
   return (
-    <aside className="flex flex-col w-64 h-screen bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 text-slate-800 dark:text-slate-100 transition-colors duration-200">
+    <aside
+      className={`flex flex-col h-screen bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 text-slate-800 dark:text-slate-100 transition-all duration-300 ease-in-out ${
+        isCollapsed ? 'w-20' : 'w-64'
+      }`}
+    >
       {/* Brand Header */}
-      <div className="flex items-center gap-3 px-6 h-16 border-b border-slate-200 dark:border-slate-800">
-        <Wallet className="w-6 h-6 text-brand-500 dark:text-brand-100 flex-shrink-0" />
-        <h1 className="text-xl font-bold tracking-tight text-brand-500 dark:text-brand-100">BudgetLogger</h1>
+      <div className="flex items-center justify-between px-6 h-16 border-b border-slate-200 dark:border-slate-800 flex-shrink-0">
+        <div className={`flex items-center gap-3 ${isCollapsed ? 'mx-auto' : ''}`}>
+          <Wallet className="w-6 h-6 text-brand-500 dark:text-brand-100 flex-shrink-0 animate-pulse" />
+          {!isCollapsed && (
+            <h1 className="text-lg font-extrabold tracking-tight text-brand-500 dark:text-brand-100">
+              BudgetLogger
+            </h1>
+          )}
+        </div>
       </div>
 
       {/* Navigation Links */}
-      <nav className="flex-1 px-4 py-6 space-y-1">
+      <nav className="flex-1 px-3 py-6 space-y-1.5 overflow-y-auto custom-scrollbar">
         {filteredNavItems.map((item) => (
           <NavLink
             key={item.name}
             to={item.path}
+            title={isCollapsed ? item.name : undefined}
             className={({ isActive }) =>
-              `flex items-center gap-4 px-4 py-3 text-sm font-medium rounded-lg transition-all duration-200 ${
+              `flex items-center gap-4 px-4 py-3 text-sm font-semibold rounded-xl transition-all duration-200 ${
                 isActive
-                  ? 'bg-brand-500 text-white shadow-md shadow-brand-500/10'
-                  : 'text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-slate-100'
-              }`
+                  ? 'bg-brand-500 text-white shadow-lg shadow-brand-500/20'
+                  : 'text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-850 hover:text-slate-800 dark:hover:text-slate-100'
+              } ${isCollapsed ? 'justify-center px-0' : ''}`
             }
           >
             <item.icon className="w-5 h-5 flex-shrink-0" />
-            <span>{item.name}</span>
+            {!isCollapsed && <span>{item.name}</span>}
           </NavLink>
         ))}
       </nav>
 
-      {/* User Footer Action */}
-      <div className="flex items-center h-16 border-t border-slate-200 dark:border-slate-800 px-4">
+      {/* Footer Controls */}
+      <div className="border-t border-slate-200 dark:border-slate-800 p-3 space-y-2 flex-shrink-0">
+        {/* Collapse Trigger Button */}
+        <button
+          onClick={toggleSidebar}
+          className="flex items-center gap-4 w-full px-4 py-2.5 text-xs font-semibold text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-850/50 rounded-xl transition-colors outline-none focus:ring-1 focus:ring-brand-500/30"
+          aria-label={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+        >
+          {isCollapsed ? (
+            <ChevronRight className="w-5 h-5 mx-auto flex-shrink-0" />
+          ) : (
+            <>
+              <ChevronLeft className="w-5 h-5 flex-shrink-0" />
+              <span>Collapse Menu</span>
+            </>
+          )}
+        </button>
+
+        {/* Sign Out Button */}
         <button
           onClick={handleLogout}
-          className="flex items-center gap-4 w-full px-4 py-2.5 text-sm font-medium text-slate-500 dark:text-slate-400 rounded-lg hover:bg-red-50 dark:hover:bg-red-950/30 hover:text-red-600 dark:hover:text-red-400 transition-all duration-200"
+          title={isCollapsed ? 'Sign Out' : undefined}
+          className="flex items-center gap-4 w-full px-4 py-2.5 text-sm font-semibold text-slate-500 hover:text-rose-600 dark:text-slate-400 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/20 rounded-xl transition-all duration-200 outline-none"
         >
           <LogOut className="w-5 h-5 flex-shrink-0" />
-          <span>Sign Out</span>
+          {!isCollapsed && <span>Sign Out</span>}
         </button>
       </div>
     </aside>
