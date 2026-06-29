@@ -2,6 +2,19 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
+import {
+  Sun,
+  Moon,
+  Monitor,
+  Receipt,
+  Target,
+  BarChart3,
+  CheckSquare,
+  Bell,
+  ShieldCheck,
+  Wallet,
+  ArrowRight
+} from 'lucide-react';
 
 export default function LandingPage() {
   const { user } = useAuth();
@@ -20,41 +33,41 @@ export default function LandingPage() {
   }, []);
 
   const themeOptions = [
-    { value: 'light', label: 'Light', icon: '☀️' },
-    { value: 'dark', label: 'Dark', icon: '🌙' },
-    { value: 'system', label: 'System', icon: '💻' }
+    { value: 'light', label: 'Light', icon: Sun },
+    { value: 'dark', label: 'Dark', icon: Moon },
+    { value: 'system', label: 'System', icon: Monitor }
   ];
 
   const currentOption = themeOptions.find(opt => opt.value === theme) || themeOptions[2];
 
   const features = [
     {
-      icon: '💸',
+      icon: Receipt,
       title: 'Real-time Expense Logging',
       description: 'Quickly record daily transactions, assign categories, and track spending details as they occur.',
     },
     {
-      icon: '🎯',
+      icon: Target,
       title: 'Smart Category Budgets',
       description: 'Set monthly category or global limits. Receive alerts at 80% utilization and warnings when limits are exceeded.',
     },
     {
-      icon: '📈',
+      icon: BarChart3,
       title: 'Rich Analytics & Charts',
       description: 'Visualize your spending habits with dynamic pie charts, monthly trend bars, and category comparisons.',
     },
     {
-      icon: '📝',
+      icon: CheckSquare,
       title: 'Interactive Checklist',
       description: 'Manage shopping tasks and budget checklists. Cross off items on the go with real-time status tracking.',
     },
     {
-      icon: '🔔',
+      icon: Bell,
       title: 'Alert & Notifications',
       description: 'Stay updated with critical budget warnings, quiet hours configuration, and real-time security alerts.',
     },
     {
-      icon: '🔒',
+      icon: ShieldCheck,
       title: 'Enterprise-grade Security',
       description: 'Secured with JWT stateless authentication, password hashing, and login rate-limiting for data safety.',
     }
@@ -65,7 +78,7 @@ export default function LandingPage() {
       {/* Header / Navbar */}
       <nav className="sticky top-0 z-40 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800/85 transition-colors duration-200 px-6 py-4 flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <span className="text-2xl">💰</span>
+          <Wallet className="w-6 h-6 text-brand-500 dark:text-brand-100 flex-shrink-0" />
           <span className="text-xl font-bold tracking-tight text-brand-500 dark:text-brand-100">BudgetLogger</span>
         </div>
 
@@ -74,10 +87,10 @@ export default function LandingPage() {
           <div className="relative" ref={themeMenuRef}>
             <button
               onClick={() => setShowThemeMenu(!showThemeMenu)}
-              className="p-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700/80 text-slate-700 dark:text-slate-300 rounded-xl border border-slate-200 dark:border-slate-700/40 transition-all flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-brand-500"
+              className="p-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700/80 text-slate-700 dark:text-slate-350 rounded-xl border border-slate-200 dark:border-slate-700/40 transition-all flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-brand-500"
               aria-label={`Change theme. Current theme is ${theme}`}
             >
-              <span className="text-base">{currentOption.icon}</span>
+              <currentOption.icon className="w-4 h-4 flex-shrink-0" />
             </button>
             
             {showThemeMenu && (
@@ -95,7 +108,7 @@ export default function LandingPage() {
                         : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-850'
                     }`}
                   >
-                    <span>{opt.icon}</span>
+                    <opt.icon className="w-4 h-4 flex-shrink-0" />
                     <span>{opt.label}</span>
                   </button>
                 ))}
@@ -132,7 +145,7 @@ export default function LandingPage() {
       {/* Hero Section */}
       <section className="flex-1 max-w-6xl mx-auto px-6 py-20 md:py-32 flex flex-col items-center text-center">
         <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-brand-50 dark:bg-brand-500/10 border border-brand-100 dark:border-brand-500/20 text-xs font-semibold text-brand-600 dark:text-brand-300 mb-8 animate-slide-in">
-          <span>🎯</span> Optimize Your Personal Finances
+          <Target className="w-3.5 h-3.5 flex-shrink-0" /> Optimize Your Personal Finances
         </div>
         
         <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight text-slate-900 dark:text-slate-100 max-w-4xl leading-tight">
@@ -150,9 +163,9 @@ export default function LandingPage() {
           {user ? (
             <Link
               to="/dashboard"
-              className="px-8 py-4 bg-brand-500 hover:bg-brand-600 text-white font-bold rounded-xl shadow-lg shadow-brand-500/20 hover:shadow-brand-500/30 transition-all text-base w-full sm:w-auto"
+              className="inline-flex items-center justify-center px-8 py-4 bg-brand-500 hover:bg-brand-600 text-white font-bold rounded-xl shadow-lg shadow-brand-500/20 hover:shadow-brand-500/30 transition-all text-base w-full sm:w-auto"
             >
-              Enter Dashboard 📊
+              Enter Dashboard <ArrowRight className="w-5 h-5 ml-2 flex-shrink-0" />
             </Link>
           ) : (
             <>
@@ -191,8 +204,8 @@ export default function LandingPage() {
                 key={idx}
                 className="p-6 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800/80 rounded-2xl shadow-sm hover:shadow-md hover:border-brand-500/30 dark:hover:border-brand-500/30 transition-all duration-300 group"
               >
-                <div className="text-3xl mb-4 bg-brand-50 dark:bg-slate-950 w-12 h-12 rounded-xl flex items-center justify-center border border-brand-100/10 transition-colors">
-                  {feat.icon}
+                <div className="mb-4 bg-brand-50 dark:bg-slate-950 w-12 h-12 rounded-xl flex items-center justify-center border border-brand-100/10 text-brand-500 dark:text-brand-300 transition-colors">
+                  <feat.icon className="w-6 h-6 flex-shrink-0" />
                 </div>
                 <h3 className="text-base font-bold text-slate-800 dark:text-slate-100 group-hover:text-brand-500 dark:group-hover:text-brand-350 transition-colors">
                   {feat.title}

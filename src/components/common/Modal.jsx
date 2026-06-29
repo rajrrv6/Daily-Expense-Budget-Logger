@@ -2,6 +2,12 @@ import React, { useEffect, useRef } from 'react';
 
 export default function Modal({ isOpen, onClose, title, children }) {
   const modalRef = useRef(null);
+  const onCloseRef = useRef(onClose);
+
+  // Keep onClose callback ref updated without triggering the main effect
+  useEffect(() => {
+    onCloseRef.current = onClose;
+  }, [onClose]);
 
   // Lock background scroll and handle focus trapping / Escape key listener
   useEffect(() => {
@@ -23,7 +29,9 @@ export default function Modal({ isOpen, onClose, title, children }) {
 
     const handleKeyDown = (event) => {
       if (event.key === 'Escape') {
-        onClose();
+        if (onCloseRef.current) {
+          onCloseRef.current();
+        }
         return;
       }
 
@@ -66,7 +74,7 @@ export default function Modal({ isOpen, onClose, title, children }) {
         previousFocus.focus();
       }
     };
-  }, [isOpen, onClose]);
+  }, [isOpen]);
 
   if (!isOpen) return null;
 

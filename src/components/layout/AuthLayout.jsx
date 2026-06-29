@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Link, Outlet } from 'react-router-dom';
 import { useTheme } from '../../context/ThemeContext';
+import { Sun, Moon, Monitor, Wallet } from 'lucide-react';
 
 export default function AuthLayout() {
   const { theme, setTheme } = useTheme();
@@ -18,9 +19,9 @@ export default function AuthLayout() {
   }, []);
 
   const themeOptions = [
-    { value: 'light', label: 'Light', icon: '☀️' },
-    { value: 'dark', label: 'Dark', icon: '🌙' },
-    { value: 'system', label: 'System', icon: '💻' }
+    { value: 'light', label: 'Light', icon: Sun },
+    { value: 'dark', label: 'Dark', icon: Moon },
+    { value: 'system', label: 'System', icon: Monitor }
   ];
 
   const currentOption = themeOptions.find(opt => opt.value === theme) || themeOptions[2];
@@ -30,7 +31,7 @@ export default function AuthLayout() {
       {/* Public Header / Navbar */}
       <nav className="sticky top-0 z-40 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800/85 transition-colors duration-200 px-6 py-4 flex items-center justify-between">
         <Link to="/" className="flex items-center gap-2 hover:opacity-90 transition-opacity">
-          <span className="text-2xl">💰</span>
+          <Wallet className="w-6 h-6 text-brand-500 dark:text-brand-100 flex-shrink-0" />
           <span className="text-xl font-bold tracking-tight text-brand-500 dark:text-brand-100">BudgetLogger</span>
         </Link>
 
@@ -39,14 +40,14 @@ export default function AuthLayout() {
           <div className="relative" ref={themeMenuRef}>
             <button
               onClick={() => setShowThemeMenu(!showThemeMenu)}
-              className="p-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700/80 text-slate-700 dark:text-slate-300 rounded-xl border border-slate-200 dark:border-slate-700/40 transition-all flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-brand-500"
+              className="p-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700/80 text-slate-700 dark:text-slate-350 rounded-xl border border-slate-200 dark:border-slate-700/40 transition-all flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-brand-500"
               aria-label={`Change theme. Current theme is ${theme}`}
             >
-              <span className="text-base">{currentOption.icon}</span>
+              <currentOption.icon className="w-4 h-4 flex-shrink-0" />
             </button>
             
             {showThemeMenu && (
-              <div className="absolute right-0 mt-2 w-32 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-xl overflow-hidden z-50 flex flex-col animate-slide-in pointer-events-auto">
+              <div className="absolute right-0 mt-2 w-32 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-850 rounded-xl shadow-xl overflow-hidden z-50 flex flex-col animate-slide-in pointer-events-auto">
                 {themeOptions.map((opt) => (
                   <button
                     key={opt.value}
@@ -57,10 +58,10 @@ export default function AuthLayout() {
                     className={`flex items-center gap-3 px-3 py-2.5 text-xs font-semibold transition-colors duration-150 ${
                       theme === opt.value
                         ? 'bg-brand-500 text-white'
-                        : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'
+                        : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-850'
                     }`}
                   >
-                    <span>{opt.icon}</span>
+                    <opt.icon className="w-4 h-4 flex-shrink-0" />
                     <span>{opt.label}</span>
                   </button>
                 ))}

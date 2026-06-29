@@ -3,6 +3,24 @@ import apiClient, { setAuthTokenHeader } from '../services/apiClient';
 
 const AuthContext = createContext(null);
 
+const decodeJwt = (token) => {
+  if (!token) return null;
+  try {
+    const base64Url = token.split('.')[1];
+    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    const jsonPayload = decodeURIComponent(
+      atob(base64)
+        .split('')
+        .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+        .join('')
+    );
+    return JSON.parse(jsonPayload);
+  } catch (e) {
+    console.error('Error decoding JWT:', e);
+    return null;
+  }
+};
+
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -12,6 +30,7 @@ export const AuthProvider = ({ children }) => {
     const checkSession = async () => {
       try {
         const { data } = await apiClient.post('/api/v1/auth/refresh');
+        const decoded = decodeJwt(data.accessToken);
         setUser({
           username: data.username,
           email: data.email,
@@ -19,6 +38,9 @@ export const AuthProvider = ({ children }) => {
           lastName: data.lastName,
           phoneNumber: data.phoneNumber,
           monthlyIncome: data.monthlyIncome,
+          profilePicturePath: data.profilePicturePath,
+          roles: decoded?.roles || [],
+          permissions: decoded?.permissions || [],
         });
         setAuthTokenHeader(data.accessToken);
       } catch (err) {
@@ -49,6 +71,7 @@ export const AuthProvider = ({ children }) => {
       usernameOrEmail,
       password,
     });
+    const decoded = decodeJwt(data.accessToken);
     setUser({
       username: data.username,
       email: data.email,
@@ -56,6 +79,9 @@ export const AuthProvider = ({ children }) => {
       lastName: data.lastName,
       phoneNumber: data.phoneNumber,
       monthlyIncome: data.monthlyIncome,
+      profilePicturePath: data.profilePicturePath,
+      roles: decoded?.roles || [],
+      permissions: decoded?.permissions || [],
     });
     setAuthTokenHeader(data.accessToken);
     return data;
@@ -98,8 +124,39 @@ export const AuthProvider = ({ children }) => {
     setUser((prev) => (prev ? { ...prev, ...userData } : null));
   };
 
+  const hasRole = (roleName) => {
+    if (!user) return false;
+    const cleanRole = roleName.startsWith('ROLE_') ? roleName.substring(5) : roleName;
+    return user.roles?.some((r) => {
+      const cleanR = r.startsWith('ROLE_') ? r.substring(5) : r;
+      return cleanR === cleanRole;
+    }) || false;
+  };
+
+  const hasPermission = (permission) => {
+    if (!user) return false;
+    return user.permissions?.includes(permission) || false;
+  };
+
+  const isAdmin = () => hasRole('ADMIN');
+  const isAuditor = () => hasRole('AUDITOR');
+
   return (
-    <AuthContext.Provider value={{ user, loading, login, register, verifyOtp, logout, updateUser }}>
+    <AuthContext.Provider
+      value={{
+        user,
+        loading,
+        login,
+        register,
+        verifyOtp,
+        logout,
+        updateUser,
+        hasRole,
+        hasPermission,
+        isAdmin,
+        isAuditor,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );

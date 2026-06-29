@@ -1,1 +1,0 @@
-import{c as t}from"./index-Ce4fnr0i.js";const o=async()=>{const{data:a}=await t.get("/api/v1/categories");return a},r=async a=>{const{data:e}=await t.post("/api/v1/categories",a);return e};export{r as c,o as g};

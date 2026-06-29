@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { profileSchema } from '../utils/validationSchemas';
-import { updateProfile } from '../services/userService';
+import { updateProfile, uploadProfilePicture } from '../services/userService';
 import { getPreferences, updatePreferences } from '../services/notificationService';
 import { useAuth } from '../context/AuthContext';
 import { useNotification } from '../context/NotificationContext';
@@ -124,6 +124,34 @@ export default function SettingsPage() {
       showNotification('Failed to update alert settings.', 'error');
     } finally {
       setIsSavingPrefs(false);
+    }
+  };
+
+  const handleImageUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    // Validate size (2MB)
+    if (file.size > 2 * 1024 * 1024) {
+      showNotification('File size exceeds the maximum limit of 2MB.', 'error');
+      return;
+    }
+
+    // Validate type
+    const validTypes = ['image/jpeg', 'image/jpg', 'image/png'];
+    if (!validTypes.includes(file.type)) {
+      showNotification('Invalid file type. Only JPG, JPEG, and PNG files are allowed.', 'error');
+      return;
+    }
+
+    try {
+      const updatedUser = await uploadProfilePicture(file);
+      updateUser({
+        profilePicturePath: updatedUser.profilePicturePath,
+      });
+      showNotification('Profile picture updated successfully!', 'success');
+    } catch (err) {
+      showNotification(err.response?.data?.message || 'Failed to upload profile picture.', 'error');
     }
   };
 
@@ -395,12 +423,47 @@ export default function SettingsPage() {
             </button>
           </div>
 
-          {/* User card widget */}
-          <div className="p-6 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-xl flex items-center gap-4 transition-colors duration-200">
-            <div className="h-10 w-10 rounded-full bg-indigo-50 dark:bg-indigo-950 border border-indigo-200 dark:border-indigo-800/70 flex items-center justify-center text-indigo-600 dark:text-indigo-400 font-bold uppercase text-sm">
-              {(user?.firstName || user?.username || 'U').charAt(0)}
+          {/* User card widget with profile picture editor */}
+          <div className="p-6 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-xl flex flex-col items-center text-center gap-4 transition-colors duration-200">
+            <div 
+              className="relative group cursor-pointer"
+              onClick={() => document.getElementById('profile-pic-input').click()}
+              title="Click to change profile picture"
+            >
+              {user?.profilePicturePath ? (
+                <img
+                  src={`/api/v1/users/profile-picture/${user.profilePicturePath}`}
+                  alt="Profile"
+                  className="h-24 w-24 rounded-full object-cover border-2 border-brand-500 shadow-md group-hover:opacity-75 transition-opacity"
+                />
+              ) : (
+                <div className="h-24 w-24 rounded-full bg-indigo-50 dark:bg-indigo-950 border-2 border-indigo-200 dark:border-indigo-800/70 flex items-center justify-center text-indigo-600 dark:text-indigo-400 font-bold uppercase text-3xl shadow-sm group-hover:bg-indigo-100 dark:group-hover:bg-indigo-900 transition-colors">
+                  {(user?.firstName || user?.username || 'U').charAt(0)}
+                </div>
+              )}
+              
+              {/* Overlay hover effect */}
+              <div className="absolute inset-0 bg-black/40 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                <span className="text-[10px] text-white font-bold uppercase tracking-wider">Change</span>
+              </div>
             </div>
-            <div className="overflow-hidden">
+
+            <input
+              type="file"
+              accept="image/png, image/jpeg, image/jpg"
+              onChange={handleImageUpload}
+              className="hidden"
+              id="profile-pic-input"
+            />
+            
+            <button 
+              onClick={() => document.getElementById('profile-pic-input').click()}
+              className="px-4 py-2 bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-750 text-xs font-bold rounded-lg border border-slate-200 dark:border-slate-700/40 text-slate-700 dark:text-slate-350 transition-all shadow-sm"
+            >
+              Upload Picture
+            </button>
+
+            <div className="overflow-hidden w-full border-t border-slate-100 dark:border-slate-800/60 pt-3 mt-1">
               <p className="text-sm font-bold text-slate-850 dark:text-slate-100 truncate">
                 {user?.firstName && user?.lastName ? `${user.firstName} ${user.lastName}` : user?.username}
               </p>

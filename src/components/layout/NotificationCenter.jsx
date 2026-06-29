@@ -7,6 +7,7 @@ import {
   deleteNotification 
 } from '../../services/notificationService';
 import { useNotification } from '../../context/NotificationContext';
+import { BellOff } from 'lucide-react';
 
 export default function NotificationCenter() {
   const { showNotification } = useNotification();
@@ -189,7 +190,7 @@ export default function NotificationCenter() {
           <div className="flex-1 overflow-y-auto max-h-[320px] custom-scrollbar divide-y divide-slate-100 dark:divide-slate-850 transition-colors duration-200">
             {notifications.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-10 px-4 text-center">
-                <span className="text-2xl mb-2">🔔</span>
+                <BellOff className="w-8 h-8 text-slate-400 dark:text-slate-500 mb-2.5 flex-shrink-0" />
                 <p className="text-sm font-semibold text-slate-500 dark:text-slate-400">All caught up!</p>
                 <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">You have no active alerts.</p>
               </div>

@@ -4,6 +4,7 @@ import { ThemeProvider } from './context/ThemeContext';
 import { AuthProvider } from './context/AuthContext';
 import { NotificationProvider } from './context/NotificationContext';
 import PrivateRoute from './components/common/PrivateRoute';
+import ProtectedRoute from './components/common/ProtectedRoute';
 import MainLayout from './components/layout/MainLayout';
 import AuthLayout from './components/layout/AuthLayout';
 
@@ -20,6 +21,9 @@ const SettingsPage = lazy(() => import('./pages/SettingsPage'));
 const BudgetsPage = lazy(() => import('./pages/BudgetsPage'));
 const LandingPage = lazy(() => import('./pages/LandingPage'));
 const EmailVerificationPage = lazy(() => import('./pages/EmailVerificationPage'));
+const AccessDeniedPage = lazy(() => import('./pages/AccessDeniedPage'));
+const AdminUserManagementPage = lazy(() => import('./pages/AdminUserManagementPage'));
+const AuditLogsPage = lazy(() => import('./pages/AuditLogsPage'));
 
 export default function App() {
   return (
@@ -60,7 +64,28 @@ export default function App() {
                 <Route path="analytics" element={<AnalyticsPage />} />
                 <Route path="settings" element={<SettingsPage />} />
                 <Route path="budgets" element={<BudgetsPage />} />
+
+                {/* Protected Administrative Routes */}
+                <Route
+                  path="admin/users"
+                  element={
+                    <ProtectedRoute requiredPermission="write:user_management">
+                      <AdminUserManagementPage />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="admin/logs"
+                  element={
+                    <ProtectedRoute requiredPermission="read:system_logs">
+                      <AuditLogsPage />
+                    </ProtectedRoute>
+                  }
+                />
               </Route>
+
+              {/* Access Denied Route */}
+              <Route path="/access-denied" element={<AccessDeniedPage />} />
             </Routes>
           </Suspense>
         </AuthProvider>

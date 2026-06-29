@@ -2,32 +2,38 @@ import React, { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
+import Modal from '../common/Modal';
+import { getCategories } from '../../services/categoryService';
 
 const budgetFormSchema = z.object({
   categoryId: z.string().optional(),
   monthlyLimit: z.string()
-    .min(1, 'Monthly limit is required')
-    .refine(val => !isNaN(Number(val)) && parseFloat(val) > 0, 'Limit must be greater than 0'),
+    .min(1, 'Monthly limit is required.')
+    .refine(val => !isNaN(Number(val)) && parseFloat(val) > 0, 'Limit must be greater than 0.'),
   warningThresholdPercent: z.string()
-    .min(1, 'Warning threshold is required')
+    .min(1, 'Warning threshold is required.')
     .refine(val => {
       const num = Number(val);
       return !isNaN(num) && Number.isInteger(num) && num >= 1 && num <= 100;
-    }, 'Threshold must be an integer between 1 and 100'),
-  startDate: z.string().min(1, 'Start date is required'),
-  endDate: z.string().min(1, 'End date is required'),
+    }, 'Threshold must be an integer between 1 and 100.'),
+  startDate: z.string().min(1, 'Start date is required.'),
+  endDate: z.string().min(1, 'End date is required.'),
 }).refine(data => new Date(data.startDate) <= new Date(data.endDate), {
-  message: 'Start date cannot be after end date',
+  message: 'Start date cannot be after end date.',
   path: ['endDate'],
 });
 
-export default function BudgetFormModal({ isOpen, onClose, onSubmit, budget, categories }) {
+export default function BudgetFormModal({ isOpen, onClose, onSubmit, budget }) {
   const isEditMode = !!budget;
+  const [isDropdownOpen, setIsDropdownOpen] = React.useState(false);
+  const [dbCategories, setDbCategories] = React.useState([]);
 
   const {
     register,
     handleSubmit,
     reset,
+    setValue,
+    watch,
     formState: { errors, isSubmitting },
   } = useForm({
     resolver: zodResolver(budgetFormSchema),
@@ -39,6 +45,25 @@ export default function BudgetFormModal({ isOpen, onClose, onSubmit, budget, cat
       endDate: new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0).toISOString().split('T')[0],
     },
   });
+
+  const selectedCategoryId = watch('categoryId');
+  const selectedCategoryName = selectedCategoryId
+    ? dbCategories.find(c => c.id.toString() === selectedCategoryId.toString())?.name || 'Global Budget'
+    : 'Global Budget (All spending categories)';
+
+  useEffect(() => {
+    if (isOpen) {
+      const loadCategories = async () => {
+        try {
+          const data = await getCategories();
+          setDbCategories(data);
+        } catch (err) {
+          // Fallback
+        }
+      };
+      loadCategories();
+    }
+  }, [isOpen]);
 
   useEffect(() => {
     if (isOpen) {
@@ -76,143 +101,158 @@ export default function BudgetFormModal({ isOpen, onClose, onSubmit, budget, cat
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center pointer-events-none">
-      {/* Backdrop */}
-      <div 
-        className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm pointer-events-auto transition-opacity duration-300"
-        onClick={onClose}
-      />
-
-      {/* Modal Dialog */}
-      <div className="relative w-full max-w-lg p-6 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xl z-10 animate-slide-in pointer-events-auto transition-colors duration-200">
+    <Modal
+      isOpen={isOpen}
+      onClose={onClose}
+      title={isEditMode ? 'Modify Budget Configuration' : 'Setup New Budget limit'}
+    >
+      {/* Form Body */}
+      <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-4">
         
-        {/* Header */}
-        <div className="flex items-center justify-between pb-4 border-b border-slate-100 dark:border-slate-850">
-          <h3 className="text-lg font-bold text-slate-800 dark:text-slate-100">
-            {isEditMode ? 'Modify Budget Configuration' : 'Setup New Budget limit'}
-          </h3>
-          <button 
+        {/* Category Dropdown */}
+        <div>
+          <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-1.5">
+            Category Scope
+          </label>
+          <input type="hidden" {...register('categoryId')} />
+          <div className="relative">
+            <button
+              type="button"
+              onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+              className="w-full pl-3 pr-10 py-2 text-left text-sm text-slate-800 dark:text-slate-200 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg focus:outline-none focus:border-brand-500 transition-colors flex items-center justify-between"
+            >
+              <span className="truncate">{selectedCategoryName}</span>
+              <svg className="h-4 w-4 text-slate-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+              </svg>
+            </button>
+
+            {isDropdownOpen && (
+              <>
+                <div className="fixed inset-0 z-10" onClick={() => setIsDropdownOpen(false)} />
+                <div className="absolute z-20 mt-1 w-full max-h-60 overflow-y-auto bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg shadow-lg py-1">
+                  <div
+                    onClick={() => {
+                      setValue('categoryId', '', { shouldValidate: true });
+                      setIsDropdownOpen(false);
+                    }}
+                    className={`px-3 py-2 text-sm cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-900 transition-colors ${
+                      !selectedCategoryId ? 'bg-slate-100/50 dark:bg-slate-850 font-semibold' : ''
+                    }`}
+                  >
+                    Global Budget (All spending categories)
+                  </div>
+                  {dbCategories.map((cat) => (
+                    <div
+                      key={cat.id}
+                      onClick={() => {
+                        setValue('categoryId', cat.id.toString(), { shouldValidate: true });
+                        setIsDropdownOpen(false);
+                      }}
+                      className={`px-3 py-2 text-sm cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-900 transition-colors ${
+                        selectedCategoryId?.toString() === cat.id.toString() ? 'bg-slate-100/50 dark:bg-slate-850 font-semibold' : ''
+                      }`}
+                    >
+                      {cat.name}
+                    </div>
+                  ))}
+                </div>
+              </>
+            )}
+          </div>
+          <p className="text-[10px] text-slate-400 mt-1">Assign to a single category or leave as Global.</p>
+        </div>
+
+        {/* Monthly Limit */}
+        <div>
+          <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-1.5">
+            Monthly Limit Amount (₹)
+          </label>
+          <input
+            type="text"
+            {...register('monthlyLimit')}
+            placeholder="e.g. 1500.00"
+            className={`w-full px-3 py-2 text-sm text-slate-800 dark:text-slate-200 bg-slate-50 dark:bg-slate-950 border ${
+              errors.monthlyLimit ? 'border-red-500' : 'border-slate-200 dark:border-slate-800'
+            } rounded-lg focus:outline-none focus:border-brand-500 transition-colors`}
+          />
+          {errors.monthlyLimit && (
+            <span className="block text-xs text-red-500 mt-1">{errors.monthlyLimit.message}</span>
+          )}
+        </div>
+
+        {/* Warning Threshold */}
+        <div>
+          <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-1.5">
+            Warning Threshold (%)
+          </label>
+          <input
+            type="number"
+            {...register('warningThresholdPercent')}
+            placeholder="e.g. 80"
+            className={`w-full px-3 py-2 text-sm text-slate-800 dark:text-slate-200 bg-slate-50 dark:bg-slate-950 border ${
+              errors.warningThresholdPercent ? 'border-red-500' : 'border-slate-200 dark:border-slate-800'
+            } rounded-lg focus:outline-none focus:border-brand-500 transition-colors`}
+          />
+          {errors.warningThresholdPercent && (
+            <span className="block text-xs text-red-500 mt-1">{errors.warningThresholdPercent.message}</span>
+          )}
+          <p className="text-[10px] text-slate-400 mt-1">Triggers alert warnings when category spending reaches this percentage.</p>
+        </div>
+
+        {/* Date Ranges */}
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-1.5">
+              Start Date
+            </label>
+            <input
+              type="date"
+              {...register('startDate')}
+              className="w-full px-3 py-2 text-sm text-slate-800 dark:text-slate-200 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg focus:outline-none focus:border-brand-500 transition-colors"
+            />
+            {errors.startDate && (
+              <span className="block text-xs text-red-500 mt-1">{errors.startDate.message}</span>
+            )}
+          </div>
+
+          <div>
+            <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-1.5">
+              End Date
+            </label>
+            <input
+              type="date"
+              {...register('endDate')}
+              className={`w-full px-3 py-2 text-sm text-slate-800 dark:text-slate-200 bg-slate-50 dark:bg-slate-950 border ${
+                errors.endDate ? 'border-red-500' : 'border-slate-200 dark:border-slate-800'
+              } rounded-lg focus:outline-none focus:border-brand-500 transition-colors`}
+            />
+            {errors.endDate && (
+              <span className="block text-xs text-red-500 mt-1">{errors.endDate.message}</span>
+            )}
+          </div>
+        </div>
+
+        {/* Actions */}
+        <div className="flex justify-end gap-3 pt-4 border-t border-slate-100 dark:border-slate-850 mt-6">
+          <button
+            type="button"
             onClick={onClose}
-            className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors"
-            aria-label="Close modal"
+            disabled={isSubmitting}
+            className="px-4 py-2 text-sm font-semibold text-slate-600 dark:text-slate-350 hover:bg-slate-50 dark:hover:bg-slate-950 border border-slate-200 dark:border-slate-850 rounded-lg transition-colors"
           >
-            ✕
+            Cancel
+          </button>
+          <button
+            type="submit"
+            disabled={isSubmitting}
+            className="px-5 py-2 text-sm font-semibold text-white bg-brand-500 hover:bg-brand-600 rounded-lg transition-colors disabled:opacity-50"
+          >
+            {isSubmitting ? 'Processing...' : isEditMode ? 'Update Budget' : 'Save Budget'}
           </button>
         </div>
 
-        {/* Form Body */}
-        <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-4 mt-4">
-          
-          {/* Category Dropdown */}
-          <div>
-            <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-1.5">
-              Category Scope
-            </label>
-            <select
-              {...register('categoryId')}
-              className="w-full px-3 py-2 text-sm text-slate-800 dark:text-slate-200 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg focus:outline-none focus:border-brand-500 transition-colors"
-            >
-              <option value="">Global Budget (All spending categories)</option>
-              {categories.map((cat) => (
-                <option key={cat.id} value={cat.id}>
-                  {cat.name}
-                </option>
-              ))}
-            </select>
-            <p className="text-[10px] text-slate-400 mt-1">Assign to a single category or leave as Global.</p>
-          </div>
-
-          {/* Monthly Limit */}
-          <div>
-            <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-1.5">
-              Monthly Limit Amount (₹)
-            </label>
-            <input
-              type="text"
-              {...register('monthlyLimit')}
-              placeholder="e.g. 1500.00"
-              className={`w-full px-3 py-2 text-sm text-slate-800 dark:text-slate-200 bg-slate-50 dark:bg-slate-950 border ${
-                errors.monthlyLimit ? 'border-red-500' : 'border-slate-200 dark:border-slate-800'
-              } rounded-lg focus:outline-none focus:border-brand-500 transition-colors`}
-            />
-            {errors.monthlyLimit && (
-              <span className="block text-xs text-red-500 mt-1">{errors.monthlyLimit.message}</span>
-            )}
-          </div>
-
-          {/* Warning Threshold */}
-          <div>
-            <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-1.5">
-              Warning Threshold (%)
-            </label>
-            <input
-              type="number"
-              {...register('warningThresholdPercent')}
-              placeholder="e.g. 80"
-              className={`w-full px-3 py-2 text-sm text-slate-800 dark:text-slate-200 bg-slate-50 dark:bg-slate-950 border ${
-                errors.warningThresholdPercent ? 'border-red-500' : 'border-slate-200 dark:border-slate-800'
-              } rounded-lg focus:outline-none focus:border-brand-500 transition-colors`}
-            />
-            {errors.warningThresholdPercent && (
-              <span className="block text-xs text-red-500 mt-1">{errors.warningThresholdPercent.message}</span>
-            )}
-            <p className="text-[10px] text-slate-400 mt-1">Triggers alert warnings when category spending reaches this percentage.</p>
-          </div>
-
-          {/* Date Ranges */}
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-1.5">
-                Start Date
-              </label>
-              <input
-                type="date"
-                {...register('startDate')}
-                className="w-full px-3 py-2 text-sm text-slate-800 dark:text-slate-200 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg focus:outline-none focus:border-brand-500 transition-colors"
-              />
-              {errors.startDate && (
-                <span className="block text-xs text-red-500 mt-1">{errors.startDate.message}</span>
-              )}
-            </div>
-
-            <div>
-              <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-1.5">
-                End Date
-              </label>
-              <input
-                type="date"
-                {...register('endDate')}
-                className={`w-full px-3 py-2 text-sm text-slate-800 dark:text-slate-200 bg-slate-50 dark:bg-slate-950 border ${
-                  errors.endDate ? 'border-red-500' : 'border-slate-200 dark:border-slate-800'
-                } rounded-lg focus:outline-none focus:border-brand-500 transition-colors`}
-              />
-              {errors.endDate && (
-                <span className="block text-xs text-red-500 mt-1">{errors.endDate.message}</span>
-              )}
-            </div>
-          </div>
-
-          {/* Actions */}
-          <div className="flex justify-end gap-3 pt-4 border-t border-slate-100 dark:border-slate-850 mt-6">
-            <button
-              type="button"
-              onClick={onClose}
-              disabled={isSubmitting}
-              className="px-4 py-2 text-sm font-semibold text-slate-600 dark:text-slate-350 hover:bg-slate-50 dark:hover:bg-slate-950 border border-slate-200 dark:border-slate-850 rounded-lg transition-colors"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              disabled={isSubmitting}
-              className="px-5 py-2 text-sm font-semibold text-white bg-brand-500 hover:bg-brand-600 rounded-lg transition-colors disabled:opacity-50"
-            >
-              {isSubmitting ? 'Processing...' : isEditMode ? 'Update Budget' : 'Save Budget'}
-            </button>
-          </div>
-
-        </form>
-      </div>
-    </div>
+      </form>
+    </Modal>
   );
 }

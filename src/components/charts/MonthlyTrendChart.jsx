@@ -10,20 +10,17 @@ const MonthlyTrendChart = React.memo(({ data }) => {
   if (!data || data.length === 0) {
     return (
       <div className="flex items-center justify-center h-64 text-slate-500 dark:text-slate-450 text-sm">
-        No monthly trend data available.
+        No spending trend data available.
       </div>
     );
   }
 
-  // Format month label from "YYYY-MM" to "MMM YY" for visual aesthetics
+  // Map pre-formatted labels and values directly
   const formattedData = data.map((item) => {
-    const [year, month] = item.month.split('-');
-    const date = new Date(parseInt(year), parseInt(month) - 1, 1);
-    const label = date.toLocaleDateString(undefined, { month: 'short', year: '2-digit' });
     return {
       ...item,
-      displayLabel: label,
-      amount: parseFloat(item.totalAmount),
+      displayLabel: item.label,
+      amount: parseFloat(item.amount),
     };
   });
 
@@ -65,6 +62,7 @@ const MonthlyTrendChart = React.memo(({ data }) => {
             fill="#4F46E5"
             radius={[4, 4, 0, 0]}
             isAnimationActive={true}
+            maxBarSize={48}
           />
         </BarChart>
       </ResponsiveContainer>

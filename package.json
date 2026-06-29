@@ -10,14 +10,15 @@
     "preview": "node node_modules/vite/bin/vite.js preview"
   },
   "dependencies": {
+    "@hookform/resolvers": "^3.4.2",
     "axios": "^1.7.2",
+    "lucide-react": "^1.21.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "react-router-dom": "^6.23.1",
     "react-hook-form": "^7.51.5",
-    "zod": "^3.23.8",
-    "@hookform/resolvers": "^3.4.2",
-    "recharts": "^2.12.7"
+    "react-router-dom": "^6.23.1",
+    "recharts": "^2.12.7",
+    "zod": "^3.23.8"
   },
   "devDependencies": {
     "@types/react": "^18.3.3",

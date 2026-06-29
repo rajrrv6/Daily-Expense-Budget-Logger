@@ -7,6 +7,7 @@ import SkeletonCard from '../components/common/SkeletonCard';
 import EmptyState from '../components/common/EmptyState';
 import ErrorRetryState from '../components/common/ErrorRetryState';
 import { useNotification } from '../context/NotificationContext';
+import { CreditCard } from 'lucide-react';
 import Modal from '../components/common/Modal';
 
 export default function ExpensesPage() {
@@ -291,7 +292,7 @@ export default function ExpensesPage() {
             <select
               value={params.sortBy}
               onChange={(e) => setParam('sortBy', e.target.value)}
-              className="px-4 py-2 text-sm text-slate-800 dark:text-slate-100 bg-slate-550/5 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg focus:outline-none focus:border-brand-500"
+              className="pl-4 pr-10 py-2 text-sm text-slate-800 dark:text-slate-100 bg-slate-550/5 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg focus:outline-none focus:border-brand-500 appearance-none bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2020%2020%22%20fill%3D%22none%22%3E%3Cpath%20d%3D%22M7%209l3%203%203-3%22%20stroke%3D%22%2364748b%22%20stroke-width%3D%221.5%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%2F%3E%3C%2Fsvg%3E')] bg-[position:right_10px_center] bg-[size:18px_18px] bg-no-repeat"
             >
               <option value="transactionDate">Transaction Date</option>
               <option value="name">Expense Name</option>
@@ -306,7 +307,7 @@ export default function ExpensesPage() {
             <select
               value={params.sortDirection}
               onChange={(e) => setParam('sortDirection', e.target.value)}
-              className="px-4 py-2 text-sm text-slate-800 dark:text-slate-100 bg-slate-550/5 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg focus:outline-none focus:border-brand-500"
+              className="pl-4 pr-10 py-2 text-sm text-slate-800 dark:text-slate-100 bg-slate-550/5 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg focus:outline-none focus:border-brand-500 appearance-none bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2020%2020%22%20fill%3D%22none%22%3E%3Cpath%20d%3D%22M7%209l3%203%203-3%22%20stroke%3D%22%2364748b%22%20stroke-width%3D%221.5%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%2F%3E%3C%2Fsvg%3E')] bg-[position:right_10px_center] bg-[size:18px_18px] bg-no-repeat"
             >
               <option value="DESC">Descending</option>
               <option value="ASC">Ascending</option>
@@ -325,7 +326,7 @@ export default function ExpensesPage() {
         <ErrorRetryState message={error} onRetry={fetchExpensesList} />
       ) : data.content.length === 0 ? (
         <EmptyState
-          icon="💸"
+          icon={<CreditCard className="w-10 h-10 text-slate-400 dark:text-slate-500" />}
           title="No expenses registered"
           description="Click the Add Expense button above to record your first transaction."
           actionLabel="Record Expense"
@@ -342,7 +343,7 @@ export default function ExpensesPage() {
               <select
                 value={params.pageSize}
                 onChange={(e) => setParam('pageSize', parseInt(e.target.value))}
-                className="px-2 py-1 text-xs text-slate-700 dark:text-slate-250 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded focus:outline-none"
+                className="pl-2 pr-6 py-1 text-xs text-slate-700 dark:text-slate-250 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded focus:outline-none appearance-none bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2020%2020%22%20fill%3D%22none%22%3E%3Cpath%20d%3D%22M7%209l3%203%203-3%22%20stroke%3D%22%2364748b%22%20stroke-width%3D%221.5%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%2F%3E%3C%2Fsvg%3E')] bg-[position:right_4px_center] bg-[size:14px_14px] bg-no-repeat"
               >
                 <option value="5">5</option>
                 <option value="10">10</option>
@@ -391,7 +392,7 @@ export default function ExpensesPage() {
       >
         <div className="space-y-4">
           <p className="text-sm text-slate-600 dark:text-slate-400">
-            Are you sure you want to delete the expense <strong className="text-slate-800 dark:text-slate-100">"{deleteTargetName}"</strong>? This action cannot be undone.
+            Are you sure you want to delete the expense <strong className="text-slate-800 dark:text-slate-100">&quot;{deleteTargetName}&quot;</strong>? This action cannot be undone.
           </p>
           <div className="flex justify-end gap-3 pt-2">
             <button

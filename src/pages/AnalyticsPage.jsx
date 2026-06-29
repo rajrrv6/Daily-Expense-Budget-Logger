@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useMemo, Suspense } from 'react';
-import { getMonthlyTrends, getCategoryComparison, getRangeAggregation, getBudgetForecast } from '../services/expenseService';
+import { getMonthlyTrends, getCategoryComparison, getRangeAggregation, getBudgetForecast, getExpenses } from '../services/expenseService';
 import { useNotification } from '../context/NotificationContext';
 import SkeletonCard from '../components/common/SkeletonCard';
 
@@ -21,9 +21,10 @@ export default function AnalyticsPage() {
   const [activeTab, setActiveTab] = useState('overview');
 
   // Analytical data states
-  const [trends, setTrends] = useState([]);
   const [comparison, setComparison] = useState([]);
   const [forecast, setForecast] = useState(null);
+  const [expenses, setExpenses] = useState([]);
+  const [trendInterval, setTrendInterval] = useState('monthly'); // 'monthly' | 'weekly' | 'daily'
 
   // Custom date range state
   const [startDate, setStartDate] = useState(
@@ -40,14 +41,15 @@ export default function AnalyticsPage() {
   const loadBaselineData = useCallback(async () => {
     setLoading(true);
     try {
-      const [trendData, compData, forecastData] = await Promise.all([
+      const [, compData, forecastData, expenseData] = await Promise.all([
         getMonthlyTrends(),
         getCategoryComparison(),
         getBudgetForecast(),
+        getExpenses({ pageNumber: 0, pageSize: 10000 }),
       ]);
-      setTrends(trendData);
       setComparison(compData);
       setForecast(forecastData);
+      setExpenses(expenseData?.content || []);
     } catch (err) {
       showNotification(err.response?.data?.message || 'Failed to load analytical metrics.', 'error');
     } finally {
@@ -100,11 +102,122 @@ export default function AnalyticsPage() {
 
   // Memoize mapped dataset transformations to prevent inline object/array recreation in props
   const trendsChartData = useMemo(() => {
-    return trends.map(t => ({
-      month: t.month,
-      totalAmount: parseFloat(t.totalAmount),
+    if (!expenses || expenses.length === 0) {
+      return [];
+    }
+
+    const parseLocalDate = (dateStr) => {
+      const [year, month, day] = dateStr.split('-').map(Number);
+      return new Date(year, month - 1, day);
+    };
+
+    if (trendInterval === 'daily') {
+      const dailyData = [];
+      const currentDate = new Date();
+      currentDate.setHours(0, 0, 0, 0);
+
+      // Generate the last 30 days
+      for (let i = 29; i >= 0; i--) {
+        const d = new Date(currentDate);
+        d.setDate(currentDate.getDate() - i);
+        const year = d.getFullYear();
+        const month = String(d.getMonth() + 1).padStart(2, '0');
+        const day = String(d.getDate()).padStart(2, '0');
+        const key = `${year}-${month}-${day}`;
+        const label = d.toLocaleDateString('en-US', { day: 'numeric', month: 'short' });
+        dailyData.push({ key, label, amount: 0 });
+      }
+
+      // Populate spending
+      expenses.forEach((exp) => {
+        if (!exp.transactionDate) return;
+        const key = exp.transactionDate;
+        const bucket = dailyData.find((b) => b.key === key);
+        if (bucket) {
+          bucket.amount += parseFloat(exp.amount || 0);
+        }
+      });
+
+      return dailyData.map((d) => ({
+        label: d.label,
+        amount: d.amount,
+      }));
+    }
+
+    if (trendInterval === 'weekly') {
+      const weeklyData = [];
+      const currentDate = new Date();
+      // Get Sunday of current week
+      const currentSunday = new Date(currentDate);
+      currentSunday.setDate(currentDate.getDate() - currentDate.getDay());
+      currentSunday.setHours(0, 0, 0, 0);
+
+      // Generate last 12 weeks
+      for (let i = 11; i >= 0; i--) {
+        const sunday = new Date(currentSunday);
+        sunday.setDate(currentSunday.getDate() - i * 7);
+        const saturday = new Date(sunday);
+        saturday.setDate(sunday.getDate() + 6);
+
+        const startLabel = sunday.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+        const endLabel = saturday.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+        const label = `${startLabel} - ${endLabel}`;
+
+        weeklyData.push({
+          start: sunday,
+          end: saturday,
+          label,
+          amount: 0,
+        });
+      }
+
+      // Populate spending
+      expenses.forEach((exp) => {
+        if (!exp.transactionDate) return;
+        const expDate = parseLocalDate(exp.transactionDate);
+        expDate.setHours(0, 0, 0, 0);
+        const bucket = weeklyData.find((b) => expDate >= b.start && expDate <= b.end);
+        if (bucket) {
+          bucket.amount += parseFloat(exp.amount || 0);
+        }
+      });
+
+      return weeklyData.map((w) => ({
+        label: w.label,
+        amount: w.amount,
+      }));
+    }
+
+    // Default: 'monthly'
+    const monthlyData = [];
+    const currentDate = new Date();
+
+    // Generate last 12 months
+    for (let i = 11; i >= 0; i--) {
+      const d = new Date(currentDate.getFullYear(), currentDate.getMonth() - i, 1);
+      const year = d.getFullYear();
+      const month = String(d.getMonth() + 1).padStart(2, '0');
+      const key = `${year}-${month}`;
+      const label = d.toLocaleDateString('en-US', { month: 'short', year: '2-digit' });
+      monthlyData.push({ key, label, amount: 0 });
+    }
+
+    // Populate spending
+    expenses.forEach((exp) => {
+      if (!exp.transactionDate) return;
+      const [year, month] = exp.transactionDate.split('-');
+      const key = `${year}-${month}`;
+      const bucket = monthlyData.find((b) => b.key === key);
+      if (bucket) {
+        bucket.amount += parseFloat(exp.amount || 0);
+      }
+    });
+
+    return monthlyData.map((m) => ({
+      label: m.label,
+      amount: m.amount,
     }));
-  }, [trends]);
+  }, [expenses, trendInterval]);
 
   const comparisonChartData = useMemo(() => {
     return comparison.map(c => ({
@@ -209,9 +322,49 @@ export default function AnalyticsPage() {
               aria-labelledby="tab-overview"
               className="p-6 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl space-y-4 transition-colors duration-200"
             >
-              <div>
-                <h4 className="text-base font-semibold text-slate-805 dark:text-slate-200">Historical Spending Trends</h4>
-                <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Chronological summary of your monthly spending.</p>
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <div>
+                  <h4 className="text-base font-semibold text-slate-805 dark:text-slate-200">Historical Spending Trends</h4>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                    {trendInterval === 'daily' && 'Chronological summary of your daily spending (last 30 days).'}
+                    {trendInterval === 'weekly' && 'Chronological summary of your weekly spending (last 12 weeks).'}
+                    {trendInterval === 'monthly' && 'Chronological summary of your monthly spending (last 12 months).'}
+                  </p>
+                </div>
+
+                {/* Interval Selector Buttons */}
+                <div className="flex bg-slate-100 dark:bg-slate-950 p-1 rounded-lg border border-slate-200 dark:border-slate-850 self-start sm:self-auto transition-colors duration-200">
+                  <button
+                    onClick={() => setTrendInterval('daily')}
+                    className={`px-3 py-1.5 text-xs font-semibold rounded-md transition-all ${
+                      trendInterval === 'daily'
+                        ? 'bg-white dark:bg-slate-800 text-slate-905 dark:text-white shadow-sm'
+                        : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-205'
+                    }`}
+                  >
+                    Daily
+                  </button>
+                  <button
+                    onClick={() => setTrendInterval('weekly')}
+                    className={`px-3 py-1.5 text-xs font-semibold rounded-md transition-all ${
+                      trendInterval === 'weekly'
+                        ? 'bg-white dark:bg-slate-800 text-slate-905 dark:text-white shadow-sm'
+                        : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-205'
+                    }`}
+                  >
+                    Weekly
+                  </button>
+                  <button
+                    onClick={() => setTrendInterval('monthly')}
+                    className={`px-3 py-1.5 text-xs font-semibold rounded-md transition-all ${
+                      trendInterval === 'monthly'
+                        ? 'bg-white dark:bg-slate-800 text-slate-905 dark:text-white shadow-sm'
+                        : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-205'
+                    }`}
+                  >
+                    Monthly
+                  </button>
+                </div>
               </div>
               <div className="pt-4">
                 <Suspense fallback={<ChartPlaceholder />}>

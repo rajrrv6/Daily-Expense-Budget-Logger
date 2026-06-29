@@ -132,50 +132,52 @@ export default function BudgetsPage() {
   });
 
   return (
-    <div className="space-y-6 max-w-6xl mx-auto animate-slide-in">
-      {/* Header Panel */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 p-6 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl transition-colors duration-200 shadow-sm">
-        <div>
-          <h3 className="text-xl font-bold text-slate-850 dark:text-slate-100">Budget Configurations</h3>
-          <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
-            Monitor and restrict monthly spending limits per category or globally.
-          </p>
+    <>
+      <div className="space-y-6 max-w-6xl mx-auto animate-slide-in">
+        {/* Header Panel */}
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 p-6 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl transition-colors duration-200 shadow-sm">
+          <div>
+            <h3 className="text-xl font-bold text-slate-850 dark:text-slate-100">Budget Configurations</h3>
+            <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
+              Monitor and restrict monthly spending limits per category or globally.
+            </p>
+          </div>
+          <button
+            onClick={handleAddClick}
+            className="px-5 py-2.5 text-sm font-semibold text-white bg-brand-500 hover:bg-brand-600 rounded-lg transition-colors shadow-md hover:shadow-lg focus:outline-none"
+          >
+            Setup New Budget
+          </button>
         </div>
-        <button
-          onClick={handleAddClick}
-          className="px-5 py-2.5 text-sm font-semibold text-white bg-brand-500 hover:bg-brand-600 rounded-lg transition-colors shadow-md hover:shadow-lg focus:outline-none"
-        >
-          Setup New Budget
-        </button>
-      </div>
 
-      {/* Loading Skeleton */}
-      {loading ? (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <SkeletonCard />
-          <SkeletonCard />
-          <SkeletonCard />
-        </div>
-      ) : mergedBudgets.length === 0 ? (
-        <EmptyState
-          title="No Budgets Defined"
-          description="Setting a budget is the first step towards healthy financial planning. Setup a budget above to get started."
-          actionText="Setup Your First Budget"
-          onAction={handleAddClick}
-        />
-      ) : (
-        /* Budgets Grid */
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {mergedBudgets.map((b) => (
-            <BudgetCard
-              key={b.id}
-              budget={b}
-              onEdit={handleEditClick}
-              onDelete={handleDelete}
-            />
-          ))}
-        </div>
-      )}
+        {/* Loading Skeleton */}
+        {loading ? (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <SkeletonCard />
+            <SkeletonCard />
+            <SkeletonCard />
+          </div>
+        ) : mergedBudgets.length === 0 ? (
+          <EmptyState
+            title="No Budgets Defined"
+            description="Setting a budget is the first step towards healthy financial planning. Setup a budget above to get started."
+            actionText="Setup Your First Budget"
+            onAction={handleAddClick}
+          />
+        ) : (
+          /* Budgets Grid */
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {mergedBudgets.map((b) => (
+              <BudgetCard
+                key={b.id}
+                budget={b}
+                onEdit={handleEditClick}
+                onDelete={handleDelete}
+              />
+            ))}
+          </div>
+        )}
+      </div>
 
       {/* Budget Setup Form Modal */}
       <BudgetFormModal
@@ -186,8 +188,7 @@ export default function BudgetsPage() {
         }}
         onSubmit={handleCreateOrUpdate}
         budget={editingBudget}
-        categories={categories}
       />
-    </div>
+    </>
   );
 }

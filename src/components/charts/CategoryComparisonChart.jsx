@@ -61,8 +61,8 @@ const CategoryComparisonChart = React.memo(({ data }) => {
             height={36}
             formatter={LEGEND_FORMATTER}
           />
-          <Bar dataKey="Previous Month" fill={isDark ? '#475569' : '#94A3B8'} radius={[4, 4, 0, 0]} isAnimationActive={true} />
-          <Bar dataKey="Current Month" fill="#6366F1" radius={[4, 4, 0, 0]} isAnimationActive={true} />
+          <Bar dataKey="Previous Month" fill={isDark ? '#475569' : '#94A3B8'} radius={[4, 4, 0, 0]} isAnimationActive={true} maxBarSize={32} />
+          <Bar dataKey="Current Month" fill="#6366F1" radius={[4, 4, 0, 0]} isAnimationActive={true} maxBarSize={32} />
         </BarChart>
       </ResponsiveContainer>
     </div>

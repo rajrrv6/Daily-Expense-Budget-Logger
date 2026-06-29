@@ -1,10 +1,10 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect } from 'react';
 import Modal from '../common/Modal';
 import { createTodo, updateTodo } from '../../services/todoService';
-import { createCategory } from '../../services/categoryService';
+import { getCategories, createCategory } from '../../services/categoryService';
 import { useNotification } from '../../context/NotificationContext';
 
-export default function TodoFormModal({ isOpen, onClose, todo, categories, onSubmitSuccess }) {
+export default function TodoFormModal({ isOpen, onClose, todo, onSubmitSuccess }) {
   const { showNotification } = useNotification();
   const [name, setName] = useState('');
   const [price, setPrice] = useState('');
@@ -14,11 +14,12 @@ export default function TodoFormModal({ isOpen, onClose, todo, categories, onSub
   const [dateError, setDateError] = useState('');
 
   // Category addition states
-  const [addedCategories, setAddedCategories] = useState([]);
+  const [dbCategories, setDbCategories] = useState([]);
   const [showAddCategory, setShowAddCategory] = useState(false);
   const [newCatName, setNewCatName] = useState('');
   const [newCatColor, setNewCatColor] = useState('#4F46E5');
   const [catLoading, setCatLoading] = useState(false);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
   const isEditMode = !!todo;
 
@@ -30,13 +31,23 @@ export default function TodoFormModal({ isOpen, onClose, todo, categories, onSub
     return `${year}-${month}-${day}`;
   })();
 
-  const allCategories = useMemo(() => {
-    return [...categories, ...addedCategories];
-  }, [categories, addedCategories]);
+  // Fetch categories from backend when modal is opened
+  useEffect(() => {
+    if (isOpen) {
+      const loadCategories = async () => {
+        try {
+          const data = await getCategories();
+          setDbCategories(data);
+        } catch (err) {
+          showNotification('Failed to load categories', 'error');
+        }
+      };
+      loadCategories();
+    }
+  }, [isOpen, showNotification]);
 
   useEffect(() => {
     if (isOpen) {
-      setAddedCategories([]);
       setShowAddCategory(false);
       setNewCatName('');
       setDateError('');
@@ -51,12 +62,17 @@ export default function TodoFormModal({ isOpen, onClose, todo, categories, onSub
         setCategoryId('');
         setTargetDate('');
       }
+      setIsDropdownOpen(false);
     }
   }, [isOpen, todo]);
 
+  const selectedCategoryName = categoryId
+    ? dbCategories.find(c => c.id.toString() === categoryId.toString())?.name || 'Select a category'
+    : 'Select a category';
+
   const handleAddNewCategory = async () => {
     if (!newCatName.trim()) {
-      showNotification('Category name cannot be blank', 'error');
+      showNotification('Category name cannot be blank.', 'error');
       return;
     }
     setCatLoading(true);
@@ -65,13 +81,13 @@ export default function TodoFormModal({ isOpen, onClose, todo, categories, onSub
         name: newCatName.trim(),
         color: newCatColor,
       });
-      setAddedCategories((prev) => [...prev, newCat]);
+      setDbCategories((prev) => [...prev, newCat]);
       setCategoryId(newCat.id.toString());
       setNewCatName('');
       setShowAddCategory(false);
       showNotification('New category added!', 'success');
     } catch (err) {
-      showNotification(err.response?.data?.message || 'Failed to add category', 'error');
+      showNotification(err.response?.data?.message || 'Failed to add category.', 'error');
     } finally {
       setCatLoading(false);
     }
@@ -91,12 +107,12 @@ export default function TodoFormModal({ isOpen, onClose, todo, categories, onSub
     e.preventDefault();
     const nameStr = name.trim();
     if (!nameStr) {
-      showNotification('Item name is required', 'error');
+      showNotification('Item name is required.', 'error');
       return;
     }
 
     if (price && parseFloat(price) < 0) {
-      showNotification('Price must be greater than or equal to zero', 'error');
+      showNotification('Price must be greater than or equal to zero.', 'error');
       return;
     }
 
@@ -246,19 +262,52 @@ export default function TodoFormModal({ isOpen, onClose, todo, categories, onSub
             </div>
           )}
 
-          <select
-            disabled={submitting}
-            value={categoryId}
-            onChange={(e) => setCategoryId(e.target.value)}
-            className="w-full px-4 py-2.5 text-sm text-slate-900 dark:text-slate-100 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg focus:outline-none focus:border-brand-500 transition-colors"
-          >
-            <option value="">Select a category</option>
-            {allCategories.map((cat) => (
-              <option key={cat.id} value={cat.id}>
-                {cat.name}
-              </option>
-            ))}
-          </select>
+          <div className="relative">
+            <button
+              type="button"
+              disabled={submitting}
+              onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+              className="w-full pl-4 pr-10 py-2.5 text-left text-sm text-slate-900 dark:text-slate-100 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg focus:outline-none focus:border-brand-500 transition-colors flex items-center justify-between"
+            >
+              <span className="truncate">{selectedCategoryName}</span>
+              <svg className="h-4 w-4 text-slate-550 dark:text-slate-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+              </svg>
+            </button>
+
+            {isDropdownOpen && (
+              <>
+                <div className="fixed inset-0 z-10" onClick={() => setIsDropdownOpen(false)} />
+                <div className="absolute z-20 mt-1 w-full max-h-60 overflow-y-auto bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg shadow-lg py-1">
+                  <div
+                    onClick={() => {
+                      setCategoryId('');
+                      setIsDropdownOpen(false);
+                    }}
+                    className={`px-4 py-2.5 text-sm cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-900 transition-colors ${
+                      !categoryId ? 'bg-slate-100/50 dark:bg-slate-850 font-semibold' : ''
+                    }`}
+                  >
+                    Select a category
+                  </div>
+                  {dbCategories.map((cat) => (
+                    <div
+                      key={cat.id}
+                      onClick={() => {
+                        setCategoryId(cat.id.toString());
+                        setIsDropdownOpen(false);
+                      }}
+                      className={`px-4 py-2.5 text-sm cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-900 transition-colors ${
+                        categoryId?.toString() === cat.id.toString() ? 'bg-slate-100/50 dark:bg-slate-850 font-semibold' : ''
+                      }`}
+                    >
+                      {cat.name}
+                    </div>
+                  ))}
+                </div>
+              </>
+            )}
+          </div>
         </div>
 
         {/* Footer Actions */}

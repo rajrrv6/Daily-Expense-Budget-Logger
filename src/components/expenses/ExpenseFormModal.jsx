@@ -8,13 +8,13 @@ import { createExpense, updateExpense, uploadReceipt } from '../../services/expe
 import { useNotification } from '../../context/NotificationContext';
 
 const expenseFormSchema = z.object({
-  name: z.string().trim().min(2, 'Name must be between 2 and 100 characters').max(100),
+  name: z.string().trim().min(2, 'Name must be between 2 and 100 characters.').max(100),
   amount: z.string()
-    .min(1, 'Amount is required')
+    .min(1, 'Amount is required.')
     .refine((val) => !isNaN(parseFloat(val)) && parseFloat(val) > 0, {
-      message: 'Amount must be a positive number',
+      message: 'Amount must be a positive number.',
     }),
-  transactionDate: z.string().min(1, 'Transaction date is required')
+  transactionDate: z.string().min(1, 'Transaction date is required.')
     .refine((val) => {
       const d = new Date();
       const year = d.getFullYear();
@@ -23,9 +23,9 @@ const expenseFormSchema = z.object({
       const todayStr = `${year}-${month}-${day}`;
       return val <= todayStr;
     }, {
-      message: 'Transaction date cannot be in the future',
+      message: 'Transaction date cannot be in the future.',
     }),
-  categoryId: z.string().min(1, 'Category is required'),
+  categoryId: z.string().min(1, 'Category is required.'),
   receiptPath: z.string().optional().nullable(),
 });
 
@@ -43,6 +43,7 @@ export default function ExpenseFormModal({ isOpen, onClose, expense, onSubmitSuc
   const [newCatName, setNewCatName] = useState('');
   const [newCatColor, setNewCatColor] = useState('#4F46E5');
   const [catLoading, setCatLoading] = useState(false);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
   const isEditMode = !!expense;
 
@@ -51,6 +52,7 @@ export default function ExpenseFormModal({ isOpen, onClose, expense, onSubmitSuc
     handleSubmit,
     setValue,
     reset,
+    watch,
     formState: { errors, isSubmitting },
   } = useForm({
     resolver: zodResolver(expenseFormSchema),
@@ -62,6 +64,11 @@ export default function ExpenseFormModal({ isOpen, onClose, expense, onSubmitSuc
       receiptPath: '',
     },
   });
+
+  const selectedCategoryId = watch('categoryId');
+  const selectedCategoryName = selectedCategoryId
+    ? categories.find(c => c.id.toString() === selectedCategoryId.toString())?.name || 'Select a category'
+    : 'Select a category';
 
   // Load categories
   useEffect(() => {
@@ -149,6 +156,7 @@ export default function ExpenseFormModal({ isOpen, onClose, expense, onSubmitSuc
         });
       }
       setShowAddCategory(false);
+      setIsDropdownOpen(false);
     }
   }, [isOpen, expense, reset]);
 
@@ -181,7 +189,7 @@ export default function ExpenseFormModal({ isOpen, onClose, expense, onSubmitSuc
 
   const handleAddNewCategory = async () => {
     if (!newCatName.trim()) {
-      showNotification('Category name cannot be blank', 'error');
+      showNotification('Category name cannot be blank.', 'error');
       return;
     }
     setCatLoading(true);
@@ -298,17 +306,52 @@ export default function ExpenseFormModal({ isOpen, onClose, expense, onSubmitSuc
             </div>
           )}
 
-          <select
-            {...register('categoryId')}
-            className="w-full px-4 py-2.5 text-sm text-slate-900 dark:text-slate-100 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg focus:outline-none focus:border-brand-500 transition-colors"
-          >
-            <option value="">Select a category</option>
-            {categories.map((cat) => (
-              <option key={cat.id} value={cat.id}>
-                {cat.name}
-              </option>
-            ))}
-          </select>
+          <input type="hidden" {...register('categoryId')} />
+          <div className="relative">
+            <button
+              type="button"
+              onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+              className="w-full pl-4 pr-10 py-2.5 text-left text-sm text-slate-900 dark:text-slate-100 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg focus:outline-none focus:border-brand-500 transition-colors flex items-center justify-between"
+            >
+              <span className="truncate">{selectedCategoryName}</span>
+              <svg className="h-4 w-4 text-slate-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+              </svg>
+            </button>
+
+            {isDropdownOpen && (
+              <>
+                <div className="fixed inset-0 z-10" onClick={() => setIsDropdownOpen(false)} />
+                <div className="absolute z-20 mt-1 w-full max-h-60 overflow-y-auto bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg shadow-lg py-1">
+                  <div
+                    onClick={() => {
+                      setValue('categoryId', '', { shouldValidate: true });
+                      setIsDropdownOpen(false);
+                    }}
+                    className={`px-4 py-2.5 text-sm cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-900 transition-colors ${
+                      !selectedCategoryId ? 'bg-slate-100/50 dark:bg-slate-850 font-semibold' : ''
+                    }`}
+                  >
+                    Select a category
+                  </div>
+                  {categories.map((cat) => (
+                    <div
+                      key={cat.id}
+                      onClick={() => {
+                        setValue('categoryId', cat.id.toString(), { shouldValidate: true });
+                        setIsDropdownOpen(false);
+                      }}
+                      className={`px-4 py-2.5 text-sm cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-900 transition-colors ${
+                        selectedCategoryId?.toString() === cat.id.toString() ? 'bg-slate-100/50 dark:bg-slate-850 font-semibold' : ''
+                      }`}
+                    >
+                      {cat.name}
+                    </div>
+                  ))}
+                </div>
+              </>
+            )}
+          </div>
           {errors.categoryId && (
             <span className="block text-xs text-red-500 dark:text-red-400 mt-1">{errors.categoryId.message}</span>
           )}

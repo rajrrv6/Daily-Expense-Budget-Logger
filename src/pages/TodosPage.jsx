@@ -31,8 +31,13 @@ export default function TodosPage() {
   const [completeReceiptPath, setCompleteReceiptPath] = useState('');
   const [uploadingReceipt, setUploadingReceipt] = useState(false);
   const [receiptError, setReceiptError] = useState('');
+  const [completeDropdownOpen, setCompleteDropdownOpen] = useState(false);
 
   const [submitting, setSubmitting] = useState(false);
+
+  const completeCategoryName = completeCategoryId
+    ? categories.find(c => c.id.toString() === completeCategoryId.toString())?.name || 'Select Category'
+    : 'Select Category';
 
   // Fetch checklist items and categories
   const fetchData = useCallback(async () => {
@@ -84,6 +89,7 @@ export default function TodosPage() {
     setCompleteCategoryId(item.categoryId ? item.categoryId.toString() : '');
     setCompleteReceiptPath('');
     setReceiptError('');
+    setCompleteDropdownOpen(false);
   };
 
   // Submit checklist item completion
@@ -108,6 +114,7 @@ export default function TodosPage() {
 
       setTodos((prev) => prev.map((t) => (t.id === completeItem.id ? updatedItem : t)));
       setCompleteItem(null);
+      setCompleteDropdownOpen(false);
       showNotification('Checklist item marked as completed and expense logged.', 'success');
     } catch (err) {
       showNotification(err.response?.data?.message || 'Failed to complete checklist item.', 'error');
@@ -357,7 +364,6 @@ export default function TodosPage() {
         isOpen={isFormModalOpen}
         onClose={() => setIsFormModalOpen(false)}
         todo={editingTodo}
-        categories={categories}
         onSubmitSuccess={handleFormSubmitSuccess}
       />
 
@@ -370,7 +376,7 @@ export default function TodosPage() {
         >
           <div className="space-y-4">
             <p className="text-sm text-slate-500 dark:text-slate-400">
-              Are you sure you want to delete <strong className="text-slate-800 dark:text-slate-200">"{deleteTargetName}"</strong> from your Shopping Checklist? This action cannot be undone.
+              Are you sure you want to delete <strong className="text-slate-800 dark:text-slate-200">&quot;{deleteTargetName}&quot;</strong> from your Shopping Checklist? This action cannot be undone.
             </p>
             <div className="flex justify-end gap-3 pt-4">
               <button
@@ -401,7 +407,7 @@ export default function TodosPage() {
         >
           <form onSubmit={handleConfirmComplete} className="space-y-4">
             <p className="text-sm text-slate-500 dark:text-slate-400">
-              You are marking <strong className="text-slate-800 dark:text-slate-200">"{completeItem.name}"</strong> as completed. This will log the purchase as an expense.
+              You are marking <strong className="text-slate-800 dark:text-slate-200">&quot;{completeItem.name}&quot;</strong> as completed. This will log the purchase as an expense.
             </p>
 
             {/* Purchase Price */}
@@ -425,19 +431,51 @@ export default function TodosPage() {
             {/* Category selection */}
             <div className="space-y-1">
               <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">Category</label>
-              <select
-                required
-                value={completeCategoryId}
-                onChange={(e) => setCompleteCategoryId(e.target.value)}
-                className="w-full px-3 py-2 text-sm text-slate-800 dark:text-slate-200 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg outline-none focus:border-brand-500 transition-colors"
-              >
-                <option value="">Select Category</option>
-                {categories.map((cat) => (
-                  <option key={cat.id} value={cat.id}>
-                    {cat.name}
-                  </option>
-                ))}
-              </select>
+              <div className="relative">
+                <button
+                  type="button"
+                  onClick={() => setCompleteDropdownOpen(!completeDropdownOpen)}
+                  className="w-full pl-3 pr-10 py-2.5 text-left text-sm text-slate-900 dark:text-slate-100 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg focus:outline-none focus:border-brand-500 transition-colors flex items-center justify-between"
+                >
+                  <span className="truncate">{completeCategoryName}</span>
+                  <svg className="h-4 w-4 text-slate-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </button>
+
+                {completeDropdownOpen && (
+                  <>
+                    <div className="fixed inset-0 z-10" onClick={() => setCompleteDropdownOpen(false)} />
+                    <div className="absolute z-20 mt-1 w-full max-h-60 overflow-y-auto bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg shadow-lg py-1">
+                      <div
+                        onClick={() => {
+                          setCompleteCategoryId('');
+                          setCompleteDropdownOpen(false);
+                        }}
+                        className={`px-4 py-2 text-sm cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-900 transition-colors ${
+                          !completeCategoryId ? 'bg-slate-100/50 dark:bg-slate-850 font-semibold' : ''
+                        }`}
+                      >
+                        Select Category
+                      </div>
+                      {categories.map((cat) => (
+                        <div
+                          key={cat.id}
+                          onClick={() => {
+                            setCompleteCategoryId(cat.id.toString());
+                            setCompleteDropdownOpen(false);
+                          }}
+                          className={`px-4 py-2 text-sm cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-900 transition-colors ${
+                            completeCategoryId?.toString() === cat.id.toString() ? 'bg-slate-100/50 dark:bg-slate-850 font-semibold' : ''
+                          }`}
+                        >
+                          {cat.name}
+                        </div>
+                      ))}
+                    </div>
+                  </>
+                )}
+              </div>
             </div>
 
             {/* Receipt Upload (optional) */}

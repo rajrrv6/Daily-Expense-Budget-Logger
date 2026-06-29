@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useCallback } from 'react';
+import { CheckCircle2, AlertTriangle, Info, X } from 'lucide-react';
 
 const NotificationContext = createContext(null);
 
@@ -21,25 +22,35 @@ export const NotificationProvider = ({ children }) => {
   return (
     <NotificationContext.Provider value={{ showNotification }}>
       {children}
-      {/* Toast Overlay Container */}
-      <div className="fixed top-4 right-4 z-[9999] flex flex-col gap-2 w-full max-w-xs md:max-w-sm pointer-events-none">
+      {/* Toast Overlay Container - Centered */}
+      <div className="fixed top-5 left-1/2 -translate-x-1/2 z-[9999] flex flex-col items-center gap-2.5 w-full max-w-md px-4 pointer-events-none">
         {toasts.map((toast) => (
           <div
             key={toast.id}
             onClick={() => removeNotification(toast.id)}
-            className={`flex items-center gap-3 p-4 rounded-xl border shadow-xl backdrop-blur-md pointer-events-auto cursor-pointer animate-slide-in transition-all duration-300 ${
+            className={`flex items-center gap-3 p-3.5 pl-4 pr-3.5 w-full md:w-auto md:min-w-[320px] max-w-full rounded-xl border shadow-xl backdrop-blur-md pointer-events-auto cursor-pointer animate-toast-in transition-all duration-300 bg-white/95 dark:bg-slate-900/95 border-slate-250 dark:border-slate-800 text-slate-800 dark:text-slate-100 ${
               toast.type === 'success'
-                ? 'bg-emerald-950/80 border-emerald-800 text-emerald-200'
+                ? 'border-l-4 border-l-emerald-500 dark:border-l-emerald-500'
                 : toast.type === 'error'
-                ? 'bg-red-950/80 border-red-800 text-red-200'
-                : 'bg-slate-900/80 border-slate-800 text-slate-200'
+                ? 'border-l-4 border-l-rose-500 dark:border-l-rose-500'
+                : 'border-l-4 border-l-blue-500 dark:border-l-blue-500'
             }`}
           >
-            <span className="text-lg">
-              {toast.type === 'success' ? '✅' : toast.type === 'error' ? '⚠️' : 'ℹ️'}
+            <span className="flex-shrink-0">
+              {toast.type === 'success' ? (
+                <CheckCircle2 className="w-5 h-5 text-emerald-500 flex-shrink-0" />
+              ) : toast.type === 'error' ? (
+                <AlertTriangle className="w-5 h-5 text-rose-500 flex-shrink-0" />
+              ) : (
+                <Info className="w-5 h-5 text-blue-500 flex-shrink-0" />
+              )}
             </span>
-            <span className="text-sm font-medium flex-1">{toast.message}</span>
-            <button className="text-slate-400 hover:text-white text-xs px-1">&times;</button>
+            <span className="text-sm font-semibold flex-1 leading-snug tracking-tight">
+              {toast.message}
+            </span>
+            <button className="text-slate-400 dark:text-slate-500 hover:text-slate-650 dark:hover:text-slate-350 p-1 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors flex-shrink-0">
+              <X className="w-3.5 h-3.5" />
+            </button>
           </div>
         ))}
       </div>

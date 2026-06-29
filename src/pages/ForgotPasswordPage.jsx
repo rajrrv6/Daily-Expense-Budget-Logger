@@ -4,12 +4,13 @@ import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import apiClient from '../services/apiClient';
+import { KeyRound, CheckCircle2, AlertTriangle } from 'lucide-react';
 
 const forgotPasswordSchema = z.object({
   email: z.string()
     .trim()
-    .min(1, 'Email cannot be blank')
-    .email('Invalid email format'),
+    .min(1, 'Email cannot be blank.')
+    .email('Invalid email format.'),
 });
 
 export default function ForgotPasswordPage() {
@@ -39,23 +40,25 @@ export default function ForgotPasswordPage() {
   return (
     <div className="w-full max-w-md p-8 bg-white dark:bg-slate-900/60 backdrop-blur-xl border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xl transition-colors duration-200">
         {/* Title */}
-        <div className="text-center mb-8">
-          <span className="text-4xl">🔑</span>
+        <div className="text-center mb-8 flex flex-col items-center">
+          <KeyRound className="w-12 h-12 text-brand-500 dark:text-brand-100 flex-shrink-0" />
           <h2 className="mt-4 text-2xl font-bold tracking-tight text-slate-800 dark:text-slate-100">Reset Password</h2>
           <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">Enter your email to receive a recovery link</p>
         </div>
 
         {/* Success Alert */}
         {successMessage && (
-          <div className="p-4 mb-6 text-sm text-emerald-805 dark:text-emerald-200 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-250 dark:border-emerald-800 rounded-lg">
-            ✅ {successMessage}
+          <div className="p-4 mb-6 text-sm text-emerald-805 dark:text-emerald-200 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-250 dark:border-emerald-800 rounded-lg flex items-start gap-2.5">
+            <CheckCircle2 className="w-5 h-5 text-emerald-500 flex-shrink-0 mt-0.5" />
+            <span>{successMessage}</span>
           </div>
         )}
 
         {/* Error Alert */}
         {submitError && (
-          <div className="p-4 mb-6 text-sm text-red-750 dark:text-red-200 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800 rounded-lg">
-            ⚠️ {submitError}
+          <div className="p-4 mb-6 text-sm text-red-750 dark:text-red-200 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800 rounded-lg flex items-start gap-2.5">
+            <AlertTriangle className="w-5 h-5 text-red-550 dark:text-red-400 flex-shrink-0 mt-0.5" />
+            <span>{submitError}</span>
           </div>
         )}
 
