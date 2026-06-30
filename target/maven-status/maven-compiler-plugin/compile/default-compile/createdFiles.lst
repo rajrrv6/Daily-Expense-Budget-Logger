@@ -26,6 +26,7 @@ com/expense/logger/model/Expense.class
 com/expense/logger/model/PendingRegistration.class
 com/expense/logger/model/Budget.class
 com/expense/logger/service/NotificationCenterService.class
+com/expense/logger/controller/SearchController.class
 com/expense/logger/dto/UserPasswordUpdateRequestDto$UserPasswordUpdateRequestDtoBuilder.class
 com/expense/logger/model/Budget$BudgetBuilder.class
 com/expense/logger/service/TodoReminderScheduledTask.class
@@ -59,6 +60,7 @@ com/expense/logger/service/ExpenseService.class
 com/expense/logger/dto/DateRangeAggregationDto.class
 com/expense/logger/service/EmailService.class
 com/expense/logger/dto/NotificationPreferencesDto$NotificationPreferencesDtoBuilder.class
+com/expense/logger/dto/CategoryDetailsDto.class
 com/expense/logger/dto/DashboardSummaryDto$DashboardSummaryDtoBuilder.class
 com/expense/logger/repository/RoleRepository.class
 com/expense/logger/repository/PasswordResetTokenRepository.class
@@ -95,6 +97,7 @@ com/expense/logger/repository/TodoItemRepository.class
 com/expense/logger/dto/PagedResponseDto.class
 com/expense/logger/dto/TodoCompleteRequestDto.class
 com/expense/logger/service/NotificationServiceImpl.class
+com/expense/logger/service/SearchServiceImpl.class
 com/expense/logger/dto/ExpenseRequestDto$ExpenseRequestDtoBuilder.class
 com/expense/logger/dto/UserResponseDto.class
 com/expense/logger/dto/CategoryPercentageDto$CategoryPercentageDtoBuilder.class
@@ -102,6 +105,7 @@ com/expense/logger/dto/UserProfileUpdateRequestDto.class
 com/expense/logger/service/EncryptionServiceImpl.class
 com/expense/logger/dto/CategoryResponseDto.class
 com/expense/logger/security/UserDetailsServiceImpl.class
+com/expense/logger/dto/CategoryDetailsDto$CategoryDetailsDtoBuilder.class
 com/expense/logger/service/BudgetServiceImpl.class
 com/expense/logger/service/NotificationService.class
 com/expense/logger/dto/CategoryResponseDto$CategoryResponseDtoBuilder.class
@@ -129,6 +133,7 @@ com/expense/logger/service/TodoItemServiceImpl.class
 com/expense/logger/dto/CategoryRequestDto.class
 com/expense/logger/dto/TodoResponseDto$TodoResponseDtoBuilder.class
 com/expense/logger/model/User.class
+com/expense/logger/dto/GlobalSearchResultDto.class
 com/expense/logger/service/AvatarStorageServiceImpl.class
 com/expense/logger/dto/CategoryComparisonDto.class
 com/expense/logger/config/LoggingFilter.class
@@ -136,8 +141,10 @@ com/expense/logger/dto/ExpenseResponseDto.class
 com/expense/logger/repository/NotificationRepository.class
 com/expense/logger/dto/ForgotPasswordRequestDto$ForgotPasswordRequestDtoBuilder.class
 com/expense/logger/service/NotificationCenterServiceImpl.class
+com/expense/logger/service/SearchService.class
 com/expense/logger/service/AuthServiceImpl.class
 com/expense/logger/model/Permission.class
+com/expense/logger/dto/GlobalSearchResultDto$GlobalSearchResultDtoBuilder.class
 com/expense/logger/repository/RefreshTokenRepository.class
 com/expense/logger/dto/BudgetSummaryDto.class
 com/expense/logger/controller/CategoryController.class

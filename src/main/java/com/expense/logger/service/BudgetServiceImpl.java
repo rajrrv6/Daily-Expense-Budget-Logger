@@ -35,10 +35,10 @@ public class BudgetServiceImpl implements BudgetService {
     private final ExpenseRepository expenseRepository;
 
     public BudgetServiceImpl(BudgetRepository budgetRepository,
-                             UserRepository userRepository,
-                             CategoryRepository categoryRepository,
-                             AuditLogRepository auditLogRepository,
-                             ExpenseRepository expenseRepository) {
+            UserRepository userRepository,
+            CategoryRepository categoryRepository,
+            AuditLogRepository auditLogRepository,
+            ExpenseRepository expenseRepository) {
         this.budgetRepository = budgetRepository;
         this.userRepository = userRepository;
         this.categoryRepository = categoryRepository;
@@ -72,7 +72,7 @@ public class BudgetServiceImpl implements BudgetService {
 
         budgetRepository.save(budget);
 
-        logEvent("BUDGET_CREATE", "Budget created: limit=" + budget.getMonthlyLimit() + ", category=" + 
+        logEvent("BUDGET_CREATE", "Budget created: limit=" + budget.getMonthlyLimit() + ", category=" +
                 (category != null ? category.getName() : "Global"), user);
 
         List<Expense> expenses = expenseRepository.findAllByUserIdAndDeletedAtIsNull(userId);
@@ -112,7 +112,8 @@ public class BudgetServiceImpl implements BudgetService {
 
         budgetRepository.save(budget);
 
-        logEvent("BUDGET_UPDATE", "Budget updated: id=" + budget.getId() + ", limit=" + budget.getMonthlyLimit(), budget.getUser());
+        logEvent("BUDGET_UPDATE", "Budget updated: id=" + budget.getId() + ", limit=" + budget.getMonthlyLimit(),
+                budget.getUser());
 
         List<Expense> expenses = expenseRepository.findAllByUserIdAndDeletedAtIsNull(userId);
         return mapToDto(budget, expenses);
@@ -142,7 +143,7 @@ public class BudgetServiceImpl implements BudgetService {
         BigDecimal spent = BigDecimal.ZERO;
         LocalDate start = budget.getStartDate();
         LocalDate end = budget.getEndDate();
-        
+
         if (budget.getCategory() == null) {
             // Global budget: sum all user expenses within budget validity date range
             spent = userExpenses.stream()
@@ -160,10 +161,11 @@ public class BudgetServiceImpl implements BudgetService {
         }
 
         BigDecimal remaining = budget.getMonthlyLimit().subtract(spent);
-        
+
         BigDecimal util = BigDecimal.ZERO;
         if (budget.getMonthlyLimit().compareTo(BigDecimal.ZERO) > 0) {
-            util = spent.multiply(new BigDecimal("100")).divide(budget.getMonthlyLimit(), 2, java.math.RoundingMode.HALF_UP);
+            util = spent.multiply(new BigDecimal("100")).divide(budget.getMonthlyLimit(), 2,
+                    java.math.RoundingMode.HALF_UP);
         }
 
         boolean exceeded = spent.compareTo(budget.getMonthlyLimit()) > 0;

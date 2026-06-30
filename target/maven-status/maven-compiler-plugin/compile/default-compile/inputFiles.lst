@@ -8,6 +8,7 @@
 /Users/local34/Desktop/Daily Expense & Budget Logger /Daily Expense & Budget Logger/backend/src/main/java/com/expense/logger/controller/CategoryController.java
 /Users/local34/Desktop/Daily Expense & Budget Logger /Daily Expense & Budget Logger/backend/src/main/java/com/expense/logger/controller/ExpenseController.java
 /Users/local34/Desktop/Daily Expense & Budget Logger /Daily Expense & Budget Logger/backend/src/main/java/com/expense/logger/controller/NotificationController.java
+/Users/local34/Desktop/Daily Expense & Budget Logger /Daily Expense & Budget Logger/backend/src/main/java/com/expense/logger/controller/SearchController.java
 /Users/local34/Desktop/Daily Expense & Budget Logger /Daily Expense & Budget Logger/backend/src/main/java/com/expense/logger/controller/TodoItemController.java
 /Users/local34/Desktop/Daily Expense & Budget Logger /Daily Expense & Budget Logger/backend/src/main/java/com/expense/logger/controller/UserController.java
 /Users/local34/Desktop/Daily Expense & Budget Logger /Daily Expense & Budget Logger/backend/src/main/java/com/expense/logger/dto/AuditLogResponseDto.java
@@ -17,6 +18,7 @@
 /Users/local34/Desktop/Daily Expense & Budget Logger /Daily Expense & Budget Logger/backend/src/main/java/com/expense/logger/dto/BudgetResponseDto.java
 /Users/local34/Desktop/Daily Expense & Budget Logger /Daily Expense & Budget Logger/backend/src/main/java/com/expense/logger/dto/BudgetSummaryDto.java
 /Users/local34/Desktop/Daily Expense & Budget Logger /Daily Expense & Budget Logger/backend/src/main/java/com/expense/logger/dto/CategoryComparisonDto.java
+/Users/local34/Desktop/Daily Expense & Budget Logger /Daily Expense & Budget Logger/backend/src/main/java/com/expense/logger/dto/CategoryDetailsDto.java
 /Users/local34/Desktop/Daily Expense & Budget Logger /Daily Expense & Budget Logger/backend/src/main/java/com/expense/logger/dto/CategoryPercentageDto.java
 /Users/local34/Desktop/Daily Expense & Budget Logger /Daily Expense & Budget Logger/backend/src/main/java/com/expense/logger/dto/CategoryRequestDto.java
 /Users/local34/Desktop/Daily Expense & Budget Logger /Daily Expense & Budget Logger/backend/src/main/java/com/expense/logger/dto/CategoryResponseDto.java
@@ -25,6 +27,7 @@
 /Users/local34/Desktop/Daily Expense & Budget Logger /Daily Expense & Budget Logger/backend/src/main/java/com/expense/logger/dto/ExpenseRequestDto.java
 /Users/local34/Desktop/Daily Expense & Budget Logger /Daily Expense & Budget Logger/backend/src/main/java/com/expense/logger/dto/ExpenseResponseDto.java
 /Users/local34/Desktop/Daily Expense & Budget Logger /Daily Expense & Budget Logger/backend/src/main/java/com/expense/logger/dto/ForgotPasswordRequestDto.java
+/Users/local34/Desktop/Daily Expense & Budget Logger /Daily Expense & Budget Logger/backend/src/main/java/com/expense/logger/dto/GlobalSearchResultDto.java
 /Users/local34/Desktop/Daily Expense & Budget Logger /Daily Expense & Budget Logger/backend/src/main/java/com/expense/logger/dto/MonthlyTrendDto.java
 /Users/local34/Desktop/Daily Expense & Budget Logger /Daily Expense & Budget Logger/backend/src/main/java/com/expense/logger/dto/NotificationPreferencesDto.java
 /Users/local34/Desktop/Daily Expense & Budget Logger /Daily Expense & Budget Logger/backend/src/main/java/com/expense/logger/dto/NotificationResponseDto.java
@@ -101,6 +104,8 @@
 /Users/local34/Desktop/Daily Expense & Budget Logger /Daily Expense & Budget Logger/backend/src/main/java/com/expense/logger/service/NotificationServiceImpl.java
 /Users/local34/Desktop/Daily Expense & Budget Logger /Daily Expense & Budget Logger/backend/src/main/java/com/expense/logger/service/ReceiptStorageService.java
 /Users/local34/Desktop/Daily Expense & Budget Logger /Daily Expense & Budget Logger/backend/src/main/java/com/expense/logger/service/ReceiptStorageServiceImpl.java
+/Users/local34/Desktop/Daily Expense & Budget Logger /Daily Expense & Budget Logger/backend/src/main/java/com/expense/logger/service/SearchService.java
+/Users/local34/Desktop/Daily Expense & Budget Logger /Daily Expense & Budget Logger/backend/src/main/java/com/expense/logger/service/SearchServiceImpl.java
 /Users/local34/Desktop/Daily Expense & Budget Logger /Daily Expense & Budget Logger/backend/src/main/java/com/expense/logger/service/TodoItemService.java
 /Users/local34/Desktop/Daily Expense & Budget Logger /Daily Expense & Budget Logger/backend/src/main/java/com/expense/logger/service/TodoItemServiceImpl.java
 /Users/local34/Desktop/Daily Expense & Budget Logger /Daily Expense & Budget Logger/backend/src/main/java/com/expense/logger/service/TodoReminderScheduledTask.java

@@ -34,10 +34,10 @@ public class TodoItemServiceImpl implements TodoItemService {
     private final ExpenseService expenseService;
 
     public TodoItemServiceImpl(TodoItemRepository todoItemRepository,
-                               UserRepository userRepository,
-                               AuditLogRepository auditLogRepository,
-                               CategoryRepository categoryRepository,
-                               ExpenseService expenseService) {
+            UserRepository userRepository,
+            AuditLogRepository auditLogRepository,
+            CategoryRepository categoryRepository,
+            ExpenseService expenseService) {
         this.todoItemRepository = todoItemRepository;
         this.userRepository = userRepository;
         this.auditLogRepository = auditLogRepository;
@@ -128,8 +128,8 @@ public class TodoItemServiceImpl implements TodoItemService {
         item.setTargetDate(newTargetDate);
 
         // Reset notification sent flag if target date changed
-        if ((oldTargetDate == null && newTargetDate != null) || 
-            (oldTargetDate != null && !oldTargetDate.equals(newTargetDate))) {
+        if ((oldTargetDate == null && newTargetDate != null) ||
+                (oldTargetDate != null && !oldTargetDate.equals(newTargetDate))) {
             item.setNotificationSent(false);
         }
 
@@ -148,7 +148,8 @@ public class TodoItemServiceImpl implements TodoItemService {
         item.setCompleted(!item.isCompleted());
         todoItemRepository.save(item);
 
-        logEvent("TODO_TOGGLE", "Todo item toggled: id=" + item.getId() + ", completed=" + item.isCompleted(), item.getUser());
+        logEvent("TODO_TOGGLE", "Todo item toggled: id=" + item.getId() + ", completed=" + item.isCompleted(),
+                item.getUser());
 
         return mapToDto(item);
     }
@@ -180,7 +181,9 @@ public class TodoItemServiceImpl implements TodoItemService {
                 .build();
         expenseService.createExpense(expenseRequest, userId);
 
-        logEvent("TODO_COMPLETE", "Todo item completed and logged as expense: id=" + item.getId() + ", name=" + item.getName(), item.getUser());
+        logEvent("TODO_COMPLETE",
+                "Todo item completed and logged as expense: id=" + item.getId() + ", name=" + item.getName(),
+                item.getUser());
 
         return mapToDto(item);
     }
@@ -217,8 +220,8 @@ public class TodoItemServiceImpl implements TodoItemService {
 
         if (item.getCategory() != null) {
             builder.categoryId(item.getCategory().getId())
-                   .categoryName(item.getCategory().getName())
-                   .categoryColor(item.getCategory().getColor());
+                    .categoryName(item.getCategory().getName())
+                    .categoryColor(item.getCategory().getColor());
         }
 
         return builder.build();

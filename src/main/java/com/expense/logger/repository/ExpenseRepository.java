@@ -22,4 +22,13 @@ public interface ExpenseRepository extends JpaRepository<Expense, UUID> {
             UUID userId, LocalDate startDate, LocalDate endDate);
 
     Optional<Expense> findByIdAndUserIdAndDeletedAtIsNull(UUID id, UUID userId);
+    
+    long countByUserIdAndCategoryIdAndDeletedAtIsNull(UUID userId, Long categoryId);
+    org.springframework.data.domain.Page<Expense> findAllByUserIdAndCategoryIdAndDeletedAtIsNull(
+            UUID userId, Long categoryId, org.springframework.data.domain.Pageable pageable);
+
+    @org.springframework.data.jpa.repository.Query("SELECT e FROM Expense e JOIN e.category c " +
+        "WHERE e.user.id = :userId AND e.deletedAt IS NULL AND " +
+        "(LOWER(e.name) LIKE LOWER(CONCAT('%', :query, '%')) OR LOWER(c.name) LIKE LOWER(CONCAT('%', :query, '%')))")
+    List<Expense> searchExpenses(@org.springframework.data.repository.query.Param("userId") UUID userId, @org.springframework.data.repository.query.Param("query") String query);
 }
