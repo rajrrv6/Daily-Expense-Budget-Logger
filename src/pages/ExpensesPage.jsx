@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useCallback, useMemo } from 'react';
+import { useLocation } from 'react-router-dom';
 import useQueryParams from '../hooks/useQueryParams';
-import { getExpenses, deleteExpense, exportExpenses, getReceiptFile } from '../services/expenseService';
+import { getExpenses, deleteExpense, exportExpenses, getReceiptFile, getExpenseById } from '../services/expenseService';
 import { getCategories } from '../services/categoryService';
 import ExpenseFormModal from '../components/expenses/ExpenseFormModal';
 import SkeletonCard from '../components/common/SkeletonCard';
@@ -8,11 +9,12 @@ import EmptyState from '../components/common/EmptyState';
 import ErrorRetryState from '../components/common/ErrorRetryState';
 import { useNotification } from '../context/NotificationContext';
 import Modal from '../components/common/Modal';
+import ActionIcons from '../components/common/ActionIcons';
+import ViewModal from '../components/common/ViewModal';
 import { 
   CreditCard, 
   ArrowUpDown, 
   ChevronDown, 
-  MoreVertical, 
   Trash2, 
   Download, 
   Plus, 
@@ -25,6 +27,23 @@ import {
 export default function ExpensesPage() {
   const { showNotification } = useNotification();
   const { params, setParam, setPageNumber, resetFilters } = useQueryParams();
+  const location = useLocation();
+
+  useEffect(() => {
+    const checkIncomingExpense = async () => {
+      const targetId = location.state?.viewExpenseId;
+      if (targetId) {
+        window.history.replaceState({}, document.title);
+        try {
+          const expense = await getExpenseById(targetId);
+          handleViewDetails(expense);
+        } catch (err) {
+          showNotification('Failed to load search result expense.', 'error');
+        }
+      }
+    };
+    checkIncomingExpense();
+  }, [location.state?.viewExpenseId, showNotification]);
 
   // Primary data states
   const [data, setData] = useState({ content: [], totalElements: 0, totalPages: 0, isLast: true });
@@ -36,6 +55,10 @@ export default function ExpensesPage() {
   // SlideOver form state
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [selectedExpense, setSelectedExpense] = useState(null);
+
+  // View details modal state
+  const [isViewModalOpen, setIsViewModalOpen] = useState(false);
+  const [viewingExpense, setViewingExpense] = useState(null);
 
   // Kebab menu active state per row
   const [activeMenuId, setActiveMenuId] = useState(null);
@@ -249,6 +272,42 @@ export default function ExpensesPage() {
     setIsDrawerOpen(true);
     setActiveMenuId(null);
   };
+
+  const handleViewDetails = (expense) => {
+    setViewingExpense(expense);
+    setIsViewModalOpen(true);
+  };
+
+  const viewFields = viewingExpense ? [
+    { label: 'Expense Name', value: viewingExpense.name },
+    { label: 'Amount', value: `₹${viewingExpense.amount.toLocaleString(undefined, { minimumFractionDigits: 2 })}` },
+    { label: 'Category', value: viewingExpense.category?.name || 'N/A' },
+    { 
+      label: 'Transaction Date', 
+      value: new Date(viewingExpense.transactionDate).toLocaleDateString(undefined, {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+      }) 
+    },
+    { label: 'Receipt Path', value: viewingExpense.receiptPath || 'No receipt attached' }
+  ] : [];
+
+  const viewReceiptContent = viewingExpense && viewingExpense.receiptPath ? (
+    <div className="space-y-3">
+      <span className="block text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
+        Attached Receipt
+      </span>
+      <div className="flex items-center gap-3">
+        <button
+          onClick={() => handleViewReceipt(viewingExpense.receiptPath)}
+          className="px-4 py-2 text-xs font-bold text-emerald-650 bg-emerald-50 dark:text-emerald-400 dark:bg-emerald-950/30 hover:bg-emerald-100 dark:hover:bg-emerald-900/30 border border-emerald-250/20 rounded-xl transition-all"
+        >
+          View Receipt Document
+        </button>
+      </div>
+    </div>
+  ) : null;
 
   const handleAddNew = () => {
     setSelectedExpense(null);
@@ -529,52 +588,21 @@ export default function ExpensesPage() {
                     </td>
                     {/* Sticky right actions column */}
                     <td className="px-6 py-4 text-right sticky right-0 bg-white dark:bg-slate-900 shadow-[-8px_0_12px_-8px_rgba(0,0,0,0.06)] dark:shadow-[-8px_0_12px_-8px_rgba(255,255,255,0.02)]">
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setActiveMenuId(p => p === item.id ? null : item.id);
+                      <ActionIcons
+                        onView={() => handleViewDetails(item)}
+                        onEdit={() => handleEdit(item)}
+                        onDelete={() => {
+                          setDeleteTargetId(item.id);
+                          setDeleteTargetName(item.name);
+                          setIsDeleteConfirmOpen(true);
                         }}
-                        className="p-1 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg transition-colors inline-block"
-                        aria-label="Transaction action menu"
-                      >
-                        <MoreVertical className="w-4 h-4" />
-                      </button>
-
-                      {activeMenuId === item.id && (
-                        <>
-                          <div className="fixed inset-0 z-10" onClick={() => setActiveMenuId(null)} />
-                          <div className="absolute right-6 mt-1 w-32 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl shadow-lg py-1.5 z-20 text-left animate-slide-in">
-                            {item.receiptPath && (
-                              <button
-                                onClick={() => {
-                                  handleViewReceipt(item.receiptPath);
-                                  setActiveMenuId(null);
-                                }}
-                                className="w-full px-4 py-2 text-xs font-bold text-slate-700 dark:text-slate-350 hover:bg-slate-50 dark:hover:bg-slate-850 flex items-center gap-2"
-                              >
-                                <Eye className="w-3.5 h-3.5 text-slate-400" /> View Receipt
-                              </button>
-                            )}
-                            <button
-                              onClick={() => handleEdit(item)}
-                              className="w-full px-4 py-2 text-xs font-bold text-slate-700 dark:text-slate-350 hover:bg-slate-50 dark:hover:bg-slate-850 flex items-center gap-2"
-                            >
-                              <Edit3 className="w-3.5 h-3.5 text-slate-400" /> Edit Record
-                            </button>
-                            <button
-                              onClick={() => {
-                                setDeleteTargetId(item.id);
-                                setDeleteTargetName(item.name);
-                                setIsDeleteConfirmOpen(true);
-                                setActiveMenuId(null);
-                              }}
-                              className="w-full px-4 py-2 text-xs font-bold text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/20 border-t border-slate-100 dark:border-slate-850 flex items-center gap-2"
-                            >
-                              <Trash2 className="w-3.5 h-3.5 text-rose-500" /> Delete
-                            </button>
-                          </div>
-                        </>
-                      )}
+                        viewTitle="View Expense Details"
+                        editTitle="Edit Expense"
+                        deleteTitle="Delete Expense"
+                        ariaLabelView={`View details for expense ${item.name}`}
+                        ariaLabelEdit={`Edit expense ${item.name}`}
+                        ariaLabelDelete={`Delete expense ${item.name}`}
+                      />
                     </td>
                   </tr>
                 ))}
@@ -725,6 +753,18 @@ export default function ExpensesPage() {
           </div>
         </div>
       </Modal>
+
+      {/* Expense Detail View Modal */}
+      <ViewModal
+        isOpen={isViewModalOpen}
+        onClose={() => {
+          setIsViewModalOpen(false);
+          setViewingExpense(null);
+        }}
+        title="Expense Record Details"
+        fields={viewFields}
+        extraContent={viewReceiptContent}
+      />
 
     </div>
   );

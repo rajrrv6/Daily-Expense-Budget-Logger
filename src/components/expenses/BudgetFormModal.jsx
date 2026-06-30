@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
-import SlideOver from '../common/SlideOver';
+import CenterModal from '../common/CenterModal';
 import { getCategories } from '../../services/categoryService';
 
 const budgetFormSchema = z.object({
@@ -101,10 +101,10 @@ export default function BudgetFormModal({ isOpen, onClose, onSubmit, budget }) {
   };
 
   return (
-    <SlideOver
+    <CenterModal
       isOpen={isOpen}
       onClose={onClose}
-      title={isEditMode ? 'Modify Budget Configuration' : 'Setup New Budget Limit'}
+      title={isEditMode ? 'Modify Budget Configuration' : 'Setup New Budget limit'}
     >
       {/* Form Body */}
       <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-5">
@@ -243,6 +243,6 @@ export default function BudgetFormModal({ isOpen, onClose, onSubmit, budget }) {
         </button>
 
       </form>
-    </SlideOver>
+    </CenterModal>
   );
 }

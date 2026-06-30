@@ -41,15 +41,39 @@ export default function ComposedTrendChart({ data }) {
   };
 
   return (
-    <div className="w-full flex flex-col justify-between select-none" style={{ height: '340px' }}>
-      
-      {/* Explicit height wrapper (height={300}) to prevent any rendering constraints */}
-      <div className="h-[300px] w-full">
-        <ResponsiveContainer width="100%" height={300}>
-          <LineChart data={data} margin={{ top: 15, right: 10, left: -22, bottom: 5 }}>
-            
+    <div className="w-full h-full flex flex-col justify-between select-none">
+
+      {/* Explicit height wrapper (flex-1) to scale with parent container */}
+      <div className="flex-1 w-full min-h-0">
+        <ResponsiveContainer width="100%" height="100%">
+          <LineChart data={data} margin={{ top: 15, right: 10, left: -10, bottom: 5 }}>
+            <defs>
+              <filter id="glow-spend" x="-20%" y="-20%" width="140%" height="140%">
+                <feGaussianBlur stdDeviation="3.5" result="blur" />
+                <feOffset dx="0" dy="4" result="offset" />
+                <feComponentTransfer in="offset" result="glow">
+                  <feFuncA type="linear" slope="0.4" />
+                </feComponentTransfer>
+                <feMerge>
+                  <feMergeNode in="glow" />
+                  <feMergeNode in="SourceGraphic" />
+                </feMerge>
+              </filter>
+              <filter id="glow-budget" x="-20%" y="-20%" width="140%" height="140%">
+                <feGaussianBlur stdDeviation="3.5" result="blur" />
+                <feOffset dx="0" dy="4" result="offset" />
+                <feComponentTransfer in="offset" result="glow">
+                  <feFuncA type="linear" slope="0.4" />
+                </feComponentTransfer>
+                <feMerge>
+                  <feMergeNode in="glow" />
+                  <feMergeNode in="SourceGraphic" />
+                </feMerge>
+              </filter>
+            </defs>
+
             <CartesianGrid stroke={gridStroke} strokeDasharray="0 0" vertical={false} />
-            
+
             <XAxis
               dataKey="month"
               stroke={axisColor}
@@ -68,7 +92,7 @@ export default function ComposedTrendChart({ data }) {
               tickFormatter={(value) => `₹${(value / 1000).toFixed(0)}k`}
               dx={-8}
             />
-            
+
             <Tooltip content={<CustomTooltip />} cursor={{ stroke: gridStroke, strokeWidth: 1 }} />
 
             {/* Actual Spend Line: Bright Blue (#007AFF) mapped to dataKey="totalSpend" */}
@@ -77,7 +101,8 @@ export default function ComposedTrendChart({ data }) {
               dataKey="totalSpend"
               name="Actual Spend"
               stroke="#007AFF"
-              strokeWidth={2.5}
+              strokeWidth={3}
+              filter="url(#glow-spend)"
               dot={{ r: 4, fill: '#ffffff', strokeWidth: 2 }}
               activeDot={{ r: 6, fill: '#007AFF', stroke: '#ffffff', strokeWidth: 2 }}
               isAnimationActive={true}
@@ -89,7 +114,8 @@ export default function ComposedTrendChart({ data }) {
               dataKey="budgetLimit"
               name="Budget Limit"
               stroke="#8A2BE2"
-              strokeWidth={2.5}
+              strokeWidth={3}
+              filter="url(#glow-budget)"
               dot={{ r: 4, fill: '#ffffff', strokeWidth: 2 }}
               activeDot={{ r: 6, fill: '#8A2BE2', stroke: '#ffffff', strokeWidth: 2 }}
               isAnimationActive={true}
@@ -100,7 +126,7 @@ export default function ComposedTrendChart({ data }) {
       </div>
 
       {/* Custom Legend Component placing colorful pills aligned below the chart */}
-      <div className="flex justify-center items-center gap-8 pb-2 select-none">
+      <div className="flex justify-center items-center gap-8 pt-3 pb-1 select-none flex-shrink-0">
         <div className="flex items-center gap-2">
           <span className="w-3 h-3 rounded-full bg-[#007AFF] inline-block shadow-sm"></span>
           <span className="text-xs font-bold text-slate-550 dark:text-slate-400">Actual Spend</span>

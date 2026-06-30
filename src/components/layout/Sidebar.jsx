@@ -1,5 +1,5 @@
 import React from 'react';
-import { NavLink, useNavigate } from 'react-router-dom';
+import { NavLink, useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import {
   LayoutDashboard,
@@ -47,20 +47,23 @@ export default function Sidebar({ isCollapsed, toggleSidebar }) {
 
   return (
     <aside
-      className={`flex flex-col h-screen bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 text-slate-800 dark:text-slate-100 transition-all duration-300 ease-in-out ${
-        isCollapsed ? 'w-20' : 'w-64'
-      }`}
+      className={`flex flex-col h-screen bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 text-slate-800 dark:text-slate-100 transition-all duration-300 ease-in-out ${isCollapsed ? 'w-20' : 'w-64'
+        }`}
     >
       {/* Brand Header */}
       <div className="flex items-center justify-between px-6 h-16 border-b border-slate-200 dark:border-slate-800 flex-shrink-0">
-        <div className={`flex items-center gap-3 ${isCollapsed ? 'mx-auto' : ''}`}>
+        <Link
+          to="/"
+          className={`flex items-center gap-3 hover:opacity-90 transition-all duration-200 cursor-pointer ${isCollapsed ? 'mx-auto' : ''
+            }`}
+        >
           <Wallet className="w-6 h-6 text-brand-500 dark:text-brand-100 flex-shrink-0 animate-pulse" />
           {!isCollapsed && (
             <h1 className="text-lg font-extrabold tracking-tight text-brand-500 dark:text-brand-100">
               BudgetLogger
             </h1>
           )}
-        </div>
+        </Link>
       </div>
 
       {/* Navigation Links */}
@@ -71,10 +74,9 @@ export default function Sidebar({ isCollapsed, toggleSidebar }) {
             to={item.path}
             title={isCollapsed ? item.name : undefined}
             className={({ isActive }) =>
-              `flex items-center gap-4 px-4 py-3 text-sm font-semibold rounded-xl transition-all duration-200 ${
-                isActive
-                  ? 'bg-brand-500 text-white shadow-lg shadow-brand-500/20'
-                  : 'text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-850 hover:text-slate-800 dark:hover:text-slate-100'
+              `flex items-center gap-4 px-4 py-3 text-sm font-semibold rounded-xl transition-all duration-200 ${isActive
+                ? 'bg-brand-500 text-white shadow-lg shadow-brand-500/20'
+                : 'text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-850 hover:text-slate-800 dark:hover:text-slate-100'
               } ${isCollapsed ? 'justify-center px-0' : ''}`
             }
           >

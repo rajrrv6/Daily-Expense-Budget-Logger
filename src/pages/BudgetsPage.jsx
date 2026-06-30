@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useCallback } from 'react';
+import { useLocation } from 'react-router-dom';
 import { getBudgets, createBudget, updateBudget, deleteBudget } from '../services/budgetService';
 import { getCategories } from '../services/categoryService';
 import { useNotification } from '../context/NotificationContext';
@@ -10,6 +11,7 @@ import { Target, Plus } from 'lucide-react';
 
 export default function BudgetsPage() {
   const { showNotification } = useNotification();
+  const location = useLocation();
   
   const [budgets, setBudgets] = useState([]);
   const [categories, setCategories] = useState([]);
@@ -17,6 +19,17 @@ export default function BudgetsPage() {
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingBudget, setEditingBudget] = useState(null);
+
+  useEffect(() => {
+    if (location.state?.viewBudgetId && budgets.length > 0) {
+      const found = budgets.find(b => b.id === location.state.viewBudgetId);
+      if (found) {
+        setEditingBudget(found);
+        setIsModalOpen(true);
+        window.history.replaceState({}, document.title);
+      }
+    }
+  }, [location.state?.viewBudgetId, budgets]);
 
   const fetchBudgetData = useCallback(async () => {
     setLoading(true);

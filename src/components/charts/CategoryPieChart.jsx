@@ -23,18 +23,33 @@ const CategoryPieChart = React.memo(({ data }) => {
   };
 
   return (
-    <div className="h-64 w-full" aria-label="Category Spending Breakdown Chart" role="img">
+    <div className="h-[220px] w-full" aria-label="Category Spending Breakdown Chart" role="img">
       <ResponsiveContainer width="100%" height="100%">
         <PieChart>
           <Pie
             data={data}
             cx="50%"
             cy="50%"
-            innerRadius={60}
-            outerRadius={80}
+            innerRadius={40}
+            outerRadius={60}
             paddingAngle={3}
             dataKey="value"
             isAnimationActive={true}
+            label={({ name, percent, x, y, textAnchor }) => {
+              if (!percent || percent < 0.01) return null;
+              return (
+                <text
+                  x={x}
+                  y={y}
+                  textAnchor={textAnchor}
+                  fill={isDark ? '#94A3B8' : '#475569'}
+                  fontSize={10}
+                  fontWeight="700"
+                >
+                  {`${name} (${(percent * 100).toFixed(0)}%)`}
+                </text>
+              );
+            }}
           >
             {data.map((entry, index) => (
               <Cell key={`cell-${index}`} fill={entry.color} />

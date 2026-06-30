@@ -1,34 +1,62 @@
 import React, { useEffect, useState, useCallback, useMemo } from 'react';
-import { getCategories, createCategory } from '../services/categoryService';
+import { useLocation } from 'react-router-dom';
+import { getCategories, createCategory, updateCategory, deleteCategory, getCategoryDetails } from '../services/categoryService';
 import { useNotification } from '../context/NotificationContext';
-import SlideOver from '../components/common/SlideOver';
+import CenterModal from '../components/common/CenterModal';
 import SkeletonCard from '../components/common/SkeletonCard';
 import EmptyState from '../components/common/EmptyState';
-import { Tag, Search, ArrowUpDown, MoreVertical, Plus } from 'lucide-react';
+import ActionIcons from '../components/common/ActionIcons';
+import ViewModal from '../components/common/ViewModal';
+import Modal from '../components/common/Modal';
+import { Tag, Search, ArrowUpDown, Plus } from 'lucide-react';
 
 export default function CategoriesPage() {
   const { showNotification } = useNotification();
-  
+  const location = useLocation();
+
+  useEffect(() => {
+    const checkIncomingCategory = async () => {
+      const targetId = location.state?.viewCategoryId;
+      if (targetId) {
+        window.history.replaceState({}, document.title);
+        try {
+          const details = await getCategoryDetails(targetId);
+          setIsViewModalOpen(true);
+          setViewingDetails(details);
+        } catch (err) {
+          showNotification('Failed to load category details.', 'error');
+        }
+      }
+    };
+    checkIncomingCategory();
+  }, [location.state?.viewCategoryId, showNotification]);
+
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
-  
-  // Sorting State
-  const [sortField, setSortField] = useState('name');
+  const [sortField, setSortField] = useState('id');
   const [sortAsc, setSortAsc] = useState(true);
 
-  // Pagination State
+  // Pagination states
   const [currentPage, setCurrentPage] = useState(0);
-  const [pageSize, setPageSize] = useState(10);
+  const [pageSize, setPageSize] = useState(5);
 
-  // Creation Form State
+  // Creation/Edit Form State
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [newCatName, setNewCatName] = useState('');
   const [newCatColor, setNewCatColor] = useState('#4F46E5');
   const [submitting, setSubmitting] = useState(false);
+  const [editingCategory, setEditingCategory] = useState(null);
 
-  // Action Menu Dropdown State per Category
-  const [activeMenuId, setActiveMenuId] = useState(null);
+  // View details modal state
+  const [isViewModalOpen, setIsViewModalOpen] = useState(false);
+  const [viewingDetails, setViewingDetails] = useState(null);
+  const [loadingDetails, setLoadingDetails] = useState(false);
+
+  // Deletion state
+  const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
+  const [deleteTargetId, setDeleteTargetId] = useState(null);
+  const [deleteTargetName, setDeleteTargetName] = useState('');
 
   const fetchCategoriesList = useCallback(async () => {
     setLoading(true);
@@ -58,7 +86,21 @@ export default function CategoriesPage() {
     { value: '#64748B', label: 'Slate' }
   ];
 
-  const handleCreateCategory = async (e) => {
+  const openAddModal = () => {
+    setEditingCategory(null);
+    setNewCatName('');
+    setNewCatColor('#4F46E5');
+    setIsDrawerOpen(true);
+  };
+
+  const handleEdit = (category) => {
+    setEditingCategory(category);
+    setNewCatName(category.name);
+    setNewCatColor(category.color);
+    setIsDrawerOpen(true);
+  };
+
+  const handleFormSubmit = async (e) => {
     e.preventDefault();
     if (!newCatName.trim()) {
       showNotification('Category name is required.', 'error');
@@ -70,16 +112,61 @@ export default function CategoriesPage() {
         name: newCatName.trim(),
         color: newCatColor
       };
-      const result = await createCategory(payload);
-      setCategories(prev => [result, ...prev]);
-      showNotification('Category created successfully!', 'success');
+      
+      if (editingCategory) {
+        const result = await updateCategory(editingCategory.id, payload);
+        setCategories(prev => prev.map(c => c.id === editingCategory.id ? result : c));
+        showNotification('Category updated successfully!', 'success');
+      } else {
+        const result = await createCategory(payload);
+        setCategories(prev => [result, ...prev]);
+        showNotification('Category created successfully!', 'success');
+      }
+
       setIsDrawerOpen(false);
       setNewCatName('');
       setNewCatColor('#4F46E5');
+      setEditingCategory(null);
     } catch (err) {
-      showNotification(err.response?.data?.message || 'Failed to create category.', 'error');
+      showNotification(err.response?.data?.message || 'Failed to save category.', 'error');
     } finally {
       setSubmitting(false);
+    }
+  };
+
+  const openDeleteConfirm = (category) => {
+    setDeleteTargetId(category.id);
+    setDeleteTargetName(category.name);
+    setIsDeleteConfirmOpen(true);
+  };
+
+  const confirmDeleteAction = async () => {
+    if (!deleteTargetId) return;
+    try {
+      await deleteCategory(deleteTargetId);
+      setCategories(prev => prev.filter(c => c.id !== deleteTargetId));
+      showNotification('Category deleted successfully.', 'success');
+    } catch (err) {
+      showNotification(err.response?.data?.message || 'Failed to delete category.', 'error');
+    } finally {
+      setIsDeleteConfirmOpen(false);
+      setDeleteTargetId(null);
+      setDeleteTargetName('');
+    }
+  };
+
+  const handleViewCategoryDetails = async (category) => {
+    setIsViewModalOpen(true);
+    setLoadingDetails(true);
+    setViewingDetails(null);
+    try {
+      const details = await getCategoryDetails(category.id);
+      setViewingDetails(details);
+    } catch (err) {
+      showNotification('Failed to load category details.', 'error');
+      setIsViewModalOpen(false);
+    } finally {
+      setLoadingDetails(false);
     }
   };
 
@@ -110,34 +197,70 @@ export default function CategoriesPage() {
       let valA = a[sortField] || '';
       let valB = b[sortField] || '';
 
-      if (typeof valA === 'string') valA = valA.toLowerCase();
-      if (typeof valB === 'string') valB = valB.toLowerCase();
-
-      if (valA < valB) return sortAsc ? -1 : 1;
-      if (valA > valB) return sortAsc ? 1 : -1;
-      return 0;
+      if (typeof valA === 'string') {
+        return sortAsc ? valA.localeCompare(valB) : valB.localeCompare(valA);
+      }
+      return sortAsc ? valA - valB : valB - valA;
     });
 
     return dataset;
   }, [categories, searchQuery, sortField, sortAsc]);
 
-  // Paginated dataset
+  // Pagination slicing
+  const totalPages = Math.ceil(filteredAndSortedCategories.length / pageSize);
   const paginatedCategories = useMemo(() => {
-    const start = currentPage * pageSize;
-    return filteredAndSortedCategories.slice(start, start + pageSize);
+    const startIdx = currentPage * pageSize;
+    return filteredAndSortedCategories.slice(startIdx, startIdx + pageSize);
   }, [filteredAndSortedCategories, currentPage, pageSize]);
 
-  const totalPages = Math.ceil(filteredAndSortedCategories.length / pageSize) || 1;
+  const viewFields = viewingDetails ? [
+    { label: 'Category Name', value: viewingDetails.name },
+    { 
+      label: 'Color Tag', 
+      value: (
+        <div className="flex items-center gap-2">
+          <span className="w-3 h-3 rounded-full flex-shrink-0" style={{ backgroundColor: viewingDetails.color }}></span>
+          <code className="text-slate-500 font-semibold">{viewingDetails.color}</code>
+        </div>
+      ) 
+    },
+    { label: 'Budget Allocation', value: viewingDetails.budgetLimit ? `₹${viewingDetails.budgetLimit.toLocaleString(undefined, { minimumFractionDigits: 2 })}` : '₹0.00' },
+    { label: 'Total Expense Count', value: `${viewingDetails.expenseCount || 0} transaction(s)` },
+    { 
+      label: 'Created Date', 
+      value: viewingDetails.createdAt ? new Date(viewingDetails.createdAt).toLocaleDateString(undefined, {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+      }) : 'N/A'
+    },
+    { label: 'Description', value: 'No description provided' }
+  ] : [];
 
-  // Click outside listener to close menus
-  useEffect(() => {
-    const handleOutsideClick = () => setActiveMenuId(null);
-    document.addEventListener('click', handleOutsideClick);
-    return () => document.removeEventListener('click', handleOutsideClick);
-  }, []);
+  const viewExtraContent = viewingDetails && viewingDetails.recentExpenses?.length > 0 ? (
+    <div className="space-y-3">
+      <span className="block text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
+        Recent Category Transactions
+      </span>
+      <div className="space-y-2 max-h-40 overflow-y-auto custom-scrollbar">
+        {viewingDetails.recentExpenses.map((exp, idx) => (
+          <div key={idx} className="flex justify-between items-center p-2.5 bg-slate-50 dark:bg-slate-950 border border-slate-150 dark:border-slate-850 rounded-xl text-xs">
+            <span className="font-semibold text-slate-800 dark:text-slate-200 truncate pr-2">{exp.name}</span>
+            <span className="font-bold text-slate-850 dark:text-slate-100 flex-shrink-0">
+              ₹{exp.amount.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+            </span>
+          </div>
+        ))}
+      </div>
+    </div>
+  ) : viewingDetails ? (
+    <div className="text-xs text-slate-400 dark:text-slate-550 font-semibold">
+      No transactions logged in this category.
+    </div>
+  ) : null;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 max-w-7xl mx-auto p-4 md:p-8 animate-modal-in">
       
       {/* Standardized B2B Header Area */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 p-6 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800/80 rounded-2xl transition-all duration-200 shadow-sm">
@@ -150,7 +273,7 @@ export default function CategoriesPage() {
           </p>
         </div>
         <button
-          onClick={() => setIsDrawerOpen(true)}
+          onClick={openAddModal}
           className="flex items-center gap-2 px-5 py-2.5 bg-brand-500 hover:bg-brand-600 text-white text-xs font-bold rounded-xl transition-all duration-200 shadow-lg shadow-brand-500/15"
           aria-label="Add new category"
         >
@@ -194,7 +317,7 @@ export default function CategoriesPage() {
             title="No Categories Available"
             description="You don't have any expense categories yet. Setup classifications to tag transactions."
             actionText="Setup First Category"
-            onAction={() => setIsDrawerOpen(true)}
+            onAction={openAddModal}
           />
         ) : (
           <div className="overflow-x-auto border border-slate-150 dark:border-slate-850 rounded-xl">
@@ -230,28 +353,18 @@ export default function CategoriesPage() {
                         <code className="text-slate-500 font-semibold">{cat.color}</code>
                       </div>
                     </td>
-                    <td className="px-6 py-4 text-right relative">
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setActiveMenuId(p => p === cat.id ? null : cat.id);
-                        }}
-                        className="p-1 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg transition-all"
-                        aria-label="Kebab options menu"
-                      >
-                        <MoreVertical className="w-4 h-4" />
-                      </button>
-
-                      {activeMenuId === cat.id && (
-                        <div className="absolute right-6 mt-1 w-32 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl shadow-lg py-1 z-10 text-left">
-                          <button
-                            onClick={() => showNotification(`Category Name: ${cat.name}, Color: ${cat.color}`, 'info')}
-                            className="w-full text-left px-4 py-2.5 text-xs font-bold text-slate-700 dark:text-slate-350 hover:bg-slate-50 dark:hover:bg-slate-850"
-                          >
-                            View Details
-                          </button>
-                        </div>
-                      )}
+                    <td className="px-6 py-4 text-right">
+                      <ActionIcons
+                        onView={() => handleViewCategoryDetails(cat)}
+                        onEdit={() => handleEdit(cat)}
+                        onDelete={() => openDeleteConfirm(cat)}
+                        viewTitle="View Category Details"
+                        editTitle="Edit Category"
+                        deleteTitle="Delete Category"
+                        ariaLabelView={`View details for category ${cat.name}`}
+                        ariaLabelEdit={`Edit category ${cat.name}`}
+                        ariaLabelDelete={`Delete category ${cat.name}`}
+                      />
                     </td>
                   </tr>
                 ))}
@@ -300,17 +413,18 @@ export default function CategoriesPage() {
         )}
       </div>
 
-      {/* SlideOver Form Drawer */}
-      <SlideOver
+      {/* Centered Form Modal */}
+      <CenterModal
         isOpen={isDrawerOpen}
         onClose={() => {
           setIsDrawerOpen(false);
           setNewCatName('');
           setNewCatColor('#4F46E5');
+          setEditingCategory(null);
         }}
-        title="Create Category Classification"
+        title={editingCategory ? "Edit Category Classification" : "Create Category Classification"}
       >
-        <form onSubmit={handleCreateCategory} className="space-y-6">
+        <form onSubmit={handleFormSubmit} className="space-y-6">
           <div className="space-y-2">
             <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider">
               Category Name
@@ -321,7 +435,7 @@ export default function CategoriesPage() {
               onChange={(e) => setNewCatName(e.target.value)}
               placeholder="e.g. Travel, Utilities, Subscriptions"
               required
-              className="w-full px-4 py-3 text-sm text-slate-800 dark:text-slate-100 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl focus:outline-none focus:border-brand-500 transition-colors placeholder-slate-400 font-semibold"
+              className="w-full px-4 py-3 text-sm text-slate-800 dark:text-slate-100 bg-slate-50 dark:bg-slate-955 border border-slate-200 dark:border-slate-800 rounded-xl focus:outline-none focus:border-brand-500 transition-colors placeholder-slate-400 font-semibold"
             />
           </div>
 
@@ -369,10 +483,67 @@ export default function CategoriesPage() {
             disabled={submitting}
             className="w-full py-3.5 bg-brand-500 hover:bg-brand-600 disabled:opacity-50 text-white font-bold text-sm rounded-xl transition-all shadow-lg shadow-brand-500/15"
           >
-            {submitting ? 'Creating Category...' : 'Confirm & Save'}
+            {submitting ? (editingCategory ? 'Saving Changes...' : 'Creating Category...') : 'Confirm & Save'}
           </button>
         </form>
-      </SlideOver>
+      </CenterModal>
+
+      {/* Category Detail View Modal */}
+      <ViewModal
+        isOpen={isViewModalOpen}
+        onClose={() => {
+          setIsViewModalOpen(false);
+          setViewingDetails(null);
+        }}
+        title="Category Stats & Details"
+        fields={viewFields}
+        extraContent={loadingDetails ? (
+          <div className="flex justify-center py-4">
+            <span className="text-xs font-semibold text-slate-400 dark:text-slate-500 animate-pulse">Loading stats...</span>
+          </div>
+        ) : viewExtraContent}
+      />
+
+      {/* Delete Confirmation Modal */}
+      <Modal
+        isOpen={isDeleteConfirmOpen}
+        onClose={() => {
+          setIsDeleteConfirmOpen(false);
+          setDeleteTargetId(null);
+          setDeleteTargetName('');
+        }}
+        title="Confirm Category Deletion"
+      >
+        <div className="space-y-4">
+          <p className="text-sm font-semibold text-slate-650 dark:text-slate-350 leading-relaxed">
+            Are you sure you want to delete the category <span className="font-extrabold text-slate-900 dark:text-slate-100">"{deleteTargetName}"</span>?
+          </p>
+          <div className="p-3 bg-amber-50 dark:bg-amber-950/20 border border-amber-250/20 rounded-xl">
+            <p className="text-xs text-amber-655 dark:text-amber-450 leading-relaxed font-semibold">
+              Warning: Soft deleting this category will retain historic expense records but hide it from new selections.
+            </p>
+          </div>
+          <div className="flex justify-end gap-3 pt-2">
+            <button
+              onClick={() => {
+                setIsDeleteConfirmOpen(false);
+                setDeleteTargetId(null);
+                setDeleteTargetName('');
+              }}
+              className="px-4 py-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-850 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-800 rounded-xl text-slate-700 dark:text-slate-250 font-bold transition-all text-xs focus:outline-none focus:ring-2 focus:ring-brand-500"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={confirmDeleteAction}
+              className="px-4 py-2 bg-rose-600 hover:bg-rose-700 rounded-xl text-white font-bold transition-all text-xs focus:outline-none focus:ring-2 focus:ring-rose-500"
+            >
+              Delete
+            </button>
+          </div>
+        </div>
+      </Modal>
+
     </div>
   );
 }

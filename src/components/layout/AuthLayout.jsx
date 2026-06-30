@@ -28,21 +28,21 @@ export default function AuthLayout() {
 
   return (
     <div className="min-h-screen w-full bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 flex transition-colors duration-300 font-sans">
-      
+
       {/* LEFT PANEL: Enterprise Branding & Graphics (Hidden on Mobile/Tablet) */}
       <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-tr from-slate-950 via-slate-900 to-brand-600 relative overflow-hidden flex-col justify-between p-12 text-white border-r border-slate-900 select-none">
-        
+
         {/* Background Grid Patterns */}
         <div className="absolute inset-0 bg-[linear-gradient(to_right,#0f172a_1px,transparent_1px),linear-gradient(to_bottom,#0f172a_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)] opacity-35"></div>
         <div className="absolute top-1/4 right-0 w-96 h-96 bg-brand-500/10 rounded-full blur-3xl pointer-events-none"></div>
 
         {/* Top Header Logo */}
-        <div className="relative flex items-center gap-3">
+        <Link to="/" className="relative flex items-center gap-3 hover:opacity-90 transition-all duration-200 cursor-pointer">
           <div className="p-2 bg-white/10 backdrop-blur-md border border-white/20 rounded-xl">
             <Wallet className="w-6 h-6 text-white" />
           </div>
-          <span className="text-xl font-bold tracking-tight">BudgetLogger <span className="text-xs font-semibold text-brand-100 px-2 py-0.5 rounded-full bg-brand-500/30 border border-brand-500/20 ml-2">B2B SaaS</span></span>
-        </div>
+          <span className="text-xl font-bold tracking-tight">BudgetLogger</span>
+        </Link>
 
         {/* Core Product Summary */}
         <div className="relative space-y-6 my-auto max-w-lg">
@@ -95,7 +95,7 @@ export default function AuthLayout() {
 
       {/* RIGHT PANEL: Authentic Form Interface */}
       <div className="w-full lg:w-1/2 flex flex-col justify-between py-6 px-6 sm:px-12 relative">
-        
+
         {/* Floating Utilities Header (Theme Toggle, Back links) */}
         <header className="flex justify-between items-center h-12 flex-shrink-0">
           <Link to="/" className="lg:hidden flex items-center gap-2 hover:opacity-90 transition-opacity">
@@ -113,7 +113,7 @@ export default function AuthLayout() {
             >
               <currentOption.icon className="w-4 h-4 flex-shrink-0" />
             </button>
-            
+
             {showThemeMenu && (
               <div className="absolute right-0 mt-2 w-32 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-850 rounded-xl shadow-xl overflow-hidden z-50 flex flex-col animate-slide-in pointer-events-auto">
                 {themeOptions.map((opt) => (
@@ -123,11 +123,10 @@ export default function AuthLayout() {
                       setTheme(opt.value);
                       setShowThemeMenu(false);
                     }}
-                    className={`flex items-center gap-3 px-3 py-2.5 text-xs font-semibold transition-colors duration-150 ${
-                      theme === opt.value
+                    className={`flex items-center gap-3 px-3 py-2.5 text-xs font-semibold transition-colors duration-150 ${theme === opt.value
                         ? 'bg-brand-500 text-white'
                         : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-850'
-                    }`}
+                      }`}
                   >
                     <opt.icon className="w-4 h-4 flex-shrink-0" />
                     <span>{opt.label}</span>

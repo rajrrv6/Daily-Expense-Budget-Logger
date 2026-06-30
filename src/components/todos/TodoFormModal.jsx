@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import SlideOver from '../common/SlideOver';
+import CenterModal from '../common/CenterModal';
 import { createTodo, updateTodo } from '../../services/todoService';
 import { getCategories, createCategory } from '../../services/categoryService';
 import { useNotification } from '../../context/NotificationContext';
@@ -154,7 +154,7 @@ export default function TodoFormModal({ isOpen, onClose, todo, onSubmitSuccess }
   };
 
   return (
-    <SlideOver
+    <CenterModal
       isOpen={isOpen}
       onClose={onClose}
       title={isEditMode ? 'Edit Checklist Item' : 'Add New Checklist Item'}
@@ -319,6 +319,6 @@ export default function TodoFormModal({ isOpen, onClose, todo, onSubmitSuccess }
           {submitting ? 'Saving changes...' : isEditMode ? 'Confirm & Update' : 'Confirm & Create'}
         </button>
       </form>
-    </SlideOver>
+    </CenterModal>
   );
 }

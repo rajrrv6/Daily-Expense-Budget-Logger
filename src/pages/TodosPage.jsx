@@ -1,13 +1,16 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import { useLocation } from 'react-router-dom';
 import { getTodos, completeTodo, deleteTodo } from '../services/todoService';
 import { getCategories } from '../services/categoryService';
 import { uploadReceipt } from '../services/expenseService';
 import { useNotification } from '../context/NotificationContext';
 import Modal from '../components/common/Modal';
 import TodoFormModal from '../components/todos/TodoFormModal';
+import ActionIcons from '../components/common/ActionIcons';
 
 export default function TodosPage() {
   const { showNotification } = useNotification();
+  const location = useLocation();
 
   // State Management
   const [todos, setTodos] = useState([]);
@@ -18,6 +21,17 @@ export default function TodosPage() {
   // Creation/Edit Modal State
   const [isFormModalOpen, setIsFormModalOpen] = useState(false);
   const [editingTodo, setEditingTodo] = useState(null);
+
+  useEffect(() => {
+    if (location.state?.viewTodoId && todos.length > 0) {
+      const found = todos.find(t => t.id === location.state.viewTodoId);
+      if (found) {
+        setEditingTodo(found);
+        setIsFormModalOpen(true);
+        window.history.replaceState({}, document.title);
+      }
+    }
+  }, [location.state?.viewTodoId, todos]);
 
   // Deletion Confirmation Modal State
   const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
@@ -190,13 +204,41 @@ export default function TodosPage() {
     }
   };
 
-  // Stable memoized filter selection
+  // Stable memoized filter selection with structured sorting
   const filteredTodos = useMemo(() => {
-    return todos.filter((todo) => {
+    const list = todos.filter((todo) => {
       if (filter === 'PENDING') return !todo.completed;
       if (filter === 'COMPLETED') return todo.completed;
       return true;
     });
+
+    list.sort((a, b) => {
+      // 1. Completion status comparison: false (pending) comes first, true (completed) comes last
+      if (a.completed !== b.completed) {
+        return a.completed ? 1 : -1;
+      }
+
+      if (!a.completed) {
+        // 2. Secondary sorting for Pending items: nearest targetDate ascending
+        if (a.targetDate && b.targetDate) {
+          return new Date(a.targetDate) - new Date(b.targetDate);
+        }
+        if (a.targetDate) return -1; // place items with target date first
+        if (b.targetDate) return 1;
+      } else {
+        // 3. Secondary sorting for Completed items: recently completed (updatedAt) descending
+        const dateA = a.updatedAt || a.createdAt || 0;
+        const dateB = b.updatedAt || b.createdAt || 0;
+        return new Date(dateB) - new Date(dateA);
+      }
+
+      // Default fallback: sort by ID or creation date
+      const createA = a.createdAt || 0;
+      const createB = b.createdAt || 0;
+      return new Date(createB) - new Date(createA);
+    });
+
+    return list;
   }, [todos, filter]);
 
   // Formatter for Target Date
@@ -265,96 +307,122 @@ export default function TodosPage() {
             <p>No checklist items found for this filter.</p>
           </div>
         ) : (
-          <div className="space-y-3">
-            {filteredTodos.map((item) => (
-              <div
-                key={item.id}
-                className="flex flex-col md:flex-row md:items-center justify-between p-4 bg-slate-50 dark:bg-slate-950/30 border border-slate-150 dark:border-slate-850 rounded-lg hover:border-slate-350 dark:hover:border-slate-800 transition-all duration-200 gap-3"
-              >
-                <div className="flex items-center gap-4 flex-1">
+          <div className="space-y-2">
+            {/* Header Row */}
+            <div className="hidden md:grid grid-cols-[50px_2fr_1fr_1fr_1fr_120px] gap-4 px-6 py-3 bg-slate-50 dark:bg-slate-950 border border-slate-150 dark:border-slate-850 rounded-xl text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-3">
+              <div className="text-center">Status</div>
+              <div>Item Name</div>
+              <div>Category</div>
+              <div>Estimated</div>
+              <div>Buy By</div>
+              <div className="text-right">Actions</div>
+            </div>
+
+            {/* Todo Grid List */}
+            <div className="space-y-3">
+              {filteredTodos.map((item) => (
+                <div
+                  key={item.id}
+                  style={{ opacity: item.completed ? 0.6 : 1 }}
+                  className={`grid grid-cols-1 md:grid-cols-[50px_2fr_1fr_1fr_1fr_120px] gap-4 p-4 md:px-6 md:py-3 bg-white dark:bg-slate-900 border border-slate-150 dark:border-slate-850 rounded-xl hover:border-brand-500/30 dark:hover:border-slate-800 transition-all duration-200 items-center text-sm ${
+                    item.completed ? 'bg-slate-50/20 dark:bg-slate-950/5' : ''
+                  }`}
+                >
                   {/* Status checkbox */}
-                  <input
-                    type="checkbox"
-                    checked={item.completed}
-                    disabled={item.completed || submitting}
-                    onChange={() => handleCheckboxClick(item)}
-                    className="w-5 h-5 rounded border-slate-350 dark:border-slate-750 bg-white dark:bg-slate-950 text-brand-500 focus:ring-brand-500 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-                    aria-label={`Toggle completeness for task ${item.name}`}
-                  />
+                  <div className="flex md:justify-center items-center gap-3">
+                    <span className="block md:hidden text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
+                      Status:
+                    </span>
+                    <input
+                      type="checkbox"
+                      checked={item.completed}
+                      disabled={item.completed || submitting}
+                      onChange={() => handleCheckboxClick(item)}
+                      className="w-5 h-5 rounded border-slate-350 dark:border-slate-750 bg-white dark:bg-slate-950 text-brand-500 focus:ring-brand-500 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                      aria-label={`Toggle completeness for task ${item.name}`}
+                    />
+                  </div>
 
-                  {/* Task Name & details */}
-                  <div className="flex flex-col gap-1.5 flex-1">
-                    <div className="flex flex-wrap items-center gap-2">
+                  {/* Item Name */}
+                  <div className="flex flex-col md:block">
+                    <span className="block md:hidden text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-1">
+                      Item Name:
+                    </span>
+                    <span
+                      className={`font-semibold text-slate-800 dark:text-slate-200 break-all ${
+                        item.completed ? 'line-through text-slate-400 dark:text-slate-550 font-normal' : ''
+                      }`}
+                    >
+                      {item.name}
+                    </span>
+                  </div>
+
+                  {/* Category */}
+                  <div className="flex flex-col md:block">
+                    <span className="block md:hidden text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-1">
+                      Category:
+                    </span>
+                    {item.categoryName ? (
                       <span
-                        className={`text-sm text-slate-800 dark:text-slate-200 font-semibold break-all ${
-                          item.completed ? 'line-through text-slate-400 dark:text-slate-550' : ''
-                        }`}
+                        className="inline-block px-2.5 py-0.5 text-xs font-semibold rounded-full border"
+                        style={{
+                          backgroundColor: `${item.categoryColor}15`,
+                          color: item.categoryColor,
+                          borderColor: `${item.categoryColor}30`,
+                        }}
                       >
-                        {item.name}
+                        {item.categoryName}
                       </span>
-
-                      {/* Category badge */}
-                      {item.categoryName && (
-                        <span
-                          className="px-2 py-0.5 text-xs font-semibold rounded-full border"
-                          style={{
-                            backgroundColor: `${item.categoryColor}15`,
-                            color: item.categoryColor,
-                            borderColor: `${item.categoryColor}30`,
-                          }}
-                        >
-                          {item.categoryName}
-                        </span>
-                      )}
-
-                      {/* Estimated Price label */}
-                      {item.price !== null && item.price !== undefined && (
-                        <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-950/30 text-emerald-600 dark:text-emerald-400 border border-emerald-200/50 dark:border-emerald-800/30">
-                          Estimated: ₹{Number(item.price).toFixed(2)}
-                        </span>
-                      )}
-                    </div>
-
-                    {/* Target Date Details */}
-                    {item.targetDate && (
-                      <div className="flex items-center gap-1 text-xs text-slate-400 dark:text-slate-500">
-                        <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                        </svg>
-                        <span>Buy by: {formatTargetDate(item.targetDate)}</span>
-                      </div>
+                    ) : (
+                      <span className="text-slate-300 dark:text-slate-700 font-medium">-</span>
                     )}
                   </div>
-                </div>
 
-                {/* Operations buttons */}
-                <div className="flex items-center justify-end gap-3">
-                  {/* Edit Pencil icon */}
-                  {!item.completed && (
-                    <button
-                      onClick={() => handleEdit(item)}
-                      className="text-slate-400 dark:text-slate-500 hover:text-slate-650 dark:hover:text-slate-350 transition-colors p-1"
-                      aria-label={`Edit ${item.name}`}
-                    >
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-                      </svg>
-                    </button>
-                  )}
+                  {/* Estimated Price */}
+                  <div className="flex flex-col md:block">
+                    <span className="block md:hidden text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-1">
+                      Estimated:
+                    </span>
+                    {item.price !== null && item.price !== undefined ? (
+                      <span className="font-semibold text-emerald-600 dark:text-emerald-450">
+                        ₹{Number(item.price).toFixed(2)}
+                      </span>
+                    ) : (
+                      <span className="text-slate-300 dark:text-slate-700 font-medium">-</span>
+                    )}
+                  </div>
 
-                  {/* Bin Delete icon in red */}
-                  <button
-                    onClick={() => openDeleteConfirm(item)}
-                    className="text-red-400 dark:text-red-500 hover:text-red-600 dark:hover:text-red-405 transition-colors p-1"
-                    aria-label={`Delete task ${item.name}`}
-                  >
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                    </svg>
-                  </button>
+                  {/* Buy By Date */}
+                  <div className="flex flex-col md:block">
+                    <span className="block md:hidden text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-1">
+                      Buy By:
+                    </span>
+                    {item.targetDate ? (
+                      <span className="text-slate-650 dark:text-slate-400 font-semibold">
+                        {formatTargetDate(item.targetDate)}
+                      </span>
+                    ) : (
+                      <span className="text-slate-300 dark:text-slate-700 font-medium">-</span>
+                    )}
+                  </div>
+
+                  {/* Actions Column */}
+                  <div className="flex md:justify-end items-center gap-3">
+                    <span className="block md:hidden text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
+                      Actions:
+                    </span>
+                    <ActionIcons
+                      onEdit={!item.completed ? () => handleEdit(item) : null}
+                      onDelete={() => openDeleteConfirm(item)}
+                      editTitle="Edit Item"
+                      deleteTitle="Delete Item"
+                      ariaLabelEdit={`Edit item ${item.name}`}
+                      ariaLabelDelete={`Delete item ${item.name}`}
+                    />
+                  </div>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
         )}
       </div>
