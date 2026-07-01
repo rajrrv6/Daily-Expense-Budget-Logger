@@ -63,7 +63,7 @@ export default function NotificationCenter() {
       } else {
         setNotifications((prev) => [...prev, ...data.content]);
       }
-      setHasMore(!data.isLast);
+      setHasMore(!(data.isLast ?? data.last ?? (pageNum >= data.totalPages - 1)));
       setPage(pageNum);
     } catch (err) {
       console.error('Failed to fetch notifications:', err);
@@ -141,7 +141,7 @@ export default function NotificationCenter() {
       {/* Trigger Bell Icon */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="relative p-2.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800/60 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-350 hover:text-slate-800 dark:hover:text-slate-100 rounded-xl border border-slate-200 dark:border-slate-700/40 hover:border-slate-300 dark:hover:border-slate-700 transition-all flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-indigo-500"
+        className="relative p-2.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800/60 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 hover:text-slate-800 dark:hover:text-slate-100 rounded-xl border border-slate-200 dark:border-slate-700/40 hover:border-slate-300 dark:hover:border-slate-700 transition-all flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-indigo-500"
         aria-label="View Alerts & Notifications"
       >
         <svg
@@ -171,7 +171,7 @@ export default function NotificationCenter() {
           {/* Header */}
           <div className="flex items-center justify-between px-5 py-4 border-b border-slate-100 dark:border-slate-800/80 transition-colors duration-200">
             <div>
-              <h3 className="text-sm font-bold text-slate-850 dark:text-slate-100">Alert Center</h3>
+              <h3 className="text-sm font-bold text-slate-900 dark:text-slate-100">Alert Center</h3>
               <p className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5">
                 {unreadCount} unread notification{unreadCount !== 1 && 's'}
               </p>
@@ -187,7 +187,7 @@ export default function NotificationCenter() {
           </div>
 
           {/* List Area */}
-          <div className="flex-1 overflow-y-auto max-h-[320px] custom-scrollbar divide-y divide-slate-100 dark:divide-slate-850 transition-colors duration-200">
+          <div className="flex-1 overflow-y-auto max-h-[320px] custom-scrollbar divide-y divide-slate-100 dark:divide-slate-900 transition-colors duration-200">
             {notifications.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-10 px-4 text-center">
                 <BellOff className="w-8 h-8 text-slate-400 dark:text-slate-500 mb-2.5 flex-shrink-0" />
@@ -198,8 +198,8 @@ export default function NotificationCenter() {
               notifications.map((item) => (
                 <div
                   key={item.id}
-                  className={`p-4 flex gap-3 transition-colors hover:bg-slate-50 dark:hover:bg-slate-850/40 relative group ${
-                    !item.read ? 'bg-indigo-50/20 dark:bg-slate-850/15' : ''
+                  className={`p-4 flex gap-3 transition-colors hover:bg-slate-50 dark:hover:bg-slate-900/40 relative group ${
+                    !item.read ? 'bg-indigo-50/20 dark:bg-slate-900/15' : ''
                   }`}
                 >
                   {/* Read dot indicator */}
@@ -212,7 +212,7 @@ export default function NotificationCenter() {
                       <span className={`px-2 py-0.5 rounded-full text-[10px] font-semibold border ${getSeverityStyles(item.severity)}`}>
                         {item.severity}
                       </span>
-                      <span className="text-[10px] text-slate-450 dark:text-slate-500">
+                      <span className="text-[10px] text-slate-400 dark:text-slate-500">
                         {new Date(item.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                       </span>
                     </div>

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { profileSchema } from '../utils/validationSchemas';
@@ -12,9 +13,20 @@ import apiClient from '../services/apiClient';
 export default function SettingsPage() {
   const { user, updateUser } = useAuth();
   const { showNotification } = useNotification();
+  const location = useLocation();
   const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
   const [isLoadingProfile, setIsLoadingProfile] = useState(true);
   const [isSavingPrefs, setIsSavingPrefs] = useState(false);
+
+  // Scroll to preferences card if tab parameter is specified
+  useEffect(() => {
+    if (location.hash === '#preferences' || location.search.includes('tab=preferences')) {
+      const element = document.getElementById('preferences');
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth' });
+      }
+    }
+  }, [location]);
 
   // Notification Preferences State
   const [prefs, setPrefs] = useState({
@@ -159,7 +171,7 @@ export default function SettingsPage() {
     <div className="space-y-6 max-w-5xl">
       {/* Page Header */}
       <div className="p-6 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-xl transition-colors duration-200">
-        <h3 className="text-xl font-bold text-slate-850 dark:text-slate-100">User Settings & Preferences</h3>
+        <h3 className="text-xl font-bold text-slate-900 dark:text-slate-100">User Settings & Preferences</h3>
         <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
           Manage your personal details, email address, password, and notification configurations.
         </p>
@@ -176,9 +188,9 @@ export default function SettingsPage() {
             
             {isLoadingProfile ? (
               <div className="animate-pulse space-y-4">
-                <div className="h-12 bg-slate-100 dark:bg-slate-850 rounded-xl w-full"></div>
-                <div className="h-12 bg-slate-100 dark:bg-slate-850 rounded-xl w-full"></div>
-                <div className="h-10 bg-slate-100 dark:bg-slate-850 rounded-xl w-32"></div>
+                <div className="h-12 bg-slate-100 dark:bg-slate-900 rounded-xl w-full"></div>
+                <div className="h-12 bg-slate-100 dark:bg-slate-900 rounded-xl w-full"></div>
+                <div className="h-10 bg-slate-100 dark:bg-slate-900 rounded-xl w-32"></div>
               </div>
             ) : (
               <form onSubmit={handleSubmit(onSubmitProfile)} className="space-y-4">
@@ -191,7 +203,7 @@ export default function SettingsPage() {
                     <input
                       type="text"
                       {...register('firstName')}
-                      className={`w-full px-4 py-3 bg-slate-50 dark:bg-slate-950 border rounded-xl text-slate-850 dark:text-slate-100 placeholder-slate-450 dark:placeholder-slate-650 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all ${
+                      className={`w-full px-4 py-3 bg-slate-50 dark:bg-slate-950 border rounded-xl text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all ${
                         errors.firstName ? 'border-red-500' : 'border-slate-200 dark:border-slate-800'
                       }`}
                       placeholder="First name"
@@ -208,7 +220,7 @@ export default function SettingsPage() {
                     <input
                       type="text"
                       {...register('lastName')}
-                      className={`w-full px-4 py-3 bg-slate-50 dark:bg-slate-950 border rounded-xl text-slate-850 dark:text-slate-105 placeholder-slate-450 dark:placeholder-slate-650 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all ${
+                      className={`w-full px-4 py-3 bg-slate-50 dark:bg-slate-950 border rounded-xl text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all ${
                         errors.lastName ? 'border-red-500' : 'border-slate-200 dark:border-slate-800'
                       }`}
                       placeholder="Last name"
@@ -226,7 +238,7 @@ export default function SettingsPage() {
                   <input
                     type="text"
                     {...register('username')}
-                    className={`w-full px-4 py-3 bg-slate-50 dark:bg-slate-950 border rounded-xl text-slate-850 dark:text-slate-100 placeholder-slate-450 dark:placeholder-slate-650 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all ${
+                    className={`w-full px-4 py-3 bg-slate-50 dark:bg-slate-950 border rounded-xl text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all ${
                       errors.username ? 'border-red-500' : 'border-slate-200 dark:border-slate-800'
                     }`}
                     placeholder="Your username"
@@ -243,7 +255,7 @@ export default function SettingsPage() {
                   <input
                     type="email"
                     {...register('email')}
-                    className={`w-full px-4 py-3 bg-slate-50 dark:bg-slate-950 border rounded-xl text-slate-850 dark:text-slate-100 placeholder-slate-450 dark:placeholder-slate-650 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all ${
+                    className={`w-full px-4 py-3 bg-slate-50 dark:bg-slate-950 border rounded-xl text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all ${
                       errors.email ? 'border-red-500' : 'border-slate-200 dark:border-slate-800'
                     }`}
                     placeholder="your.email@example.com"
@@ -262,7 +274,7 @@ export default function SettingsPage() {
                     <input
                       type="text"
                       {...register('phoneNumber')}
-                      className={`w-full px-4 py-3 bg-slate-50 dark:bg-slate-950 border rounded-xl text-slate-850 dark:text-slate-100 placeholder-slate-450 dark:placeholder-slate-650 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all ${
+                      className={`w-full px-4 py-3 bg-slate-50 dark:bg-slate-950 border rounded-xl text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all ${
                         errors.phoneNumber ? 'border-red-500' : 'border-slate-200 dark:border-slate-800'
                       }`}
                       placeholder="e.g. +1234567890"
@@ -280,7 +292,7 @@ export default function SettingsPage() {
                       type="number"
                       step="0.01"
                       {...register('monthlyIncome')}
-                      className={`w-full px-4 py-3 bg-slate-50 dark:bg-slate-950 border rounded-xl text-slate-850 dark:text-slate-105 placeholder-slate-450 dark:placeholder-slate-650 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all ${
+                      className={`w-full px-4 py-3 bg-slate-50 dark:bg-slate-950 border rounded-xl text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all ${
                         errors.monthlyIncome ? 'border-red-500' : 'border-slate-200 dark:border-slate-800'
                       }`}
                       placeholder="e.g. 5000"
@@ -305,7 +317,7 @@ export default function SettingsPage() {
           </div>
 
           {/* Notification Preferences Card */}
-          <div className="p-6 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-xl transition-colors duration-200">
+          <div id="preferences" className="p-6 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-xl transition-colors duration-200">
             <h4 className="text-base font-semibold text-slate-800 dark:text-slate-200 mb-6 pb-2 border-b border-slate-100 dark:border-slate-800">
               Notification Preferences
             </h4>
@@ -346,7 +358,7 @@ export default function SettingsPage() {
                   </div>
                 </label>
 
-                <div className="border-t border-slate-100 dark:border-slate-850 pt-4 mt-2">
+                <div className="border-t border-slate-100 dark:border-slate-900 pt-4 mt-2">
                   <label className="flex items-start gap-3 cursor-pointer group">
                     <input
                       type="checkbox"
@@ -365,7 +377,7 @@ export default function SettingsPage() {
                   </label>
 
                   {prefs.quietHoursEnabled && (
-                    <div className="grid grid-cols-2 gap-4 mt-4 p-4 bg-slate-50/60 dark:bg-slate-950/60 rounded-xl border border-slate-200 dark:border-slate-850/80 animate-slide-in">
+                    <div className="grid grid-cols-2 gap-4 mt-4 p-4 bg-slate-50/60 dark:bg-slate-950/60 rounded-xl border border-slate-200 dark:border-slate-900/80 animate-slide-in">
                       <div>
                         <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">
                           Start Time
@@ -374,7 +386,7 @@ export default function SettingsPage() {
                           type="time"
                           value={prefs.quietHoursStart}
                           onChange={(e) => setPrefs({ ...prefs, quietHoursStart: e.target.value })}
-                          className="w-full px-3 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg text-slate-850 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm"
+                          className="w-full px-3 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm"
                         />
                       </div>
                       <div>
@@ -385,7 +397,7 @@ export default function SettingsPage() {
                           type="time"
                           value={prefs.quietHoursEnd}
                           onChange={(e) => setPrefs({ ...prefs, quietHoursEnd: e.target.value })}
-                          className="w-full px-3 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg text-slate-850 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm"
+                          className="w-full px-3 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm"
                         />
                       </div>
                     </div>
@@ -417,7 +429,7 @@ export default function SettingsPage() {
 
             <button
               onClick={() => setIsPasswordModalOpen(true)}
-              className="w-full py-3 bg-slate-50 hover:bg-slate-100 dark:bg-slate-800 dark:hover:bg-slate-750 text-indigo-600 dark:text-indigo-400 hover:text-indigo-750 dark:hover:text-indigo-350 border border-slate-200 dark:border-indigo-900/50 hover:border-slate-350 dark:hover:border-indigo-850 rounded-xl text-sm font-bold transition-all shadow-sm"
+              className="w-full py-3 bg-slate-50 hover:bg-slate-100 dark:bg-slate-800 dark:hover:bg-slate-750 text-indigo-600 dark:text-indigo-400 hover:text-indigo-750 dark:hover:text-indigo-350 border border-slate-200 dark:border-indigo-900/50 hover:border-slate-300 dark:hover:border-indigo-850 rounded-xl text-sm font-bold transition-all shadow-sm"
             >
               Change Password
             </button>
@@ -458,13 +470,13 @@ export default function SettingsPage() {
             
             <button 
               onClick={() => document.getElementById('profile-pic-input').click()}
-              className="px-4 py-2 bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-750 text-xs font-bold rounded-lg border border-slate-200 dark:border-slate-700/40 text-slate-700 dark:text-slate-350 transition-all shadow-sm"
+              className="px-4 py-2 bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-750 text-xs font-bold rounded-lg border border-slate-200 dark:border-slate-700/40 text-slate-700 dark:text-slate-300 transition-all shadow-sm"
             >
               Upload Picture
             </button>
 
             <div className="overflow-hidden w-full border-t border-slate-100 dark:border-slate-800/60 pt-3 mt-1">
-              <p className="text-sm font-bold text-slate-850 dark:text-slate-100 truncate">
+              <p className="text-sm font-bold text-slate-900 dark:text-slate-100 truncate">
                 {user?.firstName && user?.lastName ? `${user.firstName} ${user.lastName}` : user?.username}
               </p>
               <p className="text-xs text-slate-500 dark:text-slate-400 truncate mt-0.5">{user?.email}</p>

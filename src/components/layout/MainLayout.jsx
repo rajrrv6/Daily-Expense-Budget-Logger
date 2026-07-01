@@ -27,7 +27,7 @@ export default function MainLayout() {
         <TopHeader />
 
         {/* Scrollable workspace viewport */}
-        <main className="flex-1 overflow-y-auto p-8 bg-slate-550/5 dark:bg-slate-950/20 custom-scrollbar">
+        <main className="flex-1 overflow-y-auto p-8 bg-slate-500/5 dark:bg-slate-950/20 custom-scrollbar">
           <div className="max-w-[1600px] mx-auto space-y-6">
             <Outlet />
           </div>

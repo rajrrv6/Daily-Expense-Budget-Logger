@@ -94,7 +94,7 @@ export default function BudgetCard({ budget, onEdit, onDelete }) {
       <div className="flex justify-end gap-2 pt-2 border-t border-slate-100 dark:border-slate-800/80">
         <button
           onClick={() => onEdit(budget)}
-          className="px-3 py-1.5 text-xs font-semibold text-slate-600 dark:text-slate-300 hover:text-brand-500 dark:hover:text-brand-100 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-850 rounded-lg hover:border-brand-500 dark:hover:border-brand-100 transition-colors"
+          className="px-3 py-1.5 text-xs font-semibold text-slate-600 dark:text-slate-300 hover:text-brand-500 dark:hover:text-brand-100 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-900 rounded-lg hover:border-brand-500 dark:hover:border-brand-100 transition-colors"
         >
           Edit
         </button>

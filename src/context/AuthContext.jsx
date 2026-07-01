@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import apiClient, { setAuthTokenHeader } from '../services/apiClient';
+import apiClient, { setAuthTokenHeader, refreshSession } from '../services/apiClient';
 
 const AuthContext = createContext(null);
 
@@ -29,7 +29,7 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     const checkSession = async () => {
       try {
-        const { data } = await apiClient.post('/api/v1/auth/refresh');
+        const { data } = await refreshSession();
         const decoded = decodeJwt(data.accessToken);
         setUser({
           username: data.username,

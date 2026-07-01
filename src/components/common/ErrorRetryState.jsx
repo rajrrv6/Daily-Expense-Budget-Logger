@@ -7,11 +7,11 @@ export default function ErrorRetryState({ message = 'An error occurred while loa
         ⚠️
       </span>
       <h3 className="text-sm font-semibold text-red-800 dark:text-red-200">Load Failure</h3>
-      <p className="text-xs text-red-650 dark:text-red-400 mt-1 max-w-sm">{message}</p>
+      <p className="text-xs text-red-600 dark:text-red-400 mt-1 max-w-sm">{message}</p>
       {onRetry && (
         <button
           onClick={onRetry}
-          className="mt-5 px-4 py-2 text-xs font-semibold text-red-750 dark:text-red-200 bg-red-100 dark:bg-red-900/40 border border-red-200 dark:border-red-800 hover:bg-red-200 dark:hover:bg-red-900/60 transition-colors"
+          className="mt-5 px-4 py-2 text-xs font-semibold text-red-800 dark:text-red-200 bg-red-100 dark:bg-red-900/40 border border-red-200 dark:border-red-800 hover:bg-red-200 dark:hover:bg-red-900/60 transition-colors"
         >
           Try Again
         </button>

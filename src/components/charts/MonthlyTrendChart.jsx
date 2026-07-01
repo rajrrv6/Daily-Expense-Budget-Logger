@@ -9,7 +9,7 @@ const MonthlyTrendChart = React.memo(({ data }) => {
 
   if (!data || data.length === 0) {
     return (
-      <div className="flex items-center justify-center h-64 text-slate-500 dark:text-slate-450 text-sm">
+      <div className="flex items-center justify-center h-64 text-slate-500 dark:text-slate-400 text-sm">
         No spending trend data available.
       </div>
     );

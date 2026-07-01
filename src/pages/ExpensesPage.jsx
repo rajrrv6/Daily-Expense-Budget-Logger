@@ -72,10 +72,6 @@ export default function ExpensesPage() {
   const [filterMaxAmount, setFilterMaxAmount] = useState('');
   const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
 
-  // Receipt view modal state
-  const [isReceiptModalOpen, setIsReceiptModalOpen] = useState(false);
-  const [receiptUrl, setReceiptUrl] = useState('');
-  const [receiptFilename, setReceiptFilename] = useState('');
 
   // Delete confirmation modals states
   const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
@@ -95,6 +91,15 @@ export default function ExpensesPage() {
   useEffect(() => {
     getCategories().then(setCategories).catch(err => console.error('Failed to load categories', err));
   }, []);
+
+  // Open drawer modal automatically if navigated from Dashboard link
+  useEffect(() => {
+    if (location.state?.openAddForm) {
+      setSelectedExpense(null);
+      setIsDrawerOpen(true);
+      window.history.replaceState({}, document.title);
+    }
+  }, [location.state]);
 
   const handleStartDateChange = (e) => {
     const val = e.target.value;
@@ -259,9 +264,7 @@ export default function ExpensesPage() {
     try {
       const blob = await getReceiptFile(filename);
       const fileUrl = window.URL.createObjectURL(blob);
-      setReceiptUrl(fileUrl);
-      setReceiptFilename(filename);
-      setIsReceiptModalOpen(true);
+      window.open(fileUrl, '_blank');
     } catch (err) {
       showNotification('Failed to download receipt file.', 'error');
     }
@@ -301,7 +304,7 @@ export default function ExpensesPage() {
       <div className="flex items-center gap-3">
         <button
           onClick={() => handleViewReceipt(viewingExpense.receiptPath)}
-          className="px-4 py-2 text-xs font-bold text-emerald-650 bg-emerald-50 dark:text-emerald-400 dark:bg-emerald-950/30 hover:bg-emerald-100 dark:hover:bg-emerald-900/30 border border-emerald-250/20 rounded-xl transition-all"
+          className="px-4 py-2 text-xs font-bold text-emerald-600 bg-emerald-50 dark:text-emerald-400 dark:bg-emerald-950/30 hover:bg-emerald-100 dark:hover:bg-emerald-900/30 border border-emerald-200/20 rounded-xl transition-all"
         >
           View Receipt Document
         </button>
@@ -327,7 +330,7 @@ export default function ExpensesPage() {
       {/* Standardized B2B Header area */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 p-6 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800/80 rounded-2xl transition-all duration-200 shadow-sm">
         <div>
-          <h3 className="text-xl font-bold text-slate-850 dark:text-slate-100 flex items-center gap-2">
+          <h3 className="text-xl font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
             <CreditCard className="w-5 h-5 text-brand-500" /> Transaction Ledger
           </h3>
           <p className="text-xs text-slate-500 dark:text-slate-400 mt-1.5 font-medium">
@@ -340,7 +343,7 @@ export default function ExpensesPage() {
           <button
             onClick={handleExportPdf}
             disabled={exporting}
-            className="flex items-center gap-1.5 px-4 py-2.5 text-xs font-bold text-slate-700 dark:text-slate-200 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-750 rounded-xl transition-all disabled:opacity-50 border border-slate-200 dark:border-slate-850"
+            className="flex items-center gap-1.5 px-4 py-2.5 text-xs font-bold text-slate-700 dark:text-slate-200 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-750 rounded-xl transition-all disabled:opacity-50 border border-slate-200 dark:border-slate-900"
           >
             <Download className="w-4 h-4" /> {exporting ? 'Exporting...' : 'Export PDF'}
           </button>
@@ -378,7 +381,7 @@ export default function ExpensesPage() {
 
       {/* Advanced Filter Panel */}
       <div className="p-6 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl transition-all duration-200 shadow-sm space-y-4">
-        <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-850 pb-3">
+        <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-900 pb-3">
           <h4 className="text-xs font-bold text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
             <Filter className="w-4 h-4 text-slate-400" /> Filter Criteria
           </h4>
@@ -402,6 +405,7 @@ export default function ExpensesPage() {
               value={params.startDate}
               onChange={handleStartDateChange}
               max={todayStr}
+              onClick={(e) => { try { e.target.showPicker(); } catch (err) {} }}
               className="w-full px-3 py-2 text-xs text-slate-800 dark:text-slate-200 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl focus:outline-none focus:border-brand-500"
             />
           </div>
@@ -416,6 +420,7 @@ export default function ExpensesPage() {
               value={params.endDate}
               onChange={handleEndDateChange}
               max={todayStr}
+              onClick={(e) => { try { e.target.showPicker(); } catch (err) {} }}
               className="w-full px-3 py-2 text-xs text-slate-800 dark:text-slate-200 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl focus:outline-none focus:border-brand-500"
             />
           </div>
@@ -429,7 +434,7 @@ export default function ExpensesPage() {
               <select
                 value={filterCategory}
                 onChange={(e) => setFilterCategory(e.target.value)}
-                className="w-full pl-3 pr-10 py-2.5 text-xs text-slate-850 dark:text-slate-200 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl focus:outline-none focus:border-brand-500 appearance-none bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2020%2020%22%20fill%3D%22none%22%3E%3Cpath%20d%3D%22M7%209l3%203%203-3%22%20stroke%3D%22%2364748b%22%20stroke-width%3D%221.5%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%2F%3E%3C%2Fsvg%3E')] bg-[position:right_10px_center] bg-[size:18px_18px] bg-no-repeat font-bold"
+                className="w-full pl-3 pr-10 py-2.5 text-xs text-slate-900 dark:text-slate-200 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl focus:outline-none focus:border-brand-500 appearance-none bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2020%2020%22%20fill%3D%22none%22%3E%3Cpath%20d%3D%22M7%209l3%203%203-3%22%20stroke%3D%22%2364748b%22%20stroke-width%3D%221.5%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%2F%3E%3C%2Fsvg%3E')] bg-[position:right_10px_center] bg-[size:18px_18px] bg-no-repeat font-bold"
               >
                 <option value="">All Categories</option>
                 {categories.map((cat) => (
@@ -501,8 +506,8 @@ export default function ExpensesPage() {
         />
       ) : (
         <div className="space-y-4">
-          <div className="overflow-x-auto border border-slate-150 dark:border-slate-850 rounded-2xl bg-white dark:bg-slate-900 shadow-sm">
-            <table className="min-w-full divide-y divide-slate-150 dark:divide-slate-850 text-left">
+          <div className="overflow-x-auto border border-slate-150 dark:border-slate-900 rounded-2xl bg-white dark:bg-slate-900 shadow-sm">
+            <table className="min-w-full divide-y divide-slate-150 dark:divide-slate-900 text-left">
               <thead className="bg-slate-50 dark:bg-slate-950">
                 <tr>
                   <th className="px-6 py-4 w-12 text-center">
@@ -510,7 +515,7 @@ export default function ExpensesPage() {
                       type="checkbox"
                       onChange={handleToggleSelectAll}
                       checked={filteredExpenses.length > 0 && selectedIds.size === filteredExpenses.length}
-                      className="w-4 h-4 rounded border-slate-350 bg-white dark:bg-slate-950 text-brand-500 focus:ring-brand-500 cursor-pointer"
+                      className="w-4 h-4 rounded border-slate-300 bg-white dark:bg-slate-950 text-brand-500 focus:ring-brand-500 cursor-pointer"
                       aria-label="Select all transactions"
                     />
                   </th>
@@ -549,7 +554,7 @@ export default function ExpensesPage() {
                         type="checkbox"
                         checked={selectedIds.has(item.id)}
                         onChange={() => handleToggleSelectRow(item.id)}
-                        className="w-4 h-4 rounded border-slate-350 bg-white dark:bg-slate-950 text-brand-500 focus:ring-brand-500 cursor-pointer"
+                        className="w-4 h-4 rounded border-slate-300 bg-white dark:bg-slate-950 text-brand-500 focus:ring-brand-500 cursor-pointer"
                         aria-label={`Select transaction ${item.name}`}
                       />
                     </td>
@@ -562,7 +567,7 @@ export default function ExpensesPage() {
                         {item.category.name}
                       </span>
                     </td>
-                    <td className="px-6 py-4 text-sm font-black text-slate-850 dark:text-slate-100">
+                    <td className="px-6 py-4 text-sm font-black text-slate-900 dark:text-slate-100">
                       ₹{item.amount.toLocaleString(undefined, { minimumFractionDigits: 2 })}
                     </td>
                     <td className="px-6 py-4 text-xs text-slate-500 dark:text-slate-400 font-semibold flex items-center gap-1.5 pt-6">
@@ -634,14 +639,14 @@ export default function ExpensesPage() {
               <button
                 disabled={params.pageNumber === 0}
                 onClick={() => setPageNumber(params.pageNumber - 1)}
-                className="px-3.5 py-1.5 bg-slate-50 hover:bg-slate-100 dark:bg-slate-950 dark:hover:bg-slate-850 border border-slate-200 dark:border-slate-800 rounded-lg disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                className="px-3.5 py-1.5 bg-slate-50 hover:bg-slate-100 dark:bg-slate-950 dark:hover:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
               >
                 Previous
               </button>
               <button
-                disabled={data.isLast}
+                disabled={data.isLast ?? data.last ?? (params.pageNumber >= data.totalPages - 1)}
                 onClick={() => setPageNumber(params.pageNumber + 1)}
-                className="px-3.5 py-1.5 bg-slate-50 hover:bg-slate-100 dark:bg-slate-950 dark:hover:bg-slate-850 border border-slate-200 dark:border-slate-800 rounded-lg disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                className="px-3.5 py-1.5 bg-slate-50 hover:bg-slate-100 dark:bg-slate-950 dark:hover:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
               >
                 Next
               </button>
@@ -671,7 +676,7 @@ export default function ExpensesPage() {
           <div className="flex justify-end gap-3 pt-2">
             <button
               onClick={() => setIsDeleteConfirmOpen(false)}
-              className="px-4 py-2 text-xs font-bold text-slate-700 dark:text-slate-350 bg-slate-100 hover:bg-slate-200 dark:bg-slate-850 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-800 rounded-xl transition-colors"
+              className="px-4 py-2 text-xs font-bold text-slate-700 dark:text-slate-300 bg-slate-100 hover:bg-slate-200 dark:bg-slate-900 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-800 rounded-xl transition-colors"
             >
               Cancel
             </button>
@@ -693,12 +698,12 @@ export default function ExpensesPage() {
       >
         <div className="space-y-4">
           <p className="text-sm text-slate-600 dark:text-slate-400">
-            Are you sure you want to delete <strong className="text-slate-850 dark:text-white font-extrabold">{selectedIds.size} selected transaction records</strong>? This will permanently remove them from the database audit trail.
+            Are you sure you want to delete <strong className="text-slate-900 dark:text-white font-extrabold">{selectedIds.size} selected transaction records</strong>? This will permanently remove them from the database audit trail.
           </p>
           <div className="flex justify-end gap-3 pt-2">
             <button
               onClick={() => setIsBulkDeleteConfirmOpen(false)}
-              className="px-4 py-2 text-xs font-bold text-slate-700 dark:text-slate-350 bg-slate-100 hover:bg-slate-200 dark:bg-slate-850 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-800 rounded-xl transition-colors"
+              className="px-4 py-2 text-xs font-bold text-slate-700 dark:text-slate-300 bg-slate-100 hover:bg-slate-200 dark:bg-slate-900 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-800 rounded-xl transition-colors"
             >
               Cancel
             </button>
@@ -707,48 +712,6 @@ export default function ExpensesPage() {
               className="px-4 py-2 text-xs font-bold text-white bg-rose-600 hover:bg-rose-700 rounded-xl transition-colors shadow-md"
             >
               Confirm Bulk Delete
-            </button>
-          </div>
-        </div>
-      </Modal>
-
-      {/* Receipt Preview Lightbox Modal */}
-      <Modal
-        isOpen={isReceiptModalOpen}
-        onClose={() => {
-          setIsReceiptModalOpen(false);
-          setReceiptUrl('');
-          setReceiptFilename('');
-        }}
-        title="Receipt Document Viewer"
-      >
-        <div className="space-y-4">
-          <div className="border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden max-h-[500px] flex items-center justify-center bg-slate-100 dark:bg-slate-950">
-            {receiptFilename.toLowerCase().endsWith('.pdf') ? (
-              <iframe
-                src={receiptUrl}
-                title="Receipt PDF"
-                className="w-full h-[400px] border-none"
-              ></iframe>
-            ) : (
-              <img
-                src={receiptUrl}
-                alt="Receipt Attachment"
-                className="max-h-[400px] object-contain max-w-full"
-              />
-            )}
-          </div>
-          <div className="flex justify-between items-center text-xs font-semibold text-slate-500">
-            <span className="truncate max-w-[200px]">{receiptFilename.substring(receiptFilename.indexOf('_') + 1)}</span>
-            <button
-              onClick={() => {
-                setIsReceiptModalOpen(false);
-                setReceiptUrl('');
-                setReceiptFilename('');
-              }}
-              className="px-4 py-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-850 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-800 rounded-xl text-slate-700 dark:text-slate-200 font-bold transition-all"
-            >
-              Close Viewer
             </button>
           </div>
         </div>
@@ -765,7 +728,6 @@ export default function ExpensesPage() {
         fields={viewFields}
         extraContent={viewReceiptContent}
       />
-
     </div>
   );
 }

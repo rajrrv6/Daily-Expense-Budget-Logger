@@ -70,6 +70,8 @@ export default function TodoFormModal({ isOpen, onClose, todo, onSubmitSuccess }
     ? dbCategories.find(c => c.id.toString() === categoryId.toString())?.name || 'Select a category'
     : 'Select a category';
 
+  const isFormFilled = name.trim() && price.toString().trim() && categoryId && targetDate;
+
   const handleAddNewCategory = async () => {
     if (!newCatName.trim()) {
       showNotification('Category name cannot be blank.', 'error');
@@ -190,7 +192,7 @@ export default function TodoFormModal({ isOpen, onClose, todo, onSubmitSuccess }
               value={price}
               onChange={(e) => setPrice(e.target.value)}
               placeholder="0.00"
-              className="w-full px-4 py-3 text-sm text-slate-855 dark:text-slate-205 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl focus:outline-none focus:border-brand-500 transition-colors placeholder-slate-400 font-semibold"
+              className="w-full px-4 py-3 text-sm text-slate-900 dark:text-slate-205 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl focus:outline-none focus:border-brand-500 transition-colors placeholder-slate-400 font-semibold"
             />
           </div>
 
@@ -205,7 +207,8 @@ export default function TodoFormModal({ isOpen, onClose, todo, onSubmitSuccess }
               value={targetDate}
               onChange={handleDateChange}
               onBlur={handleDateChange}
-              className={`w-full px-4 py-3 text-sm text-slate-855 dark:text-slate-205 bg-slate-50 dark:bg-slate-950 border rounded-xl focus:outline-none focus:border-brand-500 transition-colors font-semibold ${
+              onClick={(e) => { try { e.target.showPicker(); } catch (err) {} }}
+              className={`w-full px-4 py-3 text-sm text-slate-900 dark:text-slate-205 bg-slate-50 dark:bg-slate-950 border rounded-xl focus:outline-none focus:border-brand-500 transition-colors font-semibold ${
                 dateError ? 'border-red-500 focus:border-red-500' : 'border-slate-200 dark:border-slate-800'
               }`}
             />
@@ -270,7 +273,7 @@ export default function TodoFormModal({ isOpen, onClose, todo, onSubmitSuccess }
               className="w-full pl-4 pr-10 py-2.5 text-left text-sm text-slate-900 dark:text-slate-100 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl focus:outline-none focus:border-brand-500 transition-colors flex items-center justify-between font-semibold"
             >
               <span className="truncate">{selectedCategoryName}</span>
-              <svg className="h-4 w-4 text-slate-550 dark:text-slate-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <svg className="h-4 w-4 text-slate-500 dark:text-slate-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
               </svg>
             </button>
@@ -285,7 +288,7 @@ export default function TodoFormModal({ isOpen, onClose, todo, onSubmitSuccess }
                       setIsDropdownOpen(false);
                     }}
                     className={`px-4 py-2.5 text-sm cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-900 transition-colors ${
-                      !categoryId ? 'bg-slate-100/50 dark:bg-slate-850 font-semibold' : ''
+                      !categoryId ? 'bg-slate-100/50 dark:bg-slate-900 font-semibold' : ''
                     }`}
                   >
                     Select a category
@@ -298,7 +301,7 @@ export default function TodoFormModal({ isOpen, onClose, todo, onSubmitSuccess }
                         setIsDropdownOpen(false);
                       }}
                       className={`px-4 py-2.5 text-sm cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-900 transition-colors ${
-                        categoryId?.toString() === cat.id.toString() ? 'bg-slate-100/50 dark:bg-slate-850 font-semibold' : ''
+                        categoryId?.toString() === cat.id.toString() ? 'bg-slate-100/50 dark:bg-slate-900 font-semibold' : ''
                       }`}
                     >
                       {cat.name}
@@ -313,7 +316,7 @@ export default function TodoFormModal({ isOpen, onClose, todo, onSubmitSuccess }
         {/* Action Button */}
         <button
           type="submit"
-          disabled={submitting}
+          disabled={submitting || !isFormFilled}
           className="w-full mt-6 py-3.5 bg-brand-500 hover:bg-brand-600 disabled:opacity-50 text-white font-bold text-sm rounded-xl transition-all shadow-lg shadow-brand-500/15"
         >
           {submitting ? 'Saving changes...' : isEditMode ? 'Confirm & Update' : 'Confirm & Create'}

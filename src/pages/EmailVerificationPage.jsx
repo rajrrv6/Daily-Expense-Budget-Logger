@@ -98,11 +98,11 @@ export default function EmailVerificationPage() {
           <div className="flex justify-center">
             <span className="text-4xl text-emerald-500">✓</span>
           </div>
-          <h2 className="text-2xl font-bold tracking-tight text-slate-850 dark:text-slate-100">Verification Complete</h2>
+          <h2 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-slate-100">Verification Complete</h2>
           <p className="text-sm text-slate-500 dark:text-slate-400">
             Thank you! Your email has been verified successfully.
           </p>
-          <p className="text-xs text-slate-450 dark:text-slate-500 mt-4">
+          <p className="text-xs text-slate-400 dark:text-slate-500 mt-4">
             Redirecting you to login in <span className="font-semibold text-brand-500">{countdown}s</span>...
           </p>
         </div>
@@ -122,8 +122,8 @@ export default function EmailVerificationPage() {
 
         {/* Error Alert */}
         {submitError && (
-          <div className="p-4 mb-6 text-sm text-red-750 dark:text-red-200 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800 rounded-lg flex items-start gap-2.5">
-            <AlertTriangle className="w-5 h-5 text-red-550 dark:text-red-400 flex-shrink-0 mt-0.5" />
+          <div className="p-4 mb-6 text-sm text-red-800 dark:text-red-200 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800 rounded-lg flex items-start gap-2.5">
+            <AlertTriangle className="w-5 h-5 text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5" />
             <span>{submitError}</span>
           </div>
         )}
@@ -139,7 +139,7 @@ export default function EmailVerificationPage() {
               type="email"
               {...register('email')}
               placeholder="e.g. john@example.com"
-              className={`w-full px-4 py-3 text-sm text-slate-850 dark:text-slate-105 bg-slate-50 dark:bg-slate-950/80 border ${
+              className={`w-full px-4 py-3 text-sm text-slate-900 dark:text-slate-100 bg-slate-50 dark:bg-slate-950/80 border ${
                 errors.email ? 'border-red-500 focus:border-red-500' : 'border-slate-200 dark:border-slate-800 focus:border-brand-500'
               } rounded-lg focus:outline-none transition-colors`}
             />
@@ -158,7 +158,7 @@ export default function EmailVerificationPage() {
               maxLength={6}
               {...register('otpCode')}
               placeholder="e.g. 123456"
-              className={`w-full px-4 py-3 text-center tracking-[0.5em] text-lg font-bold text-slate-850 dark:text-slate-105 bg-slate-50 dark:bg-slate-950/80 border ${
+              className={`w-full px-4 py-3 text-center tracking-[0.5em] text-lg font-bold text-slate-900 dark:text-slate-100 bg-slate-50 dark:bg-slate-950/80 border ${
                 errors.otpCode ? 'border-red-500 focus:border-red-500' : 'border-slate-200 dark:border-slate-800 focus:border-brand-500'
               } rounded-lg focus:outline-none transition-colors`}
             />
@@ -178,7 +178,7 @@ export default function EmailVerificationPage() {
         </form>
 
         {/* Resend UI */}
-        <div className="mt-6 text-center text-sm text-slate-550 dark:text-slate-400 flex flex-col items-center justify-center gap-2">
+        <div className="mt-6 text-center text-sm text-slate-500 dark:text-slate-400 flex flex-col items-center justify-center gap-2">
           <div>
             Didn&apos;t receive the code?{' '}
             <button

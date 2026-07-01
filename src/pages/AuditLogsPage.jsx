@@ -61,7 +61,7 @@ export default function AuditLogsPage() {
       case 'CATEGORY_CREATE':
         return 'bg-cyan-50 dark:bg-cyan-950/20 text-cyan-700 dark:text-cyan-400 border border-cyan-200 dark:border-cyan-900/30';
       default:
-        return 'bg-slate-50 dark:bg-slate-900 text-slate-700 dark:text-slate-350 border border-slate-200 dark:border-slate-800';
+        return 'bg-slate-50 dark:bg-slate-900 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-800';
     }
   };
 
@@ -89,7 +89,7 @@ export default function AuditLogsPage() {
                 setSearch(e.target.value);
                 setPage(0);
               }}
-              className="w-full pl-10 pr-4 py-2.5 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-850 rounded-xl text-sm text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent transition-all"
+              className="w-full pl-10 pr-4 py-2.5 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-900 rounded-xl text-sm text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent transition-all"
             />
           </div>
 
@@ -101,7 +101,7 @@ export default function AuditLogsPage() {
                 setActionFilter(e.target.value);
                 setPage(0);
               }}
-              className="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-850 rounded-xl text-sm text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-brand-500 transition-all"
+              className="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-900 rounded-xl text-sm text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-brand-500 transition-all"
             >
               <option value="">All Action Types</option>
               <option value="USER_LOGIN">USER_LOGIN</option>
@@ -160,7 +160,7 @@ export default function AuditLogsPage() {
                 </td>
 
                 {/* Actor */}
-                <td className="px-6 py-4 text-sm font-semibold text-slate-800 dark:text-slate-250 whitespace-nowrap">
+                <td className="px-6 py-4 text-sm font-semibold text-slate-800 dark:text-slate-200 whitespace-nowrap">
                   {log.username}
                 </td>
 
@@ -172,7 +172,7 @@ export default function AuditLogsPage() {
                 </td>
 
                 {/* Description */}
-                <td className="px-6 py-4 text-sm text-slate-650 dark:text-slate-350 break-words max-w-md">
+                <td className="px-6 py-4 text-sm text-slate-600 dark:text-slate-300 break-words max-w-md">
                   {log.description}
                 </td>
               </tr>
@@ -188,14 +188,14 @@ export default function AuditLogsPage() {
               <button
                 disabled={page === 0}
                 onClick={() => setPage((prev) => Math.max(0, prev - 1))}
-                className="px-3 py-1.5 text-xs font-semibold text-slate-700 dark:text-slate-350 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg transition-colors cursor-pointer"
+                className="px-3 py-1.5 text-xs font-semibold text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg transition-colors cursor-pointer"
               >
                 Previous
               </button>
               <button
-                disabled={data.isLast || data.totalPages <= 1}
+                disabled={(data.isLast ?? data.last ?? (page >= data.totalPages - 1)) || data.totalPages <= 1}
                 onClick={() => setPage((prev) => prev + 1)}
-                className="px-3 py-1.5 text-xs font-semibold text-slate-700 dark:text-slate-350 bg-slate-100 dark:bg-slate-800 hover:bg-slate-205 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg transition-colors cursor-pointer"
+                className="px-3 py-1.5 text-xs font-semibold text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 hover:bg-slate-205 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg transition-colors cursor-pointer"
               >
                 Next
               </button>

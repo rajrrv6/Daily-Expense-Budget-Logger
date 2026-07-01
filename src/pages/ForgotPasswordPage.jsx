@@ -48,7 +48,7 @@ export default function ForgotPasswordPage() {
 
         {/* Success Alert */}
         {successMessage && (
-          <div className="p-4 mb-6 text-sm text-emerald-805 dark:text-emerald-200 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-250 dark:border-emerald-800 rounded-lg flex items-start gap-2.5">
+          <div className="p-4 mb-6 text-sm text-emerald-800 dark:text-emerald-200 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 rounded-lg flex items-start gap-2.5">
             <CheckCircle2 className="w-5 h-5 text-emerald-500 flex-shrink-0 mt-0.5" />
             <span>{successMessage}</span>
           </div>
@@ -56,8 +56,8 @@ export default function ForgotPasswordPage() {
 
         {/* Error Alert */}
         {submitError && (
-          <div className="p-4 mb-6 text-sm text-red-750 dark:text-red-200 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800 rounded-lg flex items-start gap-2.5">
-            <AlertTriangle className="w-5 h-5 text-red-550 dark:text-red-400 flex-shrink-0 mt-0.5" />
+          <div className="p-4 mb-6 text-sm text-red-800 dark:text-red-200 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800 rounded-lg flex items-start gap-2.5">
+            <AlertTriangle className="w-5 h-5 text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5" />
             <span>{submitError}</span>
           </div>
         )}
@@ -73,12 +73,12 @@ export default function ForgotPasswordPage() {
                 type="email"
                 {...register('email')}
                 placeholder="e.g. john@example.com"
-                className={`w-full px-4 py-3 text-sm text-slate-855 dark:text-slate-105 bg-slate-50 dark:bg-slate-950/80 border ${
+                className={`w-full px-4 py-3 text-sm text-slate-900 dark:text-slate-100 bg-slate-50 dark:bg-slate-950/80 border ${
                   errors.email ? 'border-red-500 focus:border-red-500' : 'border-slate-200 dark:border-slate-800 focus:border-brand-500'
                 } rounded-lg focus:outline-none transition-colors`}
               />
               {errors.email && (
-                <span className="block text-xs text-red-650 dark:text-red-400 mt-1">{errors.email.message}</span>
+                <span className="block text-xs text-red-600 dark:text-red-400 mt-1">{errors.email.message}</span>
               )}
             </div>
 

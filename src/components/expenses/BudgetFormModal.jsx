@@ -46,6 +46,13 @@ export default function BudgetFormModal({ isOpen, onClose, onSubmit, budget }) {
     },
   });
 
+  const values = watch();
+  const isFormFilled = 
+    values.monthlyLimit?.toString().trim() &&
+    values.warningThresholdPercent?.toString().trim() &&
+    values.startDate &&
+    values.endDate;
+
   const selectedCategoryId = watch('categoryId');
   const selectedCategoryName = selectedCategoryId
     ? dbCategories.find(c => c.id.toString() === selectedCategoryId.toString())?.name || 'Global Budget'
@@ -137,7 +144,7 @@ export default function BudgetFormModal({ isOpen, onClose, onSubmit, budget }) {
                       setIsDropdownOpen(false);
                     }}
                     className={`px-3 py-2 text-sm cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-900 transition-colors ${
-                      !selectedCategoryId ? 'bg-slate-100/50 dark:bg-slate-850 font-semibold' : ''
+                      !selectedCategoryId ? 'bg-slate-100/50 dark:bg-slate-900 font-semibold' : ''
                     }`}
                   >
                     Global Budget (All spending categories)
@@ -150,7 +157,7 @@ export default function BudgetFormModal({ isOpen, onClose, onSubmit, budget }) {
                         setIsDropdownOpen(false);
                       }}
                       className={`px-3 py-2 text-sm cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-900 transition-colors ${
-                        selectedCategoryId?.toString() === cat.id.toString() ? 'bg-slate-100/50 dark:bg-slate-850 font-semibold' : ''
+                        selectedCategoryId?.toString() === cat.id.toString() ? 'bg-slate-100/50 dark:bg-slate-900 font-semibold' : ''
                       }`}
                     >
                       {cat.name}
@@ -209,7 +216,8 @@ export default function BudgetFormModal({ isOpen, onClose, onSubmit, budget }) {
             <input
               type="date"
               {...register('startDate')}
-              className="w-full px-4 py-3 text-sm text-slate-805 dark:text-slate-205 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl focus:outline-none focus:border-brand-500 transition-colors"
+              onClick={(e) => { try { e.target.showPicker(); } catch (err) {} }}
+              className="w-full px-4 py-3 text-sm text-slate-855 dark:text-slate-205 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl focus:outline-none focus:border-brand-500 transition-colors"
             />
             {errors.startDate && (
               <span className="block text-xs text-red-500 mt-1 font-semibold">{errors.startDate.message}</span>
@@ -223,6 +231,7 @@ export default function BudgetFormModal({ isOpen, onClose, onSubmit, budget }) {
             <input
               type="date"
               {...register('endDate')}
+              onClick={(e) => { try { e.target.showPicker(); } catch (err) {} }}
               className={`w-full px-4 py-3 text-sm text-slate-805 dark:text-slate-205 bg-slate-50 dark:bg-slate-950 border ${
                 errors.endDate ? 'border-red-500' : 'border-slate-200 dark:border-slate-800'
               } rounded-xl focus:outline-none focus:border-brand-500 transition-colors`}
@@ -236,7 +245,7 @@ export default function BudgetFormModal({ isOpen, onClose, onSubmit, budget }) {
         {/* Action Button */}
         <button
           type="submit"
-          disabled={isSubmitting}
+          disabled={isSubmitting || !isFormFilled}
           className="w-full mt-6 py-3.5 bg-brand-500 hover:bg-brand-600 disabled:opacity-50 text-white font-bold text-sm rounded-xl transition-all shadow-lg shadow-brand-500/15"
         >
           {isSubmitting ? 'Saving changes...' : isEditMode ? 'Confirm & Update' : 'Confirm & Create'}

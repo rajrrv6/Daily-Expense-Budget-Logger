@@ -31,6 +31,7 @@ export default function BudgetsPage() {
     }
   }, [location.state?.viewBudgetId, budgets]);
 
+
   const fetchBudgetData = useCallback(async () => {
     setLoading(true);
     try {
@@ -141,7 +142,7 @@ export default function BudgetsPage() {
         {/* Standardized B2B Header Area */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 p-6 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl transition-colors duration-200 shadow-sm">
           <div>
-            <h3 className="text-xl font-bold text-slate-850 dark:text-slate-100 flex items-center gap-2">
+            <h3 className="text-xl font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
               <Target className="w-5 h-5 text-brand-500" /> Budget Configurations
             </h3>
             <p className="text-xs text-slate-500 dark:text-slate-400 mt-1.5 font-medium">

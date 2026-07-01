@@ -244,9 +244,9 @@ export default function CategoriesPage() {
       </span>
       <div className="space-y-2 max-h-40 overflow-y-auto custom-scrollbar">
         {viewingDetails.recentExpenses.map((exp, idx) => (
-          <div key={idx} className="flex justify-between items-center p-2.5 bg-slate-50 dark:bg-slate-950 border border-slate-150 dark:border-slate-850 rounded-xl text-xs">
+          <div key={idx} className="flex justify-between items-center p-2.5 bg-slate-50 dark:bg-slate-950 border border-slate-150 dark:border-slate-900 rounded-xl text-xs">
             <span className="font-semibold text-slate-800 dark:text-slate-200 truncate pr-2">{exp.name}</span>
-            <span className="font-bold text-slate-850 dark:text-slate-100 flex-shrink-0">
+            <span className="font-bold text-slate-900 dark:text-slate-100 flex-shrink-0">
               ₹{exp.amount.toLocaleString(undefined, { minimumFractionDigits: 2 })}
             </span>
           </div>
@@ -254,18 +254,19 @@ export default function CategoriesPage() {
       </div>
     </div>
   ) : viewingDetails ? (
-    <div className="text-xs text-slate-400 dark:text-slate-550 font-semibold">
+    <div className="text-xs text-slate-400 dark:text-slate-500 font-semibold">
       No transactions logged in this category.
     </div>
   ) : null;
 
   return (
-    <div className="space-y-6 max-w-7xl mx-auto p-4 md:p-8 animate-modal-in">
+    <>
+      <div className="space-y-6 max-w-7xl mx-auto p-4 md:p-8 animate-modal-in">
       
       {/* Standardized B2B Header Area */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 p-6 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800/80 rounded-2xl transition-all duration-200 shadow-sm">
         <div>
-          <h3 className="text-xl font-bold text-slate-850 dark:text-slate-100 flex items-center gap-2">
+          <h3 className="text-xl font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
             <Tag className="w-5 h-5 text-brand-500" /> Spending Categories
           </h3>
           <p className="text-xs text-slate-500 dark:text-slate-400 mt-1.5 font-medium">
@@ -320,8 +321,8 @@ export default function CategoriesPage() {
             onAction={openAddModal}
           />
         ) : (
-          <div className="overflow-x-auto border border-slate-150 dark:border-slate-850 rounded-xl">
-            <table className="min-w-full divide-y divide-slate-150 dark:divide-slate-850">
+          <div className="overflow-x-auto border border-slate-150 dark:border-slate-900 rounded-xl">
+            <table className="min-w-full divide-y divide-slate-150 dark:divide-slate-900">
               <thead className="bg-slate-50 dark:bg-slate-950">
                 <tr>
                   <th className="px-6 py-3.5 text-left text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
@@ -372,7 +373,7 @@ export default function CategoriesPage() {
             </table>
 
             {/* Pagination Controls */}
-            <div className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-950/80 border-t border-slate-150 dark:border-slate-850 rounded-b-xl flex-wrap gap-4 text-xs font-semibold text-slate-500">
+            <div className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-950/80 border-t border-slate-150 dark:border-slate-900 rounded-b-xl flex-wrap gap-4 text-xs font-semibold text-slate-500">
               <div className="flex items-center gap-2">
                 <span>Rows per page:</span>
                 <select
@@ -412,9 +413,10 @@ export default function CategoriesPage() {
           </div>
         )}
       </div>
+    </div>
 
-      {/* Centered Form Modal */}
-      <CenterModal
+    {/* Centered Form Modal */}
+    <CenterModal
         isOpen={isDrawerOpen}
         onClose={() => {
           setIsDrawerOpen(false);
@@ -480,7 +482,7 @@ export default function CategoriesPage() {
 
           <button
             type="submit"
-            disabled={submitting}
+            disabled={submitting || !newCatName.trim()}
             className="w-full py-3.5 bg-brand-500 hover:bg-brand-600 disabled:opacity-50 text-white font-bold text-sm rounded-xl transition-all shadow-lg shadow-brand-500/15"
           >
             {submitting ? (editingCategory ? 'Saving Changes...' : 'Creating Category...') : 'Confirm & Save'}
@@ -515,7 +517,7 @@ export default function CategoriesPage() {
         title="Confirm Category Deletion"
       >
         <div className="space-y-4">
-          <p className="text-sm font-semibold text-slate-650 dark:text-slate-350 leading-relaxed">
+          <p className="text-sm font-semibold text-slate-600 dark:text-slate-300 leading-relaxed">
             Are you sure you want to delete the category <span className="font-extrabold text-slate-900 dark:text-slate-100">"{deleteTargetName}"</span>?
           </p>
           <div className="p-3 bg-amber-50 dark:bg-amber-950/20 border border-amber-250/20 rounded-xl">
@@ -530,7 +532,7 @@ export default function CategoriesPage() {
                 setDeleteTargetId(null);
                 setDeleteTargetName('');
               }}
-              className="px-4 py-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-850 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-800 rounded-xl text-slate-700 dark:text-slate-250 font-bold transition-all text-xs focus:outline-none focus:ring-2 focus:ring-brand-500"
+              className="px-4 py-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-900 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-800 rounded-xl text-slate-700 dark:text-slate-200 font-bold transition-all text-xs focus:outline-none focus:ring-2 focus:ring-brand-500"
             >
               Cancel
             </button>
@@ -544,6 +546,6 @@ export default function CategoriesPage() {
         </div>
       </Modal>
 
-    </div>
+    </>
   );
 }

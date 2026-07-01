@@ -304,7 +304,7 @@ export default function DashboardPage() {
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 p-6 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm relative overflow-hidden transition-colors duration-200">
         <div className="absolute top-0 right-0 w-80 h-80 bg-gradient-to-tr from-brand-500/10 to-indigo-500/10 rounded-full blur-3xl -mr-12 -mt-12 pointer-events-none"></div>
         <div>
-          <h3 className="text-xl font-extrabold text-slate-850 dark:text-slate-100 flex items-center gap-2">
+          <h3 className="text-xl font-extrabold text-slate-900 dark:text-slate-100 flex items-center gap-2">
             Overview Dashboard
             <span className="inline-flex items-center gap-1.5 text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 select-none relative pl-6">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping absolute left-2.5"></span>
@@ -312,7 +312,7 @@ export default function DashboardPage() {
               Active Session
             </span>
           </h3>
-          <p className="text-xs text-slate-500 dark:text-slate-450 mt-1 font-medium leading-relaxed">
+          <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 font-medium leading-relaxed">
             Welcome back, {user?.firstName || user?.username}. Here is your department financial dashboard.
           </p>
         </div>
@@ -321,12 +321,12 @@ export default function DashboardPage() {
         <div className="flex gap-2.5 self-start md:self-auto flex-shrink-0 z-10">
           <button
             onClick={() => navigate('/budgets')}
-            className="px-4 py-2.5 bg-slate-100 hover:bg-slate-200/80 dark:bg-slate-800 dark:hover:bg-slate-750 text-slate-700 dark:text-slate-250 text-xs font-bold rounded-xl transition-all border border-slate-200 dark:border-slate-755 hover:shadow-sm"
+            className="px-4 py-2.5 bg-slate-100 hover:bg-slate-200/80 dark:bg-slate-800 dark:hover:bg-slate-750 text-slate-700 dark:text-slate-200 text-xs font-bold rounded-xl transition-all border border-slate-200 dark:border-slate-755 hover:shadow-sm"
           >
             Configure Budgets
           </button>
           <button
-            onClick={() => navigate('/expenses')}
+            onClick={() => navigate('/expenses', { state: { openAddForm: true } })}
             className="flex items-center gap-1.5 px-4 py-2.5 bg-brand-500 hover:bg-brand-600 text-white text-xs font-bold rounded-xl transition-all shadow-lg shadow-brand-500/15 hover:-translate-y-0.5"
           >
             <Plus className="w-4 h-4" /> Add Expense
@@ -344,7 +344,7 @@ export default function DashboardPage() {
               <span className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider block">
                 Total Spent (MTD)
               </span>
-              <h4 className="text-2xl font-black text-slate-850 dark:text-white tracking-tight">
+              <h4 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight">
                 ₹{summary?.totalExpensesMonth?.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) || '0.00'}
               </h4>
             </div>
@@ -353,7 +353,7 @@ export default function DashboardPage() {
             </div>
           </div>
 
-          <div className="flex items-center justify-between mt-3 pt-3 border-t border-slate-100/60 dark:border-slate-855">
+          <div className="flex items-center justify-between mt-3 pt-3 border-t border-slate-100/60 dark:border-slate-900">
             {/* Trend Indicator */}
             <span className="flex items-center gap-0.5 text-[10px] font-bold text-rose-600 bg-rose-50 dark:bg-rose-955/30 px-2 py-0.5 rounded-full">
               <ArrowUpRight className="w-3 h-3" /> +5.2% MTD
@@ -379,23 +379,23 @@ export default function DashboardPage() {
               <span className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider block">
                 Remaining Budget
               </span>
-              <h4 className={`text-2xl font-black tracking-tight ${remainingBudget < 0 ? 'text-red-500' : 'text-slate-850 dark:text-white'
+              <h4 className={`text-2xl font-black tracking-tight ${remainingBudget < 0 ? 'text-red-500' : 'text-slate-900 dark:text-white'
                 }`}>
                 ₹{remainingBudget.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
               </h4>
             </div>
             <div className={`p-2 rounded-xl border ${remainingBudget < 0
-                ? 'bg-red-50 dark:bg-red-955/20 text-red-550 border-red-100/10'
+                ? 'bg-red-50 dark:bg-red-955/20 text-red-600 border-red-100/10'
                 : 'bg-emerald-50 dark:bg-emerald-955/20 text-emerald-500 border-emerald-100/10'
               }`}>
               <PiggyBank className="w-4.5 h-4.5" />
             </div>
           </div>
 
-          <div className="flex items-center justify-between mt-3 pt-3 border-t border-slate-100/60 dark:border-slate-855">
+          <div className="flex items-center justify-between mt-3 pt-3 border-t border-slate-100/60 dark:border-slate-900">
             {/* Trend Indicator */}
             {remainingBudget < 0 ? (
-              <span className="flex items-center gap-0.5 text-[10px] font-bold text-red-550 bg-red-50 dark:bg-red-955/30 px-2 py-0.5 rounded-full">
+              <span className="flex items-center gap-0.5 text-[10px] font-bold text-red-600 bg-red-50 dark:bg-red-955/30 px-2 py-0.5 rounded-full">
                 <ArrowUpRight className="w-3 h-3" /> Exceeded
               </span>
             ) : (
@@ -424,7 +424,7 @@ export default function DashboardPage() {
               <span className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider block">
                 Monthly Cap Limit
               </span>
-              <h4 className="text-2xl font-black text-slate-850 dark:text-white tracking-tight">
+              <h4 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight">
                 ₹{summary?.budgetLimit?.toLocaleString(undefined, { minimumFractionDigits: 2 }) || '0.00'}
               </h4>
             </div>
@@ -433,9 +433,9 @@ export default function DashboardPage() {
             </div>
           </div>
 
-          <div className="flex items-center justify-between mt-3 pt-3 border-t border-slate-100/60 dark:border-slate-855">
+          <div className="flex items-center justify-between mt-3 pt-3 border-t border-slate-100/60 dark:border-slate-900">
             {/* Trend Indicator */}
-            <span className="flex items-center gap-0.5 text-[10px] font-bold text-slate-400 bg-slate-50 dark:bg-slate-850 px-2 py-0.5 rounded-full select-none">
+            <span className="flex items-center gap-0.5 text-[10px] font-bold text-slate-400 bg-slate-50 dark:bg-slate-900 px-2 py-0.5 rounded-full select-none">
               0.0% change
             </span>
             {/* Sparkline Visual */}
@@ -459,7 +459,7 @@ export default function DashboardPage() {
               <span className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider block">
                 Pending checklist
               </span>
-              <h4 className="text-2xl font-black text-slate-850 dark:text-white tracking-tight">
+              <h4 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight">
                 {todoCount} Task{todoCount !== 1 && 's'}
               </h4>
             </div>
@@ -468,7 +468,7 @@ export default function DashboardPage() {
             </div>
           </div>
 
-          <div className="flex items-center justify-between mt-3 pt-3 border-t border-slate-100/60 dark:border-slate-855">
+          <div className="flex items-center justify-between mt-3 pt-3 border-t border-slate-100/60 dark:border-slate-900">
             {/* Trend Indicator */}
             {todoCount > 0 ? (
               <span className="flex items-center gap-0.5 text-[10px] font-bold text-amber-600 bg-amber-50 dark:bg-amber-955/30 px-2 py-0.5 rounded-full">
@@ -506,7 +506,7 @@ export default function DashboardPage() {
             </h4>
             <button
               onClick={() => navigate('/analytics')}
-              className="text-[10px] font-extrabold text-slate-500 hover:text-brand-500 dark:hover:text-white transition-all flex items-center gap-0.5 border border-slate-200/60 dark:border-slate-800/80 hover:bg-slate-50 dark:hover:bg-slate-850 px-2 py-1 rounded-lg shadow-sm"
+              className="text-[10px] font-extrabold text-slate-500 hover:text-brand-500 dark:hover:text-white transition-all flex items-center gap-0.5 border border-slate-200/60 dark:border-slate-800/80 hover:bg-slate-50 dark:hover:bg-slate-900 px-2 py-1 rounded-lg shadow-sm"
             >
               Analytics <ArrowUpRight className="w-3.5 h-3.5" />
             </button>
@@ -556,12 +556,12 @@ export default function DashboardPage() {
             </h4>
             <button
               onClick={() => navigate('/expenses')}
-              className="text-[10px] font-bold text-brand-500 dark:text-brand-100 hover:text-brand-600 border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-850 px-2 py-1 rounded-lg transition-all"
+              className="text-[10px] font-bold text-brand-500 dark:text-brand-100 hover:text-brand-600 border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-900 px-2 py-1 rounded-lg transition-all"
             >
               Ledger Account
             </button>
           </div>
-          <div className="flex-1 min-h-0 overflow-y-auto divide-y divide-slate-100 dark:divide-slate-850 custom-scrollbar pr-1.5 space-y-1">
+          <div className="flex-1 min-h-0 overflow-y-auto divide-y divide-slate-100 dark:divide-slate-900 custom-scrollbar pr-1.5 space-y-1">
             {recentExpenses.length === 0 ? (
               <div className="h-full flex items-center justify-center text-slate-400 dark:text-slate-500 text-xs py-10">
                 No transaction logs recorded.
@@ -570,7 +570,7 @@ export default function DashboardPage() {
               recentExpenses.map((exp) => (
                 <div
                   key={exp.id}
-                  className="flex items-center justify-between py-2.5 px-3 hover:bg-slate-50 dark:hover:bg-slate-850/40 rounded-xl transition-all hover:translate-x-1 border-l-2"
+                  className="flex items-center justify-between py-2.5 px-3 hover:bg-slate-50 dark:hover:bg-slate-900/40 rounded-xl transition-all hover:translate-x-1 border-l-2"
                   style={{ borderLeftColor: exp.category.color }}
                 >
                   <div className="flex items-center gap-3 min-w-0 pr-4">
@@ -622,7 +622,7 @@ export default function DashboardPage() {
             </h4>
             <button
               onClick={() => navigate('/todos')}
-              className="text-[10px] font-bold text-brand-500 dark:text-brand-100 hover:text-brand-600 border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-850 px-2 py-1 rounded-lg transition-all"
+              className="text-[10px] font-bold text-brand-500 dark:text-brand-100 hover:text-brand-600 border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-900 px-2 py-1 rounded-lg transition-all"
             >
               Tasks Matrix
             </button>
@@ -631,8 +631,8 @@ export default function DashboardPage() {
           <div className="flex-1 flex flex-col justify-between min-h-0">
             {todoLoading ? (
               <div className="space-y-3 py-2 flex-1">
-                <div className="h-6 bg-slate-100 dark:bg-slate-850 rounded animate-pulse"></div>
-                <div className="h-6 bg-slate-100 dark:bg-slate-850 rounded animate-pulse"></div>
+                <div className="h-6 bg-slate-100 dark:bg-slate-900 rounded animate-pulse"></div>
+                <div className="h-6 bg-slate-100 dark:bg-slate-900 rounded animate-pulse"></div>
               </div>
             ) : todos.length === 0 ? (
               <div className="flex-grow flex items-center justify-center text-slate-400 dark:text-slate-500 text-xs py-6 text-center border border-dashed border-slate-200 dark:border-slate-800 rounded-xl bg-slate-50/50 dark:bg-slate-950/20 h-full">
@@ -652,7 +652,7 @@ export default function DashboardPage() {
                           checked={item.completed}
                           disabled={submitting}
                           onChange={() => handleCheckboxClick(item)}
-                          className="w-4 h-4 rounded border-slate-350 dark:border-slate-750 bg-white dark:bg-slate-950 text-brand-500 focus:ring-brand-500 cursor-pointer disabled:opacity-50 flex-shrink-0"
+                          className="w-4 h-4 rounded border-slate-300 dark:border-slate-750 bg-white dark:bg-slate-950 text-brand-500 focus:ring-brand-500 cursor-pointer disabled:opacity-50 flex-shrink-0"
                           aria-label={`Toggle task ${item.name}`}
                         />
 
@@ -745,7 +745,7 @@ export default function DashboardPage() {
                           setCompleteCategoryId('');
                           setCompleteDropdownOpen(false);
                         }}
-                        className={`px-4 py-2 text-sm cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-900 transition-colors ${!completeCategoryId ? 'bg-slate-100/50 dark:bg-slate-850 font-semibold' : ''
+                        className={`px-4 py-2 text-sm cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-900 transition-colors ${!completeCategoryId ? 'bg-slate-100/50 dark:bg-slate-900 font-semibold' : ''
                           }`}
                       >
                         Select Category
@@ -757,7 +757,7 @@ export default function DashboardPage() {
                             setCompleteCategoryId(cat.id.toString());
                             setCompleteDropdownOpen(false);
                           }}
-                          className={`px-4 py-2 text-sm cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-900 transition-colors ${completeCategoryId?.toString() === cat.id.toString() ? 'bg-slate-100/50 dark:bg-slate-850 font-semibold' : ''
+                          className={`px-4 py-2 text-sm cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-900 transition-colors ${completeCategoryId?.toString() === cat.id.toString() ? 'bg-slate-100/50 dark:bg-slate-900 font-semibold' : ''
                             }`}
                         >
                           {cat.name}
@@ -793,7 +793,7 @@ export default function DashboardPage() {
 
               {completeReceiptPath && (
                 <div className="flex items-center justify-between p-2.5 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg mt-2">
-                  <div className="flex items-center gap-2 text-xs text-slate-650 dark:text-slate-355 truncate">
+                  <div className="flex items-center gap-2 text-xs text-slate-600 dark:text-slate-355 truncate">
                     <svg className="w-4 h-4 text-brand-500 flex-shrink-0" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                     </svg>

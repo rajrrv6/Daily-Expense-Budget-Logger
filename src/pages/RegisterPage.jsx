@@ -16,10 +16,11 @@ export default function RegisterPage() {
   const {
     register,
     handleSubmit,
+    watch,
     formState: { errors, isSubmitting },
   } = useForm({
     resolver: zodResolver(registerSchema),
-    mode: 'onTouched',
+    mode: 'onSubmit',
     defaultValues: {
       username: '',
       email: '',
@@ -30,6 +31,16 @@ export default function RegisterPage() {
       confirmPassword: '',
     },
   });
+
+  const values = watch();
+  const isFormFilled = 
+    values.username?.trim() &&
+    values.email?.trim() &&
+    values.firstName?.trim() &&
+    values.lastName?.trim() &&
+    values.phoneNumber?.trim() &&
+    values.password &&
+    values.confirmPassword;
 
   const onSubmit = async (data) => {
     setSubmitError('');
@@ -55,25 +66,25 @@ export default function RegisterPage() {
 
       {/* Error Alert */}
       {submitError && (
-        <div className="p-3.5 mb-4 text-xs text-red-750 dark:text-red-200 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800 rounded-lg flex items-start gap-2">
-          <AlertTriangle className="w-4 h-4 text-red-550 dark:text-red-400 flex-shrink-0 mt-0.5" />
+        <div className="p-3.5 mb-4 text-xs text-red-800 dark:text-red-200 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800 rounded-lg flex items-start gap-2">
+          <AlertTriangle className="w-4 h-4 text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5" />
           <span>{submitError}</span>
         </div>
       )}
 
       {/* Register Form */}
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-3.5">
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-3.5" noValidate>
         {/* Name Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
           <div>
-            <label className="block text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-1">
+            <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">
               First Name
             </label>
             <input
               type="text"
               {...register('firstName')}
               placeholder="e.g. John"
-              className={`w-full px-4 py-2 text-sm text-slate-850 dark:text-slate-105 bg-slate-50 dark:bg-slate-950/80 border ${
+              className={`w-full px-4 py-2 text-sm text-slate-900 dark:text-slate-100 bg-slate-50 dark:bg-slate-950/80 border ${
                 errors.firstName ? 'border-red-500 focus:border-red-500' : 'border-slate-200 dark:border-slate-800 focus:border-brand-500'
               } rounded-lg focus:outline-none transition-colors`}
             />
@@ -83,14 +94,14 @@ export default function RegisterPage() {
           </div>
 
           <div>
-            <label className="block text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-1">
+            <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">
               Last Name
             </label>
             <input
               type="text"
               {...register('lastName')}
               placeholder="e.g. Doe"
-              className={`w-full px-4 py-2 text-sm text-slate-850 dark:text-slate-105 bg-slate-50 dark:bg-slate-950/80 border ${
+              className={`w-full px-4 py-2 text-sm text-slate-900 dark:text-slate-100 bg-slate-50 dark:bg-slate-950/80 border ${
                 errors.lastName ? 'border-red-500 focus:border-red-500' : 'border-slate-200 dark:border-slate-800 focus:border-brand-500'
               } rounded-lg focus:outline-none transition-colors`}
             />
@@ -101,14 +112,14 @@ export default function RegisterPage() {
         </div>
 
         <div>
-          <label className="block text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-1">
+          <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">
             Username
           </label>
           <input
             type="text"
             {...register('username')}
             placeholder="e.g. johndoe"
-            className={`w-full px-4 py-2 text-sm text-slate-850 dark:text-slate-105 bg-slate-50 dark:bg-slate-950/80 border ${
+            className={`w-full px-4 py-2 text-sm text-slate-900 dark:text-slate-100 bg-slate-50 dark:bg-slate-950/80 border ${
               errors.username ? 'border-red-500 focus:border-red-500' : 'border-slate-200 dark:border-slate-800 focus:border-brand-500'
             } rounded-lg focus:outline-none transition-colors`}
           />
@@ -118,14 +129,14 @@ export default function RegisterPage() {
         </div>
 
         <div>
-          <label className="block text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-1">
+          <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">
             Email Address
           </label>
           <input
             type="email"
             {...register('email')}
             placeholder="e.g. john@example.com"
-            className={`w-full px-4 py-2 text-sm text-slate-850 dark:text-slate-105 bg-slate-50 dark:bg-slate-950/80 border ${
+            className={`w-full px-4 py-2 text-sm text-slate-900 dark:text-slate-100 bg-slate-50 dark:bg-slate-950/80 border ${
               errors.email ? 'border-red-500 focus:border-red-500' : 'border-slate-200 dark:border-slate-800 focus:border-brand-500'
             } rounded-lg focus:outline-none transition-colors`}
           />
@@ -135,14 +146,14 @@ export default function RegisterPage() {
         </div>
 
         <div>
-          <label className="block text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-1">
+          <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">
             Mobile Number
           </label>
           <input
             type="text"
             {...register('phoneNumber')}
             placeholder="e.g. +1234567890"
-            className={`w-full px-4 py-2 text-sm text-slate-850 dark:text-slate-105 bg-slate-50 dark:bg-slate-950/80 border ${
+            className={`w-full px-4 py-2 text-sm text-slate-900 dark:text-slate-100 bg-slate-50 dark:bg-slate-950/80 border ${
               errors.phoneNumber ? 'border-red-500 focus:border-red-500' : 'border-slate-200 dark:border-slate-800 focus:border-brand-500'
             } rounded-lg focus:outline-none transition-colors`}
           />
@@ -154,14 +165,14 @@ export default function RegisterPage() {
         {/* Password Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
           <div>
-            <label className="block text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-1">
+            <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">
               Password
             </label>
             <input
               type="password"
               {...register('password')}
               placeholder="Min 8 characters"
-              className={`w-full px-4 py-2 text-sm text-slate-850 dark:text-slate-105 bg-slate-50 dark:bg-slate-950/80 border ${
+              className={`w-full px-4 py-2 text-sm text-slate-900 dark:text-slate-100 bg-slate-50 dark:bg-slate-950/80 border ${
                 errors.password ? 'border-red-500 focus:border-red-500' : 'border-slate-200 dark:border-slate-800 focus:border-brand-500'
               } rounded-lg focus:outline-none transition-colors`}
             />
@@ -171,14 +182,14 @@ export default function RegisterPage() {
           </div>
 
           <div>
-            <label className="block text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-1">
+            <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">
               Confirm Password
             </label>
             <input
               type="password"
               {...register('confirmPassword')}
               placeholder="Repeat password"
-              className={`w-full px-4 py-2 text-sm text-slate-850 dark:text-slate-105 bg-slate-50 dark:bg-slate-950/80 border ${
+              className={`w-full px-4 py-2 text-sm text-slate-900 dark:text-slate-100 bg-slate-50 dark:bg-slate-950/80 border ${
                 errors.confirmPassword ? 'border-red-500 focus:border-red-500' : 'border-slate-200 dark:border-slate-800 focus:border-brand-500'
               } rounded-lg focus:outline-none transition-colors`}
             />
@@ -190,7 +201,7 @@ export default function RegisterPage() {
 
         <button
           type="submit"
-          disabled={isSubmitting}
+          disabled={isSubmitting || !isFormFilled}
           className="w-full py-2.5 text-sm font-semibold text-white bg-brand-500 rounded-lg hover:bg-brand-600 focus:outline-none transition-all disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-lg hover:shadow-brand-500/25"
         >
           {isSubmitting ? 'Creating account...' : 'Create Account'}

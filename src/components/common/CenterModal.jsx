@@ -83,10 +83,10 @@ export default function CenterModal({ isOpen, onClose, title, children }) {
       >
         {/* Modal Header */}
         <div className="px-6 py-5 border-b border-slate-150 dark:border-slate-800/80 flex items-center justify-between flex-shrink-0">
-          <h3 className="text-base font-bold text-slate-850 dark:text-slate-100">{title}</h3>
+          <h3 className="text-base font-bold text-slate-900 dark:text-slate-100">{title}</h3>
           <button
             onClick={onClose}
-            className="p-1.5 text-slate-400 hover:text-slate-650 dark:hover:text-slate-200 bg-slate-50 dark:bg-slate-950 hover:bg-slate-100 dark:hover:bg-slate-855 rounded-lg transition-colors flex items-center justify-center border border-slate-200 dark:border-slate-855 focus:outline-none focus:ring-2 focus:ring-brand-500"
+            className="p-1.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 bg-slate-50 dark:bg-slate-950 hover:bg-slate-100 dark:hover:bg-slate-900 rounded-lg transition-colors flex items-center justify-center border border-slate-200 dark:border-slate-900 focus:outline-none focus:ring-2 focus:ring-brand-500"
             aria-label="Close panel"
           >
             <X className="w-4 h-4" />

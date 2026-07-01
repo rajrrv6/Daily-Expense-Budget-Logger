@@ -11,6 +11,23 @@ const apiClient = axios.create({
 
 let isRefreshing = false;
 let failedQueue = [];
+let refreshPromise = null;
+
+export const refreshSession = () => {
+  if (refreshPromise) {
+    return refreshPromise;
+  }
+  refreshPromise = apiClient.post('/api/v1/auth/refresh')
+    .then((res) => {
+      refreshPromise = null;
+      return res;
+    })
+    .catch((err) => {
+      refreshPromise = null;
+      throw err;
+    });
+  return refreshPromise;
+};
 
 const processQueue = (error, token = null) => {
   failedQueue.forEach((prom) => {
@@ -86,8 +103,7 @@ apiClient.interceptors.response.use(
       isRefreshing = true;
 
       return new Promise((resolve, reject) => {
-        apiClient
-          .post('/api/v1/auth/refresh')
+        refreshSession()
           .then(({ data }) => {
             const token = data.accessToken;
             setAuthTokenHeader(token);

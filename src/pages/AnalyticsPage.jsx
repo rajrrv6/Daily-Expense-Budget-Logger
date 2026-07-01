@@ -241,7 +241,7 @@ export default function AnalyticsPage() {
       {/* Title Header */}
       <div className="p-6 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl transition-colors duration-200">
         <h3 className="text-xl font-semibold text-slate-800 dark:text-slate-100">Advanced Analytics &amp; Reports</h3>
-        <p className="text-sm text-slate-550 dark:text-slate-400 mt-1">
+        <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
           Detailed metrics, spending visual graphs, and forecasting insights.
         </p>
       </div>
@@ -252,8 +252,8 @@ export default function AnalyticsPage() {
           onClick={() => setActiveTab('overview')}
           className={`px-4 py-2 text-sm font-semibold transition-all border-b-2 outline-none ${
             activeTab === 'overview'
-              ? 'border-brand-500 text-slate-850 dark:text-slate-100'
-              : 'border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-850 dark:hover:text-slate-200'
+              ? 'border-brand-500 text-slate-900 dark:text-slate-100'
+              : 'border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
           }`}
           role="tab"
           aria-selected={activeTab === 'overview'}
@@ -266,8 +266,8 @@ export default function AnalyticsPage() {
           onClick={() => setActiveTab('comparison')}
           className={`px-4 py-2 text-sm font-semibold transition-all border-b-2 outline-none ${
             activeTab === 'comparison'
-              ? 'border-brand-500 text-slate-850 dark:text-slate-100'
-              : 'border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-850 dark:hover:text-slate-200'
+              ? 'border-brand-500 text-slate-900 dark:text-slate-100'
+              : 'border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
           }`}
           role="tab"
           aria-selected={activeTab === 'comparison'}
@@ -280,8 +280,8 @@ export default function AnalyticsPage() {
           onClick={() => setActiveTab('custom')}
           className={`px-4 py-2 text-sm font-semibold transition-all border-b-2 outline-none ${
             activeTab === 'custom'
-              ? 'border-brand-500 text-slate-850 dark:text-slate-100'
-              : 'border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-850 dark:hover:text-slate-200'
+              ? 'border-brand-500 text-slate-900 dark:text-slate-100'
+              : 'border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
           }`}
           role="tab"
           aria-selected={activeTab === 'custom'}
@@ -294,8 +294,8 @@ export default function AnalyticsPage() {
           onClick={() => setActiveTab('forecast')}
           className={`px-4 py-2 text-sm font-semibold transition-all border-b-2 outline-none ${
             activeTab === 'forecast'
-              ? 'border-brand-500 text-slate-850 dark:text-slate-100'
-              : 'border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-850 dark:hover:text-slate-200'
+              ? 'border-brand-500 text-slate-900 dark:text-slate-100'
+              : 'border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
           }`}
           role="tab"
           aria-selected={activeTab === 'forecast'}
@@ -333,7 +333,7 @@ export default function AnalyticsPage() {
                 </div>
 
                 {/* Interval Selector Buttons */}
-                <div className="flex bg-slate-100 dark:bg-slate-950 p-1 rounded-lg border border-slate-200 dark:border-slate-850 self-start sm:self-auto transition-colors duration-200">
+                <div className="flex bg-slate-100 dark:bg-slate-950 p-1 rounded-lg border border-slate-200 dark:border-slate-900 self-start sm:self-auto transition-colors duration-200">
                   <button
                     onClick={() => setTrendInterval('daily')}
                     className={`px-3 py-1.5 text-xs font-semibold rounded-md transition-all ${
@@ -383,7 +383,7 @@ export default function AnalyticsPage() {
               className="p-6 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl space-y-4 transition-colors duration-200"
             >
               <div>
-                <h4 className="text-base font-semibold text-slate-850 dark:text-slate-200">Month-Over-Month Comparison</h4>
+                <h4 className="text-base font-semibold text-slate-900 dark:text-slate-200">Month-Over-Month Comparison</h4>
                 <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Compares category-specific spending between the current month and the previous month.</p>
               </div>
               <div className="pt-4">
@@ -413,7 +413,8 @@ export default function AnalyticsPage() {
                     type="date"
                     value={startDate}
                     onChange={(e) => setStartDate(e.target.value)}
-                    className="px-3 py-2 text-sm text-slate-800 dark:text-slate-200 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-850 rounded-lg outline-none focus:border-brand-500"
+                    onClick={(e) => { try { e.target.showPicker(); } catch (err) {} }}
+                    className="px-3 py-2 text-sm text-slate-800 dark:text-slate-200 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-900 rounded-lg outline-none focus:border-brand-500"
                   />
                 </div>
                 <div className="space-y-1">
@@ -425,7 +426,8 @@ export default function AnalyticsPage() {
                     type="date"
                     value={endDate}
                     onChange={(e) => setEndDate(e.target.value)}
-                    className="px-3 py-2 text-sm text-slate-800 dark:text-slate-200 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-850 rounded-lg outline-none focus:border-brand-500"
+                    onClick={(e) => { try { e.target.showPicker(); } catch (err) {} }}
+                    className="px-3 py-2 text-sm text-slate-800 dark:text-slate-200 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-900 rounded-lg outline-none focus:border-brand-500"
                   />
                 </div>
                 <button
@@ -453,7 +455,7 @@ export default function AnalyticsPage() {
                       <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider block">
                         Total Spent (Selected Range)
                       </span>
-                      <h4 className="text-3xl font-bold text-slate-850 dark:text-slate-100 mt-2">
+                      <h4 className="text-3xl font-bold text-slate-900 dark:text-slate-100 mt-2">
                         ₹{parseFloat(customAggregation.totalSpent).toFixed(2)}
                       </h4>
                     </div>
@@ -462,7 +464,7 @@ export default function AnalyticsPage() {
                       <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider block">
                         Daily Average Spends
                       </span>
-                      <h4 className="text-3xl font-bold text-slate-850 dark:text-slate-100 mt-2">
+                      <h4 className="text-3xl font-bold text-slate-900 dark:text-slate-100 mt-2">
                         ₹{parseFloat(customAggregation.averageSpentPerDay).toFixed(2)}
                       </h4>
                     </div>
@@ -472,7 +474,7 @@ export default function AnalyticsPage() {
                   <div className="lg:col-span-2 p-6 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl flex flex-col justify-between transition-colors duration-200">
                     <h4 className="text-sm font-semibold text-slate-700 dark:text-slate-200 mb-4">Range Category Breakdown</h4>
                     {customPieData.length === 0 ? (
-                      <div className="flex-1 flex items-center justify-center text-slate-500 dark:text-slate-450 text-sm h-64">
+                      <div className="flex-1 flex items-center justify-center text-slate-500 dark:text-slate-400 text-sm h-64">
                         No transactions recorded in this range.
                       </div>
                     ) : (
@@ -483,7 +485,7 @@ export default function AnalyticsPage() {
                   </div>
                 </div>
               ) : (
-                <div className="p-12 text-center border border-slate-200 dark:border-slate-850 rounded-xl text-slate-550 dark:text-slate-400 text-sm bg-slate-100 dark:bg-slate-900/50 transition-colors duration-200">
+                <div className="p-12 text-center border border-slate-200 dark:border-slate-900 rounded-xl text-slate-500 dark:text-slate-400 text-sm bg-slate-100 dark:bg-slate-900/50 transition-colors duration-200">
                   Select a date range and click Run Query to view breakdown metrics.
                 </div>
               )}
@@ -504,7 +506,7 @@ export default function AnalyticsPage() {
                   <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider block">
                     Forecasted Next-Month Spend
                   </span>
-                  <h4 className="text-3xl font-bold text-slate-850 dark:text-slate-100 mt-2">
+                  <h4 className="text-3xl font-bold text-slate-900 dark:text-slate-100 mt-2">
                     ₹{parseFloat(forecast.forecastedAmount).toFixed(2)}
                   </h4>
                 </div>

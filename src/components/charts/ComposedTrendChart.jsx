@@ -29,7 +29,7 @@ export default function ComposedTrendChart({ data }) {
                 <span className="w-2.5 h-2.5 rounded-full inline-block" style={{ backgroundColor: entry.stroke }}></span>
                 {entry.name}
               </span>
-              <span className="font-black text-slate-850 dark:text-slate-100">
+              <span className="font-black text-slate-900 dark:text-slate-100">
                 ₹{entry.value?.toLocaleString(undefined, { minimumFractionDigits: 2 })}
               </span>
             </div>
@@ -129,11 +129,11 @@ export default function ComposedTrendChart({ data }) {
       <div className="flex justify-center items-center gap-8 pt-3 pb-1 select-none flex-shrink-0">
         <div className="flex items-center gap-2">
           <span className="w-3 h-3 rounded-full bg-[#007AFF] inline-block shadow-sm"></span>
-          <span className="text-xs font-bold text-slate-550 dark:text-slate-400">Actual Spend</span>
+          <span className="text-xs font-bold text-slate-500 dark:text-slate-400">Actual Spend</span>
         </div>
         <div className="flex items-center gap-2">
           <span className="w-3 h-3 rounded-full bg-[#8A2BE2] inline-block shadow-sm"></span>
-          <span className="text-xs font-bold text-slate-550 dark:text-slate-400">Budget Limit</span>
+          <span className="text-xs font-bold text-slate-500 dark:text-slate-400">Budget Limit</span>
         </div>
       </div>
 

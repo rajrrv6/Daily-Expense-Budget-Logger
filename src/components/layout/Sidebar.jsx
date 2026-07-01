@@ -76,7 +76,7 @@ export default function Sidebar({ isCollapsed, toggleSidebar }) {
             className={({ isActive }) =>
               `flex items-center gap-4 px-4 py-3 text-sm font-semibold rounded-xl transition-all duration-200 ${isActive
                 ? 'bg-brand-500 text-white shadow-lg shadow-brand-500/20'
-                : 'text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-850 hover:text-slate-800 dark:hover:text-slate-100'
+                : 'text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-900 hover:text-slate-800 dark:hover:text-slate-100'
               } ${isCollapsed ? 'justify-center px-0' : ''}`
             }
           >
@@ -91,7 +91,7 @@ export default function Sidebar({ isCollapsed, toggleSidebar }) {
         {/* Collapse Trigger Button */}
         <button
           onClick={toggleSidebar}
-          className="flex items-center gap-4 w-full px-4 py-2.5 text-xs font-semibold text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-850/50 rounded-xl transition-colors outline-none focus:ring-1 focus:ring-brand-500/30"
+          className="flex items-center gap-4 w-full px-4 py-2.5 text-xs font-semibold text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-900/50 rounded-xl transition-colors outline-none focus:ring-1 focus:ring-brand-500/30"
           aria-label={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
         >
           {isCollapsed ? (

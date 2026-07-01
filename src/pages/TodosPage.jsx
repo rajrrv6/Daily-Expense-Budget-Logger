@@ -298,18 +298,18 @@ export default function TodosPage() {
 
         {loading ? (
           <div className="space-y-3 py-12 animate-pulse">
-            <div className="h-12 bg-slate-100 dark:bg-slate-850 rounded-lg"></div>
-            <div className="h-12 bg-slate-100 dark:bg-slate-850 rounded-lg"></div>
-            <div className="h-12 bg-slate-100 dark:bg-slate-850 rounded-lg"></div>
+            <div className="h-12 bg-slate-100 dark:bg-slate-900 rounded-lg"></div>
+            <div className="h-12 bg-slate-100 dark:bg-slate-900 rounded-lg"></div>
+            <div className="h-12 bg-slate-100 dark:bg-slate-900 rounded-lg"></div>
           </div>
         ) : filteredTodos.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-20 text-slate-500 dark:text-slate-450 text-sm">
+          <div className="flex flex-col items-center justify-center py-20 text-slate-500 dark:text-slate-400 text-sm">
             <p>No checklist items found for this filter.</p>
           </div>
         ) : (
           <div className="space-y-2">
             {/* Header Row */}
-            <div className="hidden md:grid grid-cols-[50px_2fr_1fr_1fr_1fr_120px] gap-4 px-6 py-3 bg-slate-50 dark:bg-slate-950 border border-slate-150 dark:border-slate-850 rounded-xl text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-3">
+            <div className="hidden md:grid grid-cols-[50px_2fr_1fr_1fr_1fr_120px] gap-4 px-6 py-3 bg-slate-50 dark:bg-slate-950 border border-slate-150 dark:border-slate-900 rounded-xl text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-3">
               <div className="text-center">Status</div>
               <div>Item Name</div>
               <div>Category</div>
@@ -324,7 +324,7 @@ export default function TodosPage() {
                 <div
                   key={item.id}
                   style={{ opacity: item.completed ? 0.6 : 1 }}
-                  className={`grid grid-cols-1 md:grid-cols-[50px_2fr_1fr_1fr_1fr_120px] gap-4 p-4 md:px-6 md:py-3 bg-white dark:bg-slate-900 border border-slate-150 dark:border-slate-850 rounded-xl hover:border-brand-500/30 dark:hover:border-slate-800 transition-all duration-200 items-center text-sm ${
+                  className={`grid grid-cols-1 md:grid-cols-[50px_2fr_1fr_1fr_1fr_120px] gap-4 p-4 md:px-6 md:py-3 bg-white dark:bg-slate-900 border border-slate-150 dark:border-slate-900 rounded-xl hover:border-brand-500/30 dark:hover:border-slate-800 transition-all duration-200 items-center text-sm ${
                     item.completed ? 'bg-slate-50/20 dark:bg-slate-950/5' : ''
                   }`}
                 >
@@ -338,7 +338,7 @@ export default function TodosPage() {
                       checked={item.completed}
                       disabled={item.completed || submitting}
                       onChange={() => handleCheckboxClick(item)}
-                      className="w-5 h-5 rounded border-slate-350 dark:border-slate-750 bg-white dark:bg-slate-950 text-brand-500 focus:ring-brand-500 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="w-5 h-5 rounded border-slate-300 dark:border-slate-750 bg-white dark:bg-slate-950 text-brand-500 focus:ring-brand-500 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                       aria-label={`Toggle completeness for task ${item.name}`}
                     />
                   </div>
@@ -350,7 +350,7 @@ export default function TodosPage() {
                     </span>
                     <span
                       className={`font-semibold text-slate-800 dark:text-slate-200 break-all ${
-                        item.completed ? 'line-through text-slate-400 dark:text-slate-550 font-normal' : ''
+                        item.completed ? 'line-through text-slate-400 dark:text-slate-500 font-normal' : ''
                       }`}
                     >
                       {item.name}
@@ -398,7 +398,7 @@ export default function TodosPage() {
                       Buy By:
                     </span>
                     {item.targetDate ? (
-                      <span className="text-slate-650 dark:text-slate-400 font-semibold">
+                      <span className="text-slate-600 dark:text-slate-400 font-semibold">
                         {formatTargetDate(item.targetDate)}
                       </span>
                     ) : (
@@ -450,7 +450,7 @@ export default function TodosPage() {
               <button
                 type="button"
                 onClick={() => setIsDeleteConfirmOpen(false)}
-                className="px-4 py-2 text-sm font-semibold text-slate-600 dark:text-slate-350 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors"
+                className="px-4 py-2 text-sm font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors"
               >
                 Cancel
               </button>
@@ -521,7 +521,7 @@ export default function TodosPage() {
                           setCompleteDropdownOpen(false);
                         }}
                         className={`px-4 py-2 text-sm cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-900 transition-colors ${
-                          !completeCategoryId ? 'bg-slate-100/50 dark:bg-slate-850 font-semibold' : ''
+                          !completeCategoryId ? 'bg-slate-100/50 dark:bg-slate-900 font-semibold' : ''
                         }`}
                       >
                         Select Category
@@ -534,7 +534,7 @@ export default function TodosPage() {
                             setCompleteDropdownOpen(false);
                           }}
                           className={`px-4 py-2 text-sm cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-900 transition-colors ${
-                            completeCategoryId?.toString() === cat.id.toString() ? 'bg-slate-100/50 dark:bg-slate-850 font-semibold' : ''
+                            completeCategoryId?.toString() === cat.id.toString() ? 'bg-slate-100/50 dark:bg-slate-900 font-semibold' : ''
                           }`}
                         >
                           {cat.name}
@@ -570,7 +570,7 @@ export default function TodosPage() {
 
               {completeReceiptPath && (
                 <div className="flex items-center justify-between p-2.5 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg mt-2">
-                  <div className="flex items-center gap-2 text-xs text-slate-650 dark:text-slate-355 truncate">
+                  <div className="flex items-center gap-2 text-xs text-slate-600 dark:text-slate-355 truncate">
                     <svg className="w-4 h-4 text-brand-500 flex-shrink-0" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                     </svg>
@@ -592,7 +592,7 @@ export default function TodosPage() {
               <button
                 type="button"
                 onClick={() => setCompleteItem(null)}
-                className="px-4 py-2 text-sm font-semibold text-slate-600 dark:text-slate-350 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors"
+                className="px-4 py-2 text-sm font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors"
               >
                 Cancel
               </button>
