@@ -219,4 +219,16 @@ public class RbacSecurityIntegrationTest {
         assertTrue(auditorAuthorities.contains("ROLE_USER"), "Auditor reachable authorities should include ROLE_USER");
         assertFalse(auditorAuthorities.contains("ROLE_ADMIN"), "Auditor reachable authorities should NOT include ROLE_ADMIN");
     }
+
+    @Test
+    public void dumpDatabase() {
+        System.out.println("=== DUMPING USERS ===");
+        userRepository.findAll().forEach(u -> {
+            System.out.println("User: " + u.getUsername() + ", Email: " + u.getEmail() + ", Verified: " + u.isVerified());
+        });
+        System.out.println("=== DUMPING REFRESH TOKENS ===");
+        refreshTokenRepository.findAll().forEach(rt -> {
+            System.out.println("Token Hash: " + rt.getTokenHash() + ", User: " + rt.getUser().getUsername() + ", Expires: " + rt.getExpiresAt() + ", Used: " + rt.isUsed());
+        });
+    }
 }

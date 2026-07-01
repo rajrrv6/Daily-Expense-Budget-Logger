@@ -16,9 +16,9 @@ public interface AuditLogRepository extends JpaRepository<AuditLog, Long> {
     Page<AuditLog> findAllByUserId(UUID userId, Pageable pageable);
     List<AuditLog> findAllByOrderByCreatedAtDesc();
 
-    @Query("SELECT a FROM AuditLog a WHERE " +
+    @Query("SELECT a FROM AuditLog a LEFT JOIN a.user u WHERE " +
            "(:actionType IS NULL OR a.actionType = :actionType) AND " +
-           "(:search IS NULL OR LOWER(a.user.username) LIKE :search OR LOWER(a.description) LIKE :search)")
+           "(:search IS NULL OR LOWER(u.username) LIKE :search OR LOWER(a.description) LIKE :search)")
     Page<AuditLog> findLogsFiltered(@Param("actionType") String actionType,
                                     @Param("search") String search,
                                     Pageable pageable);

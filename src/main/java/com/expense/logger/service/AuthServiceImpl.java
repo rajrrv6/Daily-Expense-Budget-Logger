@@ -255,13 +255,19 @@ public class AuthServiceImpl implements AuthService {
                 .orElseThrow(() -> new BadRequestException("User associated with token not found"));
 
         String tokenHash = hashToken(refreshTokenVal);
-        Optional<RefreshToken> tokenOpt = refreshTokenRepository.findByTokenHash(tokenHash);
+        List<RefreshToken> tokens = refreshTokenRepository.findAllByTokenHash(tokenHash);
 
-        if (tokenOpt.isEmpty()) {
+        if (tokens.isEmpty()) {
             throw new BadRequestException("Refresh token session not found");
         }
 
-        RefreshToken storedToken = tokenOpt.get();
+        RefreshToken storedToken = tokens.get(0);
+        if (tokens.size() > 1) {
+            log.warn("Heuristic warning: Found {} duplicate refresh tokens in database. Self-healing by removing duplicates.", tokens.size());
+            for (int i = 1; i < tokens.size(); i++) {
+                refreshTokenRepository.delete(tokens.get(i));
+            }
+        }
 
         // Reuse detection
         if (storedToken.isUsed()) {

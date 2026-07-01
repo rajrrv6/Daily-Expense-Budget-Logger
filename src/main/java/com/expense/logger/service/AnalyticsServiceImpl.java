@@ -55,8 +55,10 @@ public class AnalyticsServiceImpl implements AnalyticsService {
                 .map(Expense::getAmount)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
-        // Fetch user active budgets
-        List<Budget> activeBudgets = budgetRepository.findAllByUserIdAndDeletedAtIsNull(userId);
+        // Fetch user active budgets and filter to those active in the current month range
+        List<Budget> activeBudgets = budgetRepository.findAllByUserIdAndDeletedAtIsNull(userId).stream()
+                .filter(b -> !b.getStartDate().isAfter(endOfMonth) && !b.getEndDate().isBefore(startOfMonth))
+                .collect(Collectors.toList());
         List<Expense> allUserExpenses = expenseRepository.findAllByUserIdAndDeletedAtIsNull(userId);
 
         // 2. Budget Limit Calculation

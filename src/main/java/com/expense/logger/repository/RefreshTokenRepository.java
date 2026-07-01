@@ -12,6 +12,7 @@ import java.util.UUID;
 @Repository
 public interface RefreshTokenRepository extends JpaRepository<RefreshToken, UUID> {
     Optional<RefreshToken> findByTokenHash(String tokenHash);
+    List<RefreshToken> findAllByTokenHash(String tokenHash);
     void deleteByUser(User user);
     void deleteByFamilyId(UUID familyId);
     List<RefreshToken> findAllByUser(User user);
