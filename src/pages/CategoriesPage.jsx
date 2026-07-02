@@ -261,7 +261,7 @@ export default function CategoriesPage() {
 
   return (
     <>
-      <div className="space-y-6 max-w-7xl mx-auto p-4 md:p-8 animate-modal-in">
+      <div className="space-y-6 max-w-7xl mx-auto animate-modal-in">
       
       {/* Standardized B2B Header Area */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 p-6 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800/80 rounded-2xl transition-all duration-200 shadow-sm">
@@ -345,7 +345,11 @@ export default function CategoriesPage() {
               </thead>
               <tbody className="bg-white dark:bg-slate-900 divide-y divide-slate-100 dark:divide-slate-800/60">
                 {paginatedCategories.map((cat) => (
-                  <tr key={cat.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-950/20 transition-colors">
+                  <tr
+                    key={cat.id}
+                    onDoubleClick={() => handleViewCategoryDetails(cat)}
+                    className="hover:bg-slate-50/50 dark:hover:bg-slate-950/20 transition-colors cursor-pointer select-none"
+                  >
                     <td className="px-6 py-4 text-xs font-bold text-slate-400">#{cat.id}</td>
                     <td className="px-6 py-4 text-sm font-bold text-slate-800 dark:text-slate-200">{cat.name}</td>
                     <td className="px-6 py-4 text-xs">

@@ -23,6 +23,8 @@ export default function ForgotPasswordPage() {
     formState: { errors, isSubmitting },
   } = useForm({
     resolver: zodResolver(forgotPasswordSchema),
+    mode: 'onBlur',
+    reValidateMode: 'onBlur',
     defaultValues: { email: '' },
   });
 
@@ -66,7 +68,7 @@ export default function ForgotPasswordPage() {
         {!successMessage && (
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
             <div>
-              <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">
+              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
                 Email Address
               </label>
               <input

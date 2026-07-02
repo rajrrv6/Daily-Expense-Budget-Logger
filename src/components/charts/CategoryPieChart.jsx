@@ -6,6 +6,15 @@ const LEGEND_FORMATTER = (value) => <span className="text-xs text-slate-500 dark
 
 const CategoryPieChart = React.memo(({ data }) => {
   const { isDark } = useTheme();
+  const [isMobile, setIsMobile] = React.useState(() => typeof window !== 'undefined' && window.innerWidth < 480);
+
+  React.useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 480);
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   if (!data || data.length === 0) {
     return (
@@ -30,12 +39,12 @@ const CategoryPieChart = React.memo(({ data }) => {
             data={data}
             cx="50%"
             cy="50%"
-            innerRadius={40}
-            outerRadius={60}
+            innerRadius={isMobile ? 30 : 40}
+            outerRadius={isMobile ? 50 : 60}
             paddingAngle={3}
             dataKey="value"
             isAnimationActive={true}
-            label={({ name, percent, x, y, textAnchor }) => {
+            label={isMobile ? null : ({ name, percent, x, y, textAnchor }) => {
               if (!percent || percent < 0.01) return null;
               return (
                 <text

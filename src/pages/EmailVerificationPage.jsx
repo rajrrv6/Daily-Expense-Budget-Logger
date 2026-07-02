@@ -39,6 +39,8 @@ export default function EmailVerificationPage() {
     formState: { errors, isSubmitting },
   } = useForm({
     resolver: zodResolver(otpVerificationSchema),
+    mode: 'onBlur',
+    reValidateMode: 'onBlur',
     defaultValues: {
       email: emailFromUrl,
       otpCode: '',
@@ -132,7 +134,7 @@ export default function EmailVerificationPage() {
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
           {/* Email field */}
           <div>
-            <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
               Email Address
             </label>
             <input
@@ -150,7 +152,7 @@ export default function EmailVerificationPage() {
 
           {/* OTP Code field */}
           <div>
-            <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
               6-Digit Verification Code
             </label>
             <input

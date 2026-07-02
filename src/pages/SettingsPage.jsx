@@ -44,7 +44,8 @@ export default function SettingsPage() {
     formState: { errors, isSubmitting },
   } = useForm({
     resolver: zodResolver(profileSchema),
-    mode: 'onTouched',
+    mode: 'onBlur',
+    reValidateMode: 'onBlur',
     defaultValues: {
       username: '',
       email: '',
@@ -197,7 +198,7 @@ export default function SettingsPage() {
                 {/* First Name & Last Name Grid */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">
+                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
                       First Name
                     </label>
                     <input
@@ -214,7 +215,7 @@ export default function SettingsPage() {
                   </div>
 
                   <div>
-                    <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">
+                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
                       Last Name
                     </label>
                     <input
@@ -232,7 +233,7 @@ export default function SettingsPage() {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">
+                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
                     Username
                   </label>
                   <input
@@ -249,7 +250,7 @@ export default function SettingsPage() {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">
+                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
                     Email Address
                   </label>
                   <input
@@ -268,7 +269,7 @@ export default function SettingsPage() {
                 {/* Mobile Number & Monthly Income Grid */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">
+                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
                       Mobile Number
                     </label>
                     <input
@@ -285,7 +286,7 @@ export default function SettingsPage() {
                   </div>
 
                   <div>
-                    <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">
+                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
                       Monthly Income (₹)
                     </label>
                     <input

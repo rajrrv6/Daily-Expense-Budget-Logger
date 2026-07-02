@@ -5,13 +5,15 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useAuth } from '../context/AuthContext';
 import { useNotification } from '../context/NotificationContext';
 import { registerSchema } from '../utils/validationSchemas';
-import { Wallet, AlertTriangle } from 'lucide-react';
+import { Wallet, AlertTriangle, Eye, EyeOff } from 'lucide-react';
 
 export default function RegisterPage() {
   const { register: signUp } = useAuth();
   const { showNotification } = useNotification();
   const navigate = useNavigate();
   const [submitError, setSubmitError] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const {
     register,
@@ -20,7 +22,8 @@ export default function RegisterPage() {
     formState: { errors, isSubmitting },
   } = useForm({
     resolver: zodResolver(registerSchema),
-    mode: 'onSubmit',
+    mode: 'onBlur',
+    reValidateMode: 'onBlur',
     defaultValues: {
       username: '',
       email: '',
@@ -77,7 +80,7 @@ export default function RegisterPage() {
         {/* Name Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
           <div>
-            <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
               First Name
             </label>
             <input
@@ -94,7 +97,7 @@ export default function RegisterPage() {
           </div>
 
           <div>
-            <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
               Last Name
             </label>
             <input
@@ -112,7 +115,7 @@ export default function RegisterPage() {
         </div>
 
         <div>
-          <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">
+          <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
             Username
           </label>
           <input
@@ -129,7 +132,7 @@ export default function RegisterPage() {
         </div>
 
         <div>
-          <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">
+          <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
             Email Address
           </label>
           <input
@@ -146,7 +149,7 @@ export default function RegisterPage() {
         </div>
 
         <div>
-          <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">
+          <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
             Mobile Number
           </label>
           <input
@@ -165,34 +168,54 @@ export default function RegisterPage() {
         {/* Password Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
           <div>
-            <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
               Password
             </label>
-            <input
-              type="password"
-              {...register('password')}
-              placeholder="Min 8 characters"
-              className={`w-full px-4 py-2 text-sm text-slate-900 dark:text-slate-100 bg-slate-50 dark:bg-slate-950/80 border ${
-                errors.password ? 'border-red-500 focus:border-red-500' : 'border-slate-200 dark:border-slate-800 focus:border-brand-500'
-              } rounded-lg focus:outline-none transition-colors`}
-            />
+            <div className="relative">
+              <input
+                type={showPassword ? 'text' : 'password'}
+                {...register('password')}
+                placeholder="Min 8 characters"
+                className={`w-full pl-4 pr-10 py-2 text-sm text-slate-900 dark:text-slate-100 bg-slate-50 dark:bg-slate-950/80 border ${
+                  errors.password ? 'border-red-500 focus:border-red-500' : 'border-slate-200 dark:border-slate-800 focus:border-brand-500'
+                } rounded-lg focus:outline-none transition-colors`}
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-650 dark:hover:text-slate-200 transition-colors focus:outline-none flex items-center justify-center"
+                aria-label={showPassword ? "Hide password" : "Show password"}
+              >
+                {showPassword ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
+              </button>
+            </div>
             {errors.password && (
               <span className="block text-xs text-red-600 dark:text-red-400 mt-1">{errors.password.message}</span>
             )}
           </div>
 
           <div>
-            <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
               Confirm Password
             </label>
-            <input
-              type="password"
-              {...register('confirmPassword')}
-              placeholder="Repeat password"
-              className={`w-full px-4 py-2 text-sm text-slate-900 dark:text-slate-100 bg-slate-50 dark:bg-slate-950/80 border ${
-                errors.confirmPassword ? 'border-red-500 focus:border-red-500' : 'border-slate-200 dark:border-slate-800 focus:border-brand-500'
-              } rounded-lg focus:outline-none transition-colors`}
-            />
+            <div className="relative">
+              <input
+                type={showConfirmPassword ? 'text' : 'password'}
+                {...register('confirmPassword')}
+                placeholder="Repeat password"
+                className={`w-full pl-4 pr-10 py-2 text-sm text-slate-900 dark:text-slate-100 bg-slate-50 dark:bg-slate-950/80 border ${
+                  errors.confirmPassword ? 'border-red-500 focus:border-red-500' : 'border-slate-200 dark:border-slate-800 focus:border-brand-500'
+                } rounded-lg focus:outline-none transition-colors`}
+              />
+              <button
+                type="button"
+                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-650 dark:hover:text-slate-200 transition-colors focus:outline-none flex items-center justify-center"
+                aria-label={showConfirmPassword ? "Hide password" : "Show password"}
+              >
+                {showConfirmPassword ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
+              </button>
+            </div>
             {errors.confirmPassword && (
               <span className="block text-xs text-red-600 dark:text-red-400 mt-1">{errors.confirmPassword.message}</span>
             )}

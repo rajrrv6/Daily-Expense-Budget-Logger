@@ -1,4 +1,5 @@
 import React, { useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { X } from 'lucide-react';
 
 export default function CenterModal({ isOpen, onClose, title, children }) {
@@ -67,8 +68,8 @@ export default function CenterModal({ isOpen, onClose, title, children }) {
 
   if (!isOpen) return null;
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4" role="dialog" aria-modal="true">
+  return createPortal(
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4" role="dialog" aria-modal="true">
       {/* Backdrop overlay */}
       <div
         className="fixed inset-0 bg-slate-950/45 backdrop-blur-[4px] transition-opacity duration-200"
@@ -98,6 +99,7 @@ export default function CenterModal({ isOpen, onClose, title, children }) {
           {children}
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }

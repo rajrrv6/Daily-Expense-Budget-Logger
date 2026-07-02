@@ -37,6 +37,8 @@ export default function BudgetFormModal({ isOpen, onClose, onSubmit, budget }) {
     formState: { errors, isSubmitting },
   } = useForm({
     resolver: zodResolver(budgetFormSchema),
+    mode: 'onBlur',
+    reValidateMode: 'onBlur',
     defaultValues: {
       categoryId: '',
       monthlyLimit: '',

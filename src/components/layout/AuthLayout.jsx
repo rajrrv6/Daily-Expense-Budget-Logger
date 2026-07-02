@@ -30,14 +30,18 @@ export default function AuthLayout() {
     <div className="min-h-screen w-full bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 flex transition-colors duration-300 font-sans">
 
       {/* LEFT PANEL: Enterprise Branding & Graphics (Hidden on Mobile/Tablet) */}
-      <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-tr from-slate-100 via-slate-50 to-brand-50/80 dark:bg-gradient-to-tr dark:from-slate-950 dark:via-slate-900 dark:to-brand-600 relative overflow-hidden flex-col justify-between p-12 text-slate-800 dark:text-white border-r border-slate-200 dark:border-slate-900 select-none transition-colors duration-300">
+      <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-tr from-blue-50 via-indigo-50/80 to-brand-100/50 dark:bg-gradient-to-tr dark:from-slate-950 dark:via-slate-900 dark:to-brand-600 relative overflow-hidden flex-col justify-between p-12 text-slate-800 dark:text-white border-r border-slate-200 dark:border-slate-900 select-none transition-colors duration-300">
 
-        {/* Background Glow */}
-        <div className="absolute top-1/4 right-0 w-96 h-96 bg-brand-500/5 dark:bg-brand-500/10 rounded-full blur-3xl pointer-events-none transition-colors duration-300"></div>
+        {/* SVG Grid Pattern */}
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808008_1px,transparent_1px),linear-gradient(to_bottom,#80808008_1px,transparent_1px)] dark:bg-[linear-gradient(to_right,#ffffff03_1px,transparent_1px),linear-gradient(to_bottom,#ffffff03_1px,transparent_1px)] bg-[size:24px_24px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_50%,#000_85%,transparent_100%)] opacity-70 pointer-events-none"></div>
+
+        {/* Decorative Blob Glows */}
+        <div className="absolute top-[-10%] left-[-10%] w-80 h-80 bg-brand-500/10 dark:bg-brand-500/15 rounded-full blur-3xl pointer-events-none"></div>
+        <div className="absolute bottom-[-10%] right-[-10%] w-96 h-96 bg-indigo-500/10 dark:bg-indigo-500/15 rounded-full blur-3xl pointer-events-none"></div>
 
         {/* Top Header Logo */}
         <Link to="/" className="relative flex items-center gap-3 hover:opacity-90 transition-all duration-200 cursor-pointer">
-          <div className="p-2 bg-white/60 dark:bg-white/10 backdrop-blur-md border border-slate-200/80 dark:border-white/20 rounded-xl transition-all duration-300">
+          <div className="p-2 bg-white/80 dark:bg-white/10 backdrop-blur-md border border-slate-200/80 dark:border-white/20 rounded-xl transition-all duration-300">
             <Wallet className="w-6 h-6 text-brand-500 dark:text-white transition-colors duration-300" />
           </div>
           <span className="text-xl font-bold tracking-tight text-slate-800 dark:text-white transition-colors duration-300">BudgetLogger</span>
@@ -46,14 +50,14 @@ export default function AuthLayout() {
         {/* Core Product Summary */}
         <div className="relative space-y-6 my-auto max-w-lg mx-auto flex flex-col items-center text-center">
           <h2 className="text-4xl font-extrabold leading-tight tracking-tight text-slate-900 dark:text-slate-100 transition-colors duration-300">
-            Enterprise Expense &amp; Budget Optimization.
+            Enterprise Expense &amp; <span className="bg-gradient-to-r from-brand-500 to-indigo-600 dark:from-brand-100 dark:to-indigo-300 bg-clip-text text-transparent">Budget Optimization</span>.
           </h2>
           <p className="text-base text-slate-600 dark:text-slate-300 font-medium leading-relaxed transition-colors duration-300">
             Take full command of department limits, track transaction categories, monitor items with checklists, and view forecasts.
           </p>
 
           {/* Interactive B2B SaaS Mock Metric Card */}
-          <div className="p-6 w-full bg-white/80 dark:bg-white/5 border border-slate-200/80 dark:border-white/10 backdrop-blur-md rounded-2xl space-y-4 shadow-lg dark:shadow-xl transition-all duration-300 text-left">
+          <div className="p-6 w-full bg-white/90 dark:bg-slate-900/40 border border-slate-200/80 dark:border-white/10 backdrop-blur-md rounded-2xl space-y-4 shadow-lg dark:shadow-xl hover:shadow-xl transition-all duration-300 text-left hover:scale-[1.01]">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <PiggyBank className="w-5 h-5 text-brand-500 dark:text-brand-100 transition-colors duration-300" />
@@ -73,7 +77,7 @@ export default function AuthLayout() {
             {/* Progress Meter */}
             <div className="space-y-1">
               <div className="w-full bg-slate-200 dark:bg-white/10 rounded-full h-2 overflow-hidden transition-colors duration-300">
-                <div className="h-full bg-brand-500 dark:bg-brand-100 rounded-full transition-colors duration-300" style={{ width: '32.1%' }}></div>
+                <div className="h-full bg-gradient-to-r from-brand-500 to-indigo-600 dark:from-brand-100 dark:to-indigo-300 rounded-full transition-all duration-300" style={{ width: '32.1%' }}></div>
               </div>
               <div className="flex justify-between text-[9px] text-slate-500 dark:text-slate-400 font-semibold uppercase tracking-wider transition-colors duration-300">
                 <span>32.1% Spent</span>

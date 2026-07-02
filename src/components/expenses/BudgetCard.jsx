@@ -24,7 +24,10 @@ export default function BudgetCard({ budget, onEdit, onDelete }) {
   }
 
   return (
-    <div className={`p-6 bg-white dark:bg-slate-900 border ${cardBorderClass} rounded-xl shadow-sm space-y-4 transition-all hover:shadow-md duration-200`}>
+    <div
+      onDoubleClick={() => onEdit(budget)}
+      className={`p-6 bg-white dark:bg-slate-900 border ${cardBorderClass} rounded-xl shadow-sm space-y-4 transition-all hover:shadow-md duration-200 cursor-pointer select-none`}
+    >
       {/* Title & Badges */}
       <div className="flex items-start justify-between">
         <div>

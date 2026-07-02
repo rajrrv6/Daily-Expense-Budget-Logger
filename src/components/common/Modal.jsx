@@ -1,4 +1,5 @@
 import React, { useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 
 export default function Modal({ isOpen, onClose, title, children }) {
   const modalRef = useRef(null);
@@ -78,8 +79,8 @@ export default function Modal({ isOpen, onClose, title, children }) {
 
   if (!isOpen) return null;
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+  return createPortal(
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
       {/* Backdrop */}
       <div
         className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm transition-opacity"
@@ -90,7 +91,7 @@ export default function Modal({ isOpen, onClose, title, children }) {
       <div
         ref={modalRef}
         tabIndex="-1"
-        className="relative w-full max-w-lg p-6 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xl z-10 animate-slide-in pointer-events-auto focus:outline-none transition-colors duration-200"
+        className="relative w-full max-w-lg max-h-[90vh] overflow-y-auto custom-scrollbar p-6 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xl z-10 animate-slide-in pointer-events-auto focus:outline-none transition-colors duration-200"
       >
         {/* Header */}
         <div className="flex items-center justify-between pb-4 border-b border-slate-200 dark:border-slate-800 mb-6">
@@ -109,6 +110,7 @@ export default function Modal({ isOpen, onClose, title, children }) {
         {/* Content */}
         <div>{children}</div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }

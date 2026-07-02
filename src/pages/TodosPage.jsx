@@ -251,7 +251,7 @@ export default function TodosPage() {
   return (
     <div className="space-y-6">
       {/* Title Header with Add Item button */}
-      <div className="flex justify-between items-center p-6 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl transition-colors duration-200">
+      <div className="flex flex-col sm:flex-row gap-4 justify-between sm:items-center p-6 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl transition-colors duration-200">
         <div>
           <h3 className="text-xl font-semibold text-slate-800 dark:text-slate-100">Shopping Checklist</h3>
           <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
@@ -261,7 +261,7 @@ export default function TodosPage() {
         
         <button
           onClick={handleAddNew}
-          className="flex items-center gap-2 px-4 py-2.5 bg-brand-500 hover:bg-brand-600 text-white text-sm font-semibold rounded-lg shadow-sm shadow-brand-500/10 hover:shadow-brand-500/20 transition-all duration-205"
+          className="flex items-center gap-2 px-4 py-2.5 bg-brand-500 hover:bg-brand-600 text-white text-sm font-semibold rounded-lg shadow-sm shadow-brand-500/10 hover:shadow-brand-500/20 transition-all duration-205 self-start sm:self-auto"
         >
           <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
@@ -272,7 +272,7 @@ export default function TodosPage() {
 
       {/* List Manager Panel */}
       <div className="p-6 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl min-h-[400px] transition-colors duration-200">
-        <div className="flex justify-between items-center pb-4 border-b border-slate-150 dark:border-slate-800 mb-6 transition-colors duration-200">
+        <div className="flex flex-col sm:flex-row gap-4 justify-between sm:items-center pb-4 border-b border-slate-150 dark:border-slate-800 mb-6 transition-colors duration-200">
           <div className="flex gap-2" role="tablist" aria-label="Task Status Filters">
             {['ALL', 'PENDING', 'COMPLETED'].map((status) => (
               <button
@@ -324,8 +324,9 @@ export default function TodosPage() {
                 <div
                   key={item.id}
                   style={{ opacity: item.completed ? 0.6 : 1 }}
-                  className={`grid grid-cols-1 md:grid-cols-[50px_2fr_1fr_1fr_1fr_120px] gap-4 p-4 md:px-6 md:py-3 bg-white dark:bg-slate-900 border border-slate-150 dark:border-slate-900 rounded-xl hover:border-brand-500/30 dark:hover:border-slate-800 transition-all duration-200 items-center text-sm ${
-                    item.completed ? 'bg-slate-50/20 dark:bg-slate-950/5' : ''
+                  onDoubleClick={() => handleEdit(item)}
+                  className={`grid grid-cols-1 md:grid-cols-[50px_2fr_1fr_1fr_1fr_120px] gap-4 p-4 md:px-6 md:py-3 bg-white dark:bg-slate-900 border border-slate-150 dark:border-slate-900 rounded-xl hover:border-brand-500/30 dark:hover:border-slate-800 transition-all duration-200 items-center text-sm cursor-pointer select-none ${
+                    item.completed ? 'bg-slate-50/20 dark:bg-slate-955/5' : ''
                   }`}
                 >
                   {/* Status checkbox */}

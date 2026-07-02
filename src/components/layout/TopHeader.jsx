@@ -4,9 +4,9 @@ import { useAuth } from '../../context/AuthContext';
 import { useTheme } from '../../context/ThemeContext';
 import NotificationCenter from './NotificationCenter';
 import { globalSearch } from '../../services/searchService';
-import { Sun, Moon, Monitor, Settings, LogOut, Search, ChevronRight, Home, Shield, X } from 'lucide-react';
+import { Sun, Moon, Monitor, Settings, LogOut, Search, ChevronRight, Home, Shield, X, Menu } from 'lucide-react';
 
-export default function TopHeader({ onSearch }) {
+export default function TopHeader({ onSearch, onToggleMobileSidebar }) {
   const { user, logout } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
@@ -197,26 +197,38 @@ export default function TopHeader({ onSearch }) {
   const breadcrumbs = getBreadcrumbs();
 
   return (
-    <header className="flex items-center justify-between h-16 px-8 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 transition-colors duration-200 flex-shrink-0">
-      {/* Contextual Breadcrumbs */}
-      <nav className="flex items-center space-x-2 text-xs font-semibold text-slate-500 dark:text-slate-400" aria-label="Breadcrumb">
-        {breadcrumbs.map((crumb, idx) => (
-          <React.Fragment key={crumb.label}>
-            {idx > 0 && <ChevronRight className="w-3 h-3 text-slate-300 dark:text-slate-655" />}
-            <Link
-              to={crumb.path}
-              className={`flex items-center gap-1.5 hover:text-brand-500 dark:hover:text-white transition-colors duration-150 ${idx === breadcrumbs.length - 1 ? 'text-slate-900 dark:text-slate-100 font-bold' : ''
+    <header className="flex items-center justify-between h-16 px-4 sm:px-8 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 transition-colors duration-200 flex-shrink-0">
+      <div className="flex items-center">
+        {/* Hamburger menu button for mobile/tablet */}
+        <button
+          onClick={onToggleMobileSidebar}
+          className="lg:hidden p-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800/60 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-xl border border-slate-200 dark:border-slate-700/40 transition-all flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-brand-500 mr-3"
+          aria-label="Toggle Navigation Menu"
+        >
+          <Menu className="w-4 h-4 flex-shrink-0" />
+        </button>
+
+        {/* Contextual Breadcrumbs */}
+        <nav className="flex items-center space-x-1.5 text-xs font-semibold text-slate-500 dark:text-slate-400" aria-label="Breadcrumb">
+          {breadcrumbs.map((crumb, idx) => (
+            <React.Fragment key={crumb.label}>
+              {idx > 0 && <ChevronRight className={`w-3 h-3 text-slate-300 dark:text-slate-700 ${idx === breadcrumbs.length - 1 ? '' : 'hidden md:block'}`} />}
+              <Link
+                to={crumb.path}
+                className={`flex items-center gap-1.5 hover:text-brand-500 dark:hover:text-white transition-colors duration-150 ${
+                  idx === breadcrumbs.length - 1 ? 'text-slate-900 dark:text-slate-100 font-bold' : 'hidden md:flex text-slate-400'
                 }`}
-            >
-              {crumb.icon && <crumb.icon className="w-3.5 h-3.5 flex-shrink-0" />}
-              <span>{crumb.label}</span>
-            </Link>
-          </React.Fragment>
-        ))}
-      </nav>
+              >
+                {crumb.icon && <crumb.icon className="w-3.5 h-3.5 flex-shrink-0" />}
+                <span>{crumb.label}</span>
+              </Link>
+            </React.Fragment>
+          ))}
+        </nav>
+      </div>
 
       {user && (
-        <div className="flex items-center gap-6">
+        <div className="flex items-center gap-3 sm:gap-6">
           {/* Global Mock Search input */}
           <div className="relative max-w-xs hidden md:block" ref={searchContainerRef}>
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">

@@ -17,7 +17,7 @@ import {
   ChevronRight
 } from 'lucide-react';
 
-export default function Sidebar({ isCollapsed, toggleSidebar }) {
+export default function Sidebar({ isCollapsed, toggleSidebar, isMobileOpen, closeMobileSidebar }) {
   const { logout, hasPermission } = useAuth();
   const navigate = useNavigate();
 
@@ -47,13 +47,16 @@ export default function Sidebar({ isCollapsed, toggleSidebar }) {
 
   return (
     <aside
-      className={`flex flex-col h-screen bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 text-slate-800 dark:text-slate-100 transition-all duration-300 ease-in-out ${isCollapsed ? 'w-20' : 'w-64'
-        }`}
+      className={`fixed inset-y-0 left-0 z-50 lg:static flex flex-col h-screen bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 text-slate-800 dark:text-slate-100 transition-all duration-300 ease-in-out
+        ${isMobileOpen ? 'translate-x-0 w-64 shadow-2xl' : '-translate-x-full lg:translate-x-0'}
+        ${isCollapsed ? 'lg:w-20' : 'lg:w-64'}
+      `}
     >
       {/* Brand Header */}
       <div className="flex items-center justify-between px-6 h-16 border-b border-slate-200 dark:border-slate-800 flex-shrink-0">
         <Link
           to="/"
+          onClick={closeMobileSidebar}
           className={`flex items-center gap-3 hover:opacity-90 transition-all duration-200 cursor-pointer ${isCollapsed ? 'mx-auto' : ''
             }`}
         >
@@ -72,16 +75,17 @@ export default function Sidebar({ isCollapsed, toggleSidebar }) {
           <NavLink
             key={item.name}
             to={item.path}
+            onClick={closeMobileSidebar}
             title={isCollapsed ? item.name : undefined}
             className={({ isActive }) =>
               `flex items-center gap-4 px-4 py-3 text-sm font-semibold rounded-xl transition-all duration-200 ${isActive
                 ? 'bg-brand-500 text-white shadow-lg shadow-brand-500/20'
                 : 'text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-900 hover:text-slate-800 dark:hover:text-slate-100'
-              } ${isCollapsed ? 'justify-center px-0' : ''}`
+              } ${isCollapsed ? 'lg:justify-center lg:px-0' : ''}`
             }
           >
             <item.icon className="w-5 h-5 flex-shrink-0" />
-            {!isCollapsed && <span>{item.name}</span>}
+            <span className={isCollapsed ? 'lg:hidden' : ''}>{item.name}</span>
           </NavLink>
         ))}
       </nav>
@@ -91,7 +95,7 @@ export default function Sidebar({ isCollapsed, toggleSidebar }) {
         {/* Collapse Trigger Button */}
         <button
           onClick={toggleSidebar}
-          className="flex items-center gap-4 w-full px-4 py-2.5 text-xs font-semibold text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-900/50 rounded-xl transition-colors outline-none focus:ring-1 focus:ring-brand-500/30"
+          className="hidden lg:flex items-center gap-4 w-full px-4 py-2.5 text-xs font-semibold text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-900/50 rounded-xl transition-colors outline-none focus:ring-1 focus:ring-brand-500/30"
           aria-label={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
         >
           {isCollapsed ? (

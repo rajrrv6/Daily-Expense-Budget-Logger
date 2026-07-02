@@ -4,7 +4,7 @@ import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import apiClient from '../services/apiClient';
-import { Lock, CheckCircle2, AlertTriangle } from 'lucide-react';
+import { Lock, CheckCircle2, AlertTriangle, Eye, EyeOff } from 'lucide-react';
 
 const resetPasswordSchema = z.object({
   token: z.string().trim().min(1, 'Reset token is required.'),
@@ -21,6 +21,8 @@ export default function ResetPasswordPage() {
 
   const [successMessage, setSuccessMessage] = useState('');
   const [submitError, setSubmitError] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const {
     register,
@@ -28,6 +30,8 @@ export default function ResetPasswordPage() {
     formState: { errors, isSubmitting },
   } = useForm({
     resolver: zodResolver(resetPasswordSchema),
+    mode: 'onBlur',
+    reValidateMode: 'onBlur',
     defaultValues: {
       token: tokenFromUrl,
       newPassword: '',
@@ -88,7 +92,7 @@ export default function ResetPasswordPage() {
             {/* Reset Token Input (Hidden if provided via URL) */}
             {!tokenFromUrl && (
               <div>
-                <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
                   Reset Token
                 </label>
                 <input
@@ -105,41 +109,61 @@ export default function ResetPasswordPage() {
               </div>
             )}
 
-            {/* New Password */}
-            <div>
-              <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">
-                New Password
-              </label>
-              <input
-                type="password"
-                {...register('newPassword')}
-                placeholder="••••••••"
-                className={`w-full px-4 py-3 text-sm text-slate-900 dark:text-slate-100 bg-slate-50 dark:bg-slate-950/80 border ${
-                  errors.newPassword ? 'border-red-500 focus:border-red-500' : 'border-slate-200 dark:border-slate-800 focus:border-brand-500'
-                } rounded-lg focus:outline-none transition-colors`}
-              />
-              {errors.newPassword && (
-                <span className="block text-xs text-red-600 dark:text-red-400 mt-1">{errors.newPassword.message}</span>
-              )}
-            </div>
-
-            {/* Confirm Password */}
-            <div>
-              <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">
-                Confirm New Password
-              </label>
-              <input
-                type="password"
-                {...register('confirmPassword')}
-                placeholder="••••••••"
-                className={`w-full px-4 py-3 text-sm text-slate-900 dark:text-slate-100 bg-slate-50 dark:bg-slate-950/80 border ${
-                  errors.confirmPassword ? 'border-red-500 focus:border-red-500' : 'border-slate-200 dark:border-slate-800 focus:border-brand-500'
-                } rounded-lg focus:outline-none transition-colors`}
-              />
-              {errors.confirmPassword && (
-                <span className="block text-xs text-red-600 dark:text-red-400 mt-1">{errors.confirmPassword.message}</span>
-              )}
-            </div>
+             {/* New Password */}
+             <div>
+               <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+                 New Password
+               </label>
+               <div className="relative">
+                 <input
+                   type={showPassword ? 'text' : 'password'}
+                   {...register('newPassword')}
+                   placeholder="••••••••"
+                   className={`w-full pl-4 pr-10 py-3 text-sm text-slate-900 dark:text-slate-100 bg-slate-50 dark:bg-slate-950/80 border ${
+                     errors.newPassword ? 'border-red-500 focus:border-red-500' : 'border-slate-200 dark:border-slate-800 focus:border-brand-500'
+                   } rounded-lg focus:outline-none transition-colors`}
+                 />
+                 <button
+                   type="button"
+                   onClick={() => setShowPassword(!showPassword)}
+                   className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-655 dark:hover:text-slate-200 transition-colors focus:outline-none flex items-center justify-center"
+                   aria-label={showPassword ? "Hide password" : "Show password"}
+                 >
+                   {showPassword ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
+                 </button>
+               </div>
+               {errors.newPassword && (
+                 <span className="block text-xs text-red-600 dark:text-red-400 mt-1">{errors.newPassword.message}</span>
+               )}
+             </div>
+ 
+             {/* Confirm Password */}
+             <div>
+               <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+                 Confirm New Password
+               </label>
+               <div className="relative">
+                 <input
+                   type={showConfirmPassword ? 'text' : 'password'}
+                   {...register('confirmPassword')}
+                   placeholder="••••••••"
+                   className={`w-full pl-4 pr-10 py-3 text-sm text-slate-900 dark:text-slate-100 bg-slate-50 dark:bg-slate-950/80 border ${
+                     errors.confirmPassword ? 'border-red-500 focus:border-red-500' : 'border-slate-200 dark:border-slate-800 focus:border-brand-500'
+                   } rounded-lg focus:outline-none transition-colors`}
+                 />
+                 <button
+                   type="button"
+                   onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                   className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-655 dark:hover:text-slate-200 transition-colors focus:outline-none flex items-center justify-center"
+                   aria-label={showConfirmPassword ? "Hide password" : "Show password"}
+                 >
+                   {showConfirmPassword ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
+                 </button>
+               </div>
+               {errors.confirmPassword && (
+                 <span className="block text-xs text-red-600 dark:text-red-400 mt-1">{errors.confirmPassword.message}</span>
+               )}
+             </div>
 
             <button
               type="submit"

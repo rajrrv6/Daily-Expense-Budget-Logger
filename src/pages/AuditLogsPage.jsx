@@ -180,8 +180,8 @@ export default function AuditLogsPage() {
           />
 
           {/* Pagination Controls */}
-          <div className="flex items-center justify-between px-4 py-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl transition-all duration-200">
-            <span className="text-xs text-slate-500 dark:text-slate-400">
+          <div className="flex flex-col sm:flex-row gap-4 items-center justify-between px-4 py-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl transition-all duration-200">
+            <span className="text-xs text-slate-500 dark:text-slate-400 text-center sm:text-left">
               Showing page {page + 1} of {data.totalPages || 1} ({data.totalElements} records total)
             </span>
             <div className="flex gap-2">

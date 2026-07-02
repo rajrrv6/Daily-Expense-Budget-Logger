@@ -5,7 +5,7 @@ import * as z from 'zod';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useNotification } from '../context/NotificationContext';
-import { Wallet, AlertTriangle } from 'lucide-react';
+import { Wallet, AlertTriangle, Eye, EyeOff } from 'lucide-react';
 
 const loginSchema = z.object({
   usernameOrEmail: z.string().min(1, 'Username or email is required.'),
@@ -17,6 +17,7 @@ export default function LoginPage() {
   const { showNotification } = useNotification();
   const navigate = useNavigate();
   const [submitError, setSubmitError] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
 
   const {
     register,
@@ -25,7 +26,8 @@ export default function LoginPage() {
     formState: { errors, isSubmitting },
   } = useForm({
     resolver: zodResolver(loginSchema),
-    mode: 'onSubmit',
+    mode: 'onBlur',
+    reValidateMode: 'onBlur',
     defaultValues: { usernameOrEmail: '', password: '' },
   });
 
@@ -66,7 +68,7 @@ export default function LoginPage() {
       {/* Login Form */}
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-5" noValidate>
         <div>
-          <label className="block text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">
+          <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
             Username or Email
           </label>
           <input
@@ -84,21 +86,31 @@ export default function LoginPage() {
 
         <div>
           <div className="flex justify-between items-center mb-1.5">
-            <label className="block text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
               Password
             </label>
             <Link to="/forgot-password" className="text-xs text-brand-500 dark:text-brand-100 hover:text-brand-600 dark:hover:text-white transition-colors">
               Forgot Password?
             </Link>
           </div>
-          <input
-            type="password"
-            {...register('password')}
-            placeholder="••••••••"
-            className={`w-full px-5 py-3 text-sm text-slate-900 dark:text-slate-100 bg-slate-50 dark:bg-slate-950/80 border ${
-              errors.password ? 'border-red-500 focus:border-red-500 focus:ring-2 focus:ring-red-500/20' : 'border-slate-200 dark:border-slate-800 focus:border-brand-500 dark:focus:border-brand-100 focus:ring-2 focus:ring-brand-500/20 dark:focus:ring-brand-100/20'
-            } rounded-xl focus:outline-none transition-all`}
-          />
+          <div className="relative">
+            <input
+              type={showPassword ? 'text' : 'password'}
+              {...register('password')}
+              placeholder="••••••••"
+              className={`w-full pl-5 pr-12 py-3 text-sm text-slate-900 dark:text-slate-100 bg-slate-50 dark:bg-slate-950/80 border ${
+                errors.password ? 'border-red-500 focus:border-red-500 focus:ring-2 focus:ring-red-500/20' : 'border-slate-200 dark:border-slate-800 focus:border-brand-500 dark:focus:border-brand-100 focus:ring-2 focus:ring-brand-500/20 dark:focus:ring-brand-100/20'
+              } rounded-xl focus:outline-none transition-all`}
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-650 dark:hover:text-slate-200 transition-colors focus:outline-none flex items-center justify-center"
+              aria-label={showPassword ? "Hide password" : "Show password"}
+            >
+              {showPassword ? <Eye className="w-4.5 h-4.5" /> : <EyeOff className="w-4.5 h-4.5" />}
+            </button>
+          </div>
           {errors.password && (
             <span className="block text-xs text-red-600 dark:text-red-400 mt-1">{errors.password.message}</span>
           )}

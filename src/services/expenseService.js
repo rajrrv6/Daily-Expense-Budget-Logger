@@ -82,3 +82,15 @@ export const getReceiptFile = async (filename) => {
   return response.data;
 };
 
+export const bulkUploadExpenses = async (file, preview = true, duplicateAction = 'skip') => {
+  const formData = new FormData();
+  formData.append('file', file);
+  const { data } = await apiClient.post('/api/v1/expenses/bulk-upload', formData, {
+    params: { preview, duplicateAction },
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  });
+  return data;
+};
+

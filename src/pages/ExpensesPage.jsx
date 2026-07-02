@@ -4,6 +4,7 @@ import useQueryParams from '../hooks/useQueryParams';
 import { getExpenses, deleteExpense, exportExpenses, getReceiptFile, getExpenseById } from '../services/expenseService';
 import { getCategories } from '../services/categoryService';
 import ExpenseFormModal from '../components/expenses/ExpenseFormModal';
+import BulkUploadModal from '../components/expenses/BulkUploadModal';
 import SkeletonCard from '../components/common/SkeletonCard';
 import EmptyState from '../components/common/EmptyState';
 import ErrorRetryState from '../components/common/ErrorRetryState';
@@ -21,7 +22,8 @@ import {
   Eye, 
   Edit3, 
   Calendar,
-  Filter
+  Filter,
+  UploadCloud
 } from 'lucide-react';
 
 export default function ExpensesPage() {
@@ -78,6 +80,7 @@ export default function ExpensesPage() {
   const [deleteTargetId, setDeleteTargetId] = useState(null);
   const [deleteTargetName, setDeleteTargetName] = useState('');
   const [isBulkDeleteConfirmOpen, setIsBulkDeleteConfirmOpen] = useState(false);
+  const [isBulkUploadOpen, setIsBulkUploadOpen] = useState(false);
 
   const todayStr = useMemo(() => {
     const d = new Date();
@@ -339,13 +342,19 @@ export default function ExpensesPage() {
         </div>
         
         {/* Alignment matches the top-right CTA rules */}
-        <div className="flex gap-2.5 self-start md:self-auto">
+        <div className="flex gap-2.5 self-start md:self-auto flex-wrap">
           <button
             onClick={handleExportPdf}
             disabled={exporting}
-            className="flex items-center gap-1.5 px-4 py-2.5 text-xs font-bold text-slate-700 dark:text-slate-200 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-750 rounded-xl transition-all disabled:opacity-50 border border-slate-200 dark:border-slate-900"
+            className="flex items-center gap-1.5 px-4 py-2.5 text-xs font-bold text-slate-700 dark:text-slate-200 bg-slate-100 hover:bg-slate-205 dark:bg-slate-800 dark:hover:bg-slate-750 rounded-xl transition-all disabled:opacity-50 border border-slate-200 dark:border-slate-900"
           >
             <Download className="w-4 h-4" /> {exporting ? 'Exporting...' : 'Export PDF'}
+          </button>
+          <button
+            onClick={() => setIsBulkUploadOpen(true)}
+            className="flex items-center gap-1.5 px-4 py-2.5 text-xs font-bold text-slate-700 dark:text-slate-200 bg-slate-100 hover:bg-slate-205 dark:bg-slate-800 dark:hover:bg-slate-750 rounded-xl transition-all border border-slate-200 dark:border-slate-900"
+          >
+            <UploadCloud className="w-4 h-4" /> Bulk Upload
           </button>
           <button
             onClick={handleAddNew}
@@ -548,7 +557,11 @@ export default function ExpensesPage() {
               </thead>
               <tbody className="divide-y divide-slate-100 dark:divide-slate-800/60 bg-white dark:bg-slate-900">
                 {filteredExpenses.map((item) => (
-                  <tr key={item.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-955/15 transition-all">
+                  <tr
+                    key={item.id}
+                    onDoubleClick={() => handleViewDetails(item)}
+                    className="hover:bg-slate-50/50 dark:hover:bg-slate-955/15 transition-all cursor-pointer select-none"
+                  >
                     <td className="px-6 py-4 text-center">
                       <input
                         type="checkbox"
@@ -727,6 +740,12 @@ export default function ExpensesPage() {
         title="Expense Record Details"
         fields={viewFields}
         extraContent={viewReceiptContent}
+      />
+
+      <BulkUploadModal
+        isOpen={isBulkUploadOpen}
+        onClose={() => setIsBulkUploadOpen(false)}
+        onUploadSuccess={fetchExpensesList}
       />
     </div>
   );
