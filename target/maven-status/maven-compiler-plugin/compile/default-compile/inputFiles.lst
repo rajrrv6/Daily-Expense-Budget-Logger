@@ -17,6 +17,8 @@
 /Users/local34/Desktop/Daily Expense & Budget Logger /Daily Expense & Budget Logger/backend/src/main/java/com/expense/logger/dto/BudgetRequestDto.java
 /Users/local34/Desktop/Daily Expense & Budget Logger /Daily Expense & Budget Logger/backend/src/main/java/com/expense/logger/dto/BudgetResponseDto.java
 /Users/local34/Desktop/Daily Expense & Budget Logger /Daily Expense & Budget Logger/backend/src/main/java/com/expense/logger/dto/BudgetSummaryDto.java
+/Users/local34/Desktop/Daily Expense & Budget Logger /Daily Expense & Budget Logger/backend/src/main/java/com/expense/logger/dto/BulkUploadResponseDto.java
+/Users/local34/Desktop/Daily Expense & Budget Logger /Daily Expense & Budget Logger/backend/src/main/java/com/expense/logger/dto/BulkUploadRowDto.java
 /Users/local34/Desktop/Daily Expense & Budget Logger /Daily Expense & Budget Logger/backend/src/main/java/com/expense/logger/dto/CategoryComparisonDto.java
 /Users/local34/Desktop/Daily Expense & Budget Logger /Daily Expense & Budget Logger/backend/src/main/java/com/expense/logger/dto/CategoryDetailsDto.java
 /Users/local34/Desktop/Daily Expense & Budget Logger /Daily Expense & Budget Logger/backend/src/main/java/com/expense/logger/dto/CategoryPercentageDto.java

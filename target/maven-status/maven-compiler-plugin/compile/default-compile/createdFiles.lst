@@ -19,6 +19,7 @@ com/expense/logger/exception/BadRequestException.class
 com/expense/logger/model/TodoItem.class
 com/expense/logger/model/Role$RoleBuilder.class
 com/expense/logger/dto/MonthlyTrendDto$MonthlyTrendDtoBuilder.class
+com/expense/logger/dto/BulkUploadResponseDto$BulkUploadResponseDtoBuilder.class
 com/expense/logger/dto/MonthlyTrendDto.class
 com/expense/logger/dto/TodoRequestDto.class
 com/expense/logger/dto/CategoryPercentageDto.class
@@ -33,6 +34,7 @@ com/expense/logger/service/TodoReminderScheduledTask.class
 com/expense/logger/service/AuthService.class
 com/expense/logger/model/AuditLog$AuditLogBuilder.class
 com/expense/logger/dto/AuthResponseDto$AuthResponseDtoBuilder.class
+com/expense/logger/dto/BulkUploadResponseDto.class
 com/expense/logger/controller/BudgetController.class
 com/expense/logger/model/VerificationOtp.class
 com/expense/logger/dto/BudgetRequestDto.class
@@ -57,6 +59,7 @@ com/expense/logger/service/TodoItemService.class
 com/expense/logger/dto/UserLoginRequestDto.class
 com/expense/logger/service/EmailServiceImpl.class
 com/expense/logger/service/ExpenseService.class
+com/expense/logger/dto/BulkUploadRowDto.class
 com/expense/logger/dto/DateRangeAggregationDto.class
 com/expense/logger/service/EmailService.class
 com/expense/logger/dto/NotificationPreferencesDto$NotificationPreferencesDtoBuilder.class
@@ -71,6 +74,7 @@ com/expense/logger/model/Notification.class
 com/expense/logger/dto/BudgetResponseDto.class
 com/expense/logger/model/Permission$PermissionBuilder.class
 com/expense/logger/service/AnalyticsService.class
+com/expense/logger/dto/BulkUploadRowDto$BulkUploadRowDtoBuilder.class
 com/expense/logger/dto/AuditLogResponseDto$AuditLogResponseDtoBuilder.class
 com/expense/logger/model/User$UserBuilder.class
 com/expense/logger/dto/ExpenseRequestDto.class
@@ -113,6 +117,7 @@ com/expense/logger/dto/ValidationErrorResponseDto.class
 com/expense/logger/dto/DateRangeAggregationDto$DateRangeAggregationDtoBuilder.class
 com/expense/logger/dto/AuditLogResponseDto.class
 com/expense/logger/service/AvatarStorageService.class
+com/expense/logger/service/ExpenseServiceImpl$1.class
 com/expense/logger/security/JwtAuthenticationFilter.class
 com/expense/logger/controller/AnalyticsController.class
 com/expense/logger/service/CategoryService.class

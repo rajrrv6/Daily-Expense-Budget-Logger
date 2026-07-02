@@ -128,6 +128,16 @@ public class ExpenseController {
         return ResponseEntity.noContent().build();
     }
 
+    @PostMapping(value = "/bulk-upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<com.expense.logger.dto.BulkUploadResponseDto> bulkUpload(
+            Authentication authentication,
+            @RequestParam("file") MultipartFile file,
+            @RequestParam(value = "preview", defaultValue = "true") boolean preview,
+            @RequestParam(value = "duplicateAction", defaultValue = "skip") String duplicateAction) {
+        UUID userId = getAuthenticatedUserId(authentication);
+        return ResponseEntity.ok(expenseService.bulkUpload(userId, file, preview, duplicateAction));
+    }
+
     @PostMapping("/receipts")
     public ResponseEntity<Map<String, String>> uploadReceipt(
             Authentication authentication,

@@ -3,6 +3,11 @@ package com.expense.logger.service;
 import com.expense.logger.dto.CategoryResponseDto;
 import com.expense.logger.dto.ExpenseRequestDto;
 import com.expense.logger.dto.ExpenseResponseDto;
+import com.expense.logger.dto.BulkUploadRowDto;
+import com.expense.logger.dto.BulkUploadResponseDto;
+import org.springframework.web.multipart.MultipartFile;
+import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import com.expense.logger.exception.ResourceNotFoundException;
 import com.expense.logger.model.AuditLog;
 import com.expense.logger.model.Category;
@@ -21,9 +26,11 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.TemporalAdjusters;
-import java.util.Comparator;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
+import java.io.InputStream;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import com.expense.logger.exception.BadRequestException;
 import com.expense.logger.model.Budget;
@@ -394,6 +401,351 @@ public class ExpenseServiceImpl implements ExpenseService {
             }
         } catch (Exception e) {
             log.error("Failed to execute budget notification threshold check", e);
+        }
+    }
+
+    @Override
+    public BulkUploadResponseDto bulkUpload(UUID userId, MultipartFile file, boolean preview, String duplicateAction) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
+        if (file == null || file.isEmpty()) {
+            throw new BadRequestException("Upload file is empty or missing");
+        }
+
+        String filename = file.getOriginalFilename();
+        if (filename == null) {
+            throw new BadRequestException("Filename is missing");
+        }
+
+        List<String[]> rawRows = new ArrayList<>();
+        try (InputStream is = file.getInputStream()) {
+            if (filename.toLowerCase().endsWith(".csv")) {
+                rawRows = parseCsv(is);
+            } else if (filename.toLowerCase().endsWith(".xlsx") || filename.toLowerCase().endsWith(".xls")) {
+                rawRows = parseXlsx(is);
+            } else {
+                throw new BadRequestException("Unsupported file type. Supported formats are .csv and .xlsx");
+            }
+        } catch (Exception e) {
+            log.error("Failed to parse bulk upload file", e);
+            throw new BadRequestException("Failed to read bulk upload file: " + e.getMessage());
+        }
+
+        if (rawRows.isEmpty()) {
+            throw new BadRequestException("The uploaded file does not contain any rows");
+        }
+
+        // Header mapping
+        String[] headers = rawRows.get(0);
+        int nameIdx = -1;
+        int categoryIdx = -1;
+        int amountIdx = -1;
+        int dateIdx = -1;
+        int receiptIdx = -1;
+
+        for (int i = 0; i < headers.length; i++) {
+            String h = headers[i].trim().toLowerCase().replaceAll("[_\\s-]", "");
+            if (h.equals("expensename") || h.equals("name")) {
+                nameIdx = i;
+            } else if (h.equals("category") || h.equals("categoryname")) {
+                categoryIdx = i;
+            } else if (h.equals("amount") || h.equals("price")) {
+                amountIdx = i;
+            } else if (h.equals("transactiondate") || h.equals("date")) {
+                dateIdx = i;
+            } else if (h.equals("receipt") || h.equals("receiptpath") || h.equals("file") || h.equals("attachment")) {
+                receiptIdx = i;
+            }
+        }
+
+        if (nameIdx == -1 || categoryIdx == -1 || amountIdx == -1 || dateIdx == -1) {
+            throw new BadRequestException("Required columns are missing. The file must contain: expenseName, category, amount, and transactionDate.");
+        }
+
+        List<Category> allCategories = categoryRepository.findAllByDeletedAtIsNull();
+        Map<String, Category> categoryCache = new HashMap<>();
+        for (Category c : allCategories) {
+            categoryCache.put(c.getName().toLowerCase(), c);
+        }
+
+        List<BulkUploadRowDto> rowDtos = new ArrayList<>();
+        List<Map<String, Object>> errorsList = new ArrayList<>();
+
+        int totalRows = rawRows.size() - 1; // subtract header
+        int successCount = 0;
+        int failedCount = 0;
+        int duplicateCount = 0;
+
+        Set<String> uniqueNewCategories = new HashSet<>();
+        Set<Category> updatedCategories = new HashSet<>();
+
+        for (int r = 1; r < rawRows.size(); r++) {
+            String[] row = rawRows.get(r);
+            int rowNum = r + 1; // 1-indexed spreadsheet row
+
+            // Pad row tokens to prevent IndexOutOfBounds
+            String[] paddedRow = new String[headers.length];
+            Arrays.fill(paddedRow, "");
+            for (int k = 0; k < Math.min(row.length, headers.length); k++) {
+                paddedRow[k] = row[k] == null ? "" : row[k].trim();
+            }
+
+            String rawName = paddedRow[nameIdx];
+            String rawCategory = paddedRow[categoryIdx];
+            String rawAmount = paddedRow[amountIdx];
+            String rawDate = paddedRow[dateIdx];
+            String rawReceipt = receiptIdx != -1 ? paddedRow[receiptIdx] : "";
+
+            List<String> validationErrors = new ArrayList<>();
+            BigDecimal amount = null;
+            LocalDate transDate = null;
+            Category categoryEntity = null;
+            boolean isNewCategory = false;
+
+            // 1. Validate Expense Name
+            if (rawName.isEmpty()) {
+                validationErrors.add("Expense name is required");
+            } else if (rawName.length() > 100) {
+                validationErrors.add("Expense name cannot exceed 100 characters");
+            }
+
+            // 2. Validate Amount
+            if (rawAmount.isEmpty()) {
+                validationErrors.add("Amount is required");
+            } else {
+                try {
+                    amount = new BigDecimal(rawAmount);
+                    if (amount.compareTo(BigDecimal.ZERO) <= 0) {
+                        validationErrors.add("Amount must be greater than zero");
+                    }
+                } catch (NumberFormatException e) {
+                    validationErrors.add("Amount must be numeric");
+                }
+            }
+
+            // 3. Validate Transaction Date
+            if (rawDate.isEmpty()) {
+                validationErrors.add("Transaction date is required");
+            } else {
+                try {
+                    // Handle dates from Excel or ISO strings
+                    if (rawDate.matches("^\\d+$")) {
+                        // Excel serial date representation
+                        long days = Long.parseLong(rawDate);
+                        transDate = LocalDate.of(1899, 12, 30).plusDays(days);
+                    } else {
+                        // support generic formats: YYYY-MM-DD or standard locales
+                        transDate = LocalDate.parse(rawDate);
+                    }
+                } catch (Exception e) {
+                    validationErrors.add("Transaction date is invalid (expected YYYY-MM-DD)");
+                }
+            }
+
+            // 4. Validate/Resolve Category
+            if (rawCategory.isEmpty()) {
+                validationErrors.add("Category is required");
+            } else {
+                String catKey = rawCategory.toLowerCase();
+                categoryEntity = categoryCache.get(catKey);
+                if (categoryEntity == null) {
+                    isNewCategory = true;
+                    uniqueNewCategories.add(catKey);
+                    if (!preview) {
+                        categoryEntity = Category.builder()
+                                .name(rawCategory)
+                                .color(generateRandomColor())
+                                .build();
+                        categoryEntity = categoryRepository.save(categoryEntity);
+                        categoryCache.put(catKey, categoryEntity);
+                    } else {
+                        // Placeholder category for preview response
+                        categoryEntity = Category.builder()
+                                .name(rawCategory)
+                                .color("#4F46E5")
+                                .build();
+                    }
+                }
+            }
+
+            // 5. Validate Receipt filename format if provided
+            if (!rawReceipt.isEmpty()) {
+                String rawReceiptLower = rawReceipt.toLowerCase();
+                if (!rawReceiptLower.endsWith(".jpg") && 
+                    !rawReceiptLower.endsWith(".jpeg") && 
+                    !rawReceiptLower.endsWith(".png") && 
+                    !rawReceiptLower.endsWith(".pdf")) {
+                    validationErrors.add("Receipt format is invalid (supported: .jpg, .png, .pdf)");
+                }
+            }
+
+            boolean isValid = validationErrors.isEmpty();
+            boolean isDuplicate = false;
+
+            if (isValid) {
+                // Check duplicate check fields: name, amount, transactionDate
+                isDuplicate = expenseRepository.existsByNameAndAmountAndTransactionDateAndUserIdAndDeletedAtIsNull(
+                        rawName, amount, transDate, userId
+                );
+            }
+
+            String errorMsg = String.join("; ", validationErrors);
+
+            BulkUploadRowDto rowDto = BulkUploadRowDto.builder()
+                    .rowNumber(rowNum)
+                    .name(rawName)
+                    .categoryName(rawCategory)
+                    .amount(amount)
+                    .transactionDate(rawDate)
+                    .receipt(rawReceipt)
+                    .newCategory(isNewCategory)
+                    .valid(isValid)
+                    .duplicate(isDuplicate)
+                    .errorMessage(isValid ? null : errorMsg)
+                    .build();
+
+            if (!isValid) {
+                failedCount++;
+                Map<String, Object> errorMap = new HashMap<>();
+                errorMap.put("row", rowNum);
+                errorMap.put("message", errorMsg);
+                errorsList.add(errorMap);
+            } else {
+                if (isDuplicate) {
+                    duplicateCount++;
+                }
+
+                if (!preview) {
+                    boolean shouldSave = true;
+                    if (isDuplicate && "skip".equalsIgnoreCase(duplicateAction)) {
+                        shouldSave = false;
+                    }
+
+                    if (shouldSave) {
+                        Expense expense = Expense.builder()
+                                .name(rawName)
+                                .amount(amount)
+                                .transactionDate(transDate)
+                                .user(user)
+                                .category(categoryEntity)
+                                .receiptPath(rawReceipt.isEmpty() ? null : rawReceipt)
+                                .build();
+                        expenseRepository.save(expense);
+                        updatedCategories.add(categoryEntity);
+                        successCount++;
+                    }
+                } else {
+                    successCount++;
+                }
+            }
+
+            rowDtos.add(rowDto);
+        }
+
+        if (!preview && successCount > 0) {
+            // Trigger budget notification limits checks
+            for (Category cat : updatedCategories) {
+                triggerBudgetChecks(userId, cat);
+            }
+            // Add audit log trail event
+            logEvent("EXPENSE_BULK_UPLOAD", "Bulk upload imported " + successCount + " rows, skipped " + duplicateCount + " duplicates. Created " + uniqueNewCategories.size() + " new categories.", user);
+        }
+
+        return BulkUploadResponseDto.builder()
+                .totalRows(totalRows)
+                .successCount(successCount)
+                .failedCount(failedCount)
+                .duplicateCount(duplicateCount)
+                .newCategoriesCount(uniqueNewCategories.size())
+                .rows(rowDtos)
+                .errors(errorsList)
+                .build();
+    }
+
+    private String generateRandomColor() {
+        String[] palette = {"#4F46E5", "#06B6D4", "#10B981", "#F59E0B", "#EF4444", "#EC4899", "#8B5CF6", "#14B8A6", "#3B82F6", "#F43F5E"};
+        int idx = new java.util.Random().nextInt(palette.length);
+        return palette[idx];
+    }
+
+    private List<String[]> parseCsv(InputStream is) throws Exception {
+        List<String[]> records = new ArrayList<>();
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                if (line.trim().isEmpty()) continue;
+                records.add(parseCsvLine(line));
+            }
+        }
+        return records;
+    }
+
+    private String[] parseCsvLine(String line) {
+        List<String> tokens = new ArrayList<>();
+        StringBuilder sb = new StringBuilder();
+        boolean inQuotes = false;
+        for (int i = 0; i < line.length(); i++) {
+            char c = line.charAt(i);
+            if (c == '"') {
+                inQuotes = !inQuotes;
+            } else if (c == ',' && !inQuotes) {
+                tokens.add(sb.toString().trim());
+                sb.setLength(0);
+            } else {
+                sb.append(c);
+            }
+        }
+        tokens.add(sb.toString().trim());
+        return tokens.toArray(new String[0]);
+    }
+
+    private List<String[]> parseXlsx(InputStream is) throws Exception {
+        List<String[]> records = new ArrayList<>();
+        try (Workbook workbook = new XSSFWorkbook(is)) {
+            Sheet sheet = workbook.getSheetAt(0);
+            for (Row row : sheet) {
+                // Determine row length from first header row
+                int lastCellNum = sheet.getRow(0).getLastCellNum();
+                String[] rowTokens = new String[lastCellNum];
+                for (int c = 0; c < lastCellNum; c++) {
+                    Cell cell = row.getCell(c);
+                    rowTokens[c] = getCellValueAsString(cell);
+                }
+                // Skip completely blank excel rows
+                boolean isBlank = Arrays.stream(rowTokens).allMatch(t -> t == null || t.isEmpty());
+                if (!isBlank) {
+                    records.add(rowTokens);
+                }
+            }
+        }
+        return records;
+    }
+
+    private String getCellValueAsString(Cell cell) {
+        if (cell == null) return "";
+        switch (cell.getCellType()) {
+            case STRING:
+                return cell.getStringCellValue();
+            case NUMERIC:
+                if (DateUtil.isCellDateFormatted(cell)) {
+                    return cell.getLocalDateTimeCellValue().toLocalDate().toString();
+                }
+                return new BigDecimal(cell.getNumericCellValue()).toPlainString();
+            case BOOLEAN:
+                return String.valueOf(cell.getBooleanCellValue());
+            case FORMULA:
+                try {
+                    return cell.getStringCellValue();
+                } catch (Exception e) {
+                    try {
+                        return new BigDecimal(cell.getNumericCellValue()).toPlainString();
+                    } catch (Exception ex) {
+                        return "";
+                    }
+                }
+            default:
+                return "";
         }
     }
 }

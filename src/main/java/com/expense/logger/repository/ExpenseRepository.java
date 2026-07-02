@@ -27,6 +27,10 @@ public interface ExpenseRepository extends JpaRepository<Expense, UUID> {
     org.springframework.data.domain.Page<Expense> findAllByUserIdAndCategoryIdAndDeletedAtIsNull(
             UUID userId, Long categoryId, org.springframework.data.domain.Pageable pageable);
 
+    boolean existsByNameAndAmountAndTransactionDateAndUserIdAndDeletedAtIsNull(
+            String name, java.math.BigDecimal amount, java.time.LocalDate transactionDate, java.util.UUID userId
+    );
+
     @org.springframework.data.jpa.repository.Query("SELECT e FROM Expense e JOIN e.category c " +
         "WHERE e.user.id = :userId AND e.deletedAt IS NULL AND " +
         "(LOWER(e.name) LIKE LOWER(CONCAT('%', :query, '%')) OR LOWER(c.name) LIKE LOWER(CONCAT('%', :query, '%')))")

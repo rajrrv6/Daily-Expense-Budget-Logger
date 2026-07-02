@@ -15,4 +15,5 @@ public interface ExpenseService {
     ExpenseResponseDto updateExpense(UUID id, ExpenseRequestDto dto, UUID userId);
     void deleteExpense(UUID id, UUID userId);
     byte[] exportExpensesToPdf(UUID userId, LocalDate startDate, LocalDate endDate, String token);
+    com.expense.logger.dto.BulkUploadResponseDto bulkUpload(UUID userId, org.springframework.web.multipart.MultipartFile file, boolean preview, String duplicateAction);
 }
