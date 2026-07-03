@@ -36,19 +36,25 @@ public class UserServiceImpl implements UserService {
     private final AuditLogRepository auditLogRepository;
     private final AvatarStorageService avatarStorageService;
     private final RoleRepository roleRepository;
+    private final JwtBlacklistService blacklistService;
+
+    @org.springframework.beans.factory.annotation.Value("${app.jwt.accessTokenExpirationMs:900000}")
+    private long accessTokenExpirationMs;
 
     public UserServiceImpl(UserRepository userRepository,
                            PasswordEncoder passwordEncoder,
                            RefreshTokenRepository refreshTokenRepository,
                            AuditLogRepository auditLogRepository,
                            AvatarStorageService avatarStorageService,
-                           RoleRepository roleRepository) {
+                           RoleRepository roleRepository,
+                           JwtBlacklistService blacklistService) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.refreshTokenRepository = refreshTokenRepository;
         this.auditLogRepository = auditLogRepository;
         this.avatarStorageService = avatarStorageService;
         this.roleRepository = roleRepository;
+        this.blacklistService = blacklistService;
     }
 
     @Override
@@ -146,6 +152,9 @@ public class UserServiceImpl implements UserService {
         // Invalidate all active refresh tokens for the user
         refreshTokenRepository.deleteByUser(user);
 
+        // Blacklist user session in Redis to revoke active stateless JWTs immediately
+        blacklistService.blacklistUser(user.getUsername(), accessTokenExpirationMs);
+
         // Audit Logging
         logEvent("PASSWORD_CHANGE", "User successfully changed password.", user);
     }
@@ -234,6 +243,9 @@ public class UserServiceImpl implements UserService {
             user.setLockoutUntil(java.time.LocalDateTime.now().plusYears(100));
             logEvent("USER_LOCK", "Admin " + admin.getUsername() + " locked user " + user.getUsername(), admin);
             refreshTokenRepository.deleteByUser(user);
+            
+            // Blacklist user session in Redis to revoke active stateless JWTs immediately
+            blacklistService.blacklistUser(user.getUsername(), accessTokenExpirationMs);
         }
         userRepository.save(user);
 

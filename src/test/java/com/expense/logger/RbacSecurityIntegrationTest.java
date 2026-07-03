@@ -22,6 +22,8 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.beans.factory.annotation.Qualifier;
+import java.util.Map;
 
 import java.util.Collection;
 import java.util.HashSet;
@@ -66,11 +68,22 @@ public class RbacSecurityIntegrationTest {
     @Autowired
     private RoleHierarchy roleHierarchy;
 
+    @Autowired
+    private com.expense.logger.config.ApiRateLimitFilter rateLimitFilter;
+
+    @Autowired
+    @Qualifier("inMemoryRedis")
+    private Map<String, String> inMemoryRedis;
+
     private User adminUser;
     private User normalUser;
 
     @BeforeEach
     public void setup() {
+        rateLimitFilter.clearBuckets();
+        if (inMemoryRedis != null) {
+            inMemoryRedis.clear();
+        }
         // Clear tokens and users to avoid constraint violations
         refreshTokenRepository.deleteAll();
         userRepository.deleteAll();
@@ -218,6 +231,57 @@ public class RbacSecurityIntegrationTest {
         assertTrue(auditorAuthorities.contains("ROLE_AUDITOR"), "Auditor reachable authorities should include ROLE_AUDITOR");
         assertTrue(auditorAuthorities.contains("ROLE_USER"), "Auditor reachable authorities should include ROLE_USER");
         assertFalse(auditorAuthorities.contains("ROLE_ADMIN"), "Auditor reachable authorities should NOT include ROLE_ADMIN");
+    }
+
+    @Test
+    public void testLogoutFlowClearsCookieAndInvalidatesSession() throws Exception {
+        // 1. Log in as admin to get refresh cookie
+        UserLoginRequestDto loginDto = UserLoginRequestDto.builder()
+                .usernameOrEmail("admin_test")
+                .password("adminpass")
+                .build();
+
+        MvcResult loginResult = mockMvc.perform(post("/api/v1/auth/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(loginDto)))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        Cookie refreshCookie = loginResult.getResponse().getCookie("refreshToken");
+        assertTrue(refreshCookie != null, "Refresh token cookie should be present");
+        assertTrue("/api/v1/auth".equals(refreshCookie.getPath()), "Refresh cookie path should be /api/v1/auth");
+
+        // Verify it is present in DB
+        long dbTokenCountBefore = refreshTokenRepository.count();
+        assertTrue(dbTokenCountBefore > 0, "Refresh token should be persisted in DB");
+
+        // 2. Verify Refresh Flow Still Works with the cookie
+        MvcResult refreshResult = mockMvc.perform(post("/api/v1/auth/refresh")
+                        .cookie(refreshCookie))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        Cookie rotatedCookie = refreshResult.getResponse().getCookie("refreshToken");
+        assertTrue(rotatedCookie != null, "Rotated refresh token cookie should be present");
+        assertTrue("/api/v1/auth".equals(rotatedCookie.getPath()), "Rotated cookie path should be /api/v1/auth");
+
+        // 3. Perform Logout using the active refresh cookie
+        MvcResult logoutResult = mockMvc.perform(post("/api/v1/auth/logout")
+                        .cookie(rotatedCookie))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        // 4. Verify Cookie Clearing in logout response
+        Cookie clearedCookie = logoutResult.getResponse().getCookie("refreshToken");
+        assertTrue(clearedCookie != null, "Cleared refresh token cookie must be returned");
+        assertTrue(clearedCookie.getValue() == null || clearedCookie.getValue().isEmpty() || "".equals(clearedCookie.getValue()), "Cleared cookie value should be empty");
+        assertTrue("/api/v1/auth".equals(clearedCookie.getPath()), "Cleared cookie path should be /api/v1/auth");
+
+        // 5. Verify Logout Invalidates Session in DB
+        // Subsequent refresh attempts with the logged out/rotated token must fail
+        mockMvc.perform(post("/api/v1/auth/refresh")
+                        .cookie(rotatedCookie))
+                .andExpect(status().isBadRequest());
     }
 
     @Test

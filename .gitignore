@@ -60,5 +60,4 @@ files/
 Thumbs.db
 
 # Local environment configs
-.env
-.env.local
+

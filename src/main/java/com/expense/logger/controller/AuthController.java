@@ -34,6 +34,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/v1/auth")
+@lombok.extern.slf4j.Slf4j
 public class AuthController {
 
     private final AuthService authService;
@@ -103,7 +104,7 @@ public class AuthController {
      * @param resendDto Contains user identification email details
      * @return A success confirmation message
      */
-    @PostMapping("/resend-otp")
+    @PostMapping({"/resend-otp", "/send-otp"})
     public ResponseEntity<Map<String, String>> resendOtp(@Valid @RequestBody OtpResendRequestDto resendDto) {
         authService.resendOtp(resendDto);
         return ResponseEntity.ok(Map.of("message", "A new verification code has been sent."));
@@ -125,6 +126,7 @@ public class AuthController {
             HttpServletResponse response) {
         String userAgent = request.getHeader(HttpHeaders.USER_AGENT);
         String ipAddress = request.getRemoteAddr();
+        log.info("Processing login request for identifier: {} from IP: {}", loginDto.getUsernameOrEmail(), ipAddress);
 
         AuthResponseDto result = authService.loginUser(loginDto, userAgent, ipAddress);
         setRefreshTokenCookie(response, result.getRefreshToken());
@@ -156,7 +158,14 @@ public class AuthController {
     @PostMapping("/logout")
     public ResponseEntity<Void> logout(HttpServletRequest request, HttpServletResponse response) {
         String refreshToken = extractRefreshTokenFromCookies(request);
-        authService.logoutUser(refreshToken);
+        
+        String authHeader = request.getHeader("Authorization");
+        String accessToken = null;
+        if (authHeader != null && authHeader.startsWith("Bearer ")) {
+            accessToken = authHeader.substring(7);
+        }
+        
+        authService.logoutUser(refreshToken, accessToken);
         deleteRefreshTokenCookie(response);
         return ResponseEntity.ok().build();
     }
@@ -202,13 +211,13 @@ public class AuthController {
     /**
      * Writes a secure, HttpOnly, SameSite cookie to the servlet HTTP response
      * headers.
-     * The cookie is restricted to "/api/v1/auth/refresh" to minimize path exposure.
+     * The cookie is restricted to "/api/v1/auth" to minimize path exposure while permitting logout access.
      */
     private void setRefreshTokenCookie(HttpServletResponse response, String token) {
         ResponseCookie cookie = ResponseCookie.from("refreshToken", token)
                 .httpOnly(true)
                 .secure(cookieSecure) // Dynamic secure flag based on profile settings
-                .path("/api/v1/auth/refresh")
+                .path("/api/v1/auth")
                 .maxAge(7 * 24 * 60 * 60) // 7 days
                 .sameSite("Strict")
                 .build();
@@ -223,7 +232,7 @@ public class AuthController {
         ResponseCookie cookie = ResponseCookie.from("refreshToken", "")
                 .httpOnly(true)
                 .secure(cookieSecure) // Dynamic secure flag based on profile settings
-                .path("/api/v1/auth/refresh")
+                .path("/api/v1/auth")
                 .maxAge(0) // Expire immediately
                 .sameSite("Strict")
                 .build();

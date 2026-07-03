@@ -1,3 +1,8 @@
-com/expense/logger/EncryptionServiceTest.class
+com/expense/logger/OtpRateLimitIntegrationTest.class
 com/expense/logger/RbacSecurityIntegrationTest.class
+com/expense/logger/EncryptionServiceTest.class
 com/expense/logger/AdvancedFeaturesTest.class
+com/expense/logger/SecurityHeadersIntegrationTest.class
+com/expense/logger/ApiRateLimitIntegrationTest.class
+com/expense/logger/config/TestRedisConfig.class
+com/expense/logger/JwtBlacklistIntegrationTest.class

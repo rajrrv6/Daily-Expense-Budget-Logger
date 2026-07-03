@@ -49,6 +49,7 @@ public class ExpenseServiceImpl implements ExpenseService {
     private final BudgetRepository budgetRepository;
     private final NotificationService notificationService;
     private final ReceiptStorageService receiptStorageService;
+    private final AsyncTaskQueueService asyncTaskQueueService;
 
     public ExpenseServiceImpl(ExpenseRepository expenseRepository,
                               CategoryRepository categoryRepository,
@@ -56,7 +57,8 @@ public class ExpenseServiceImpl implements ExpenseService {
                               AuditLogRepository auditLogRepository,
                               BudgetRepository budgetRepository,
                               NotificationService notificationService,
-                              ReceiptStorageService receiptStorageService) {
+                              ReceiptStorageService receiptStorageService,
+                              AsyncTaskQueueService asyncTaskQueueService) {
         this.expenseRepository = expenseRepository;
         this.categoryRepository = categoryRepository;
         this.userRepository = userRepository;
@@ -64,6 +66,7 @@ public class ExpenseServiceImpl implements ExpenseService {
         this.budgetRepository = budgetRepository;
         this.notificationService = notificationService;
         this.receiptStorageService = receiptStorageService;
+        this.asyncTaskQueueService = asyncTaskQueueService;
     }
 
     @Override
@@ -356,7 +359,7 @@ public class ExpenseServiceImpl implements ExpenseService {
         table.addCell(cell);
     }
 
-    private void triggerBudgetChecks(UUID userId, Category category) {
+    public void triggerBudgetChecks(UUID userId, Category category) {
         try {
             LocalDate now = LocalDate.now();
             LocalDate start = now.with(TemporalAdjusters.firstDayOfMonth());
@@ -469,10 +472,41 @@ public class ExpenseServiceImpl implements ExpenseService {
             categoryCache.put(c.getName().toLowerCase(), c);
         }
 
+        int totalRows = rawRows.size() - 1; // subtract header
+
+        if (!preview) {
+            Map<String, Object> payload = new HashMap<>();
+            payload.put("userId", userId.toString());
+            payload.put("rawRows", rawRows.subList(1, rawRows.size())); // sublist excluding header
+            payload.put("duplicateAction", duplicateAction);
+            payload.put("nameIdx", nameIdx);
+            payload.put("categoryIdx", categoryIdx);
+            payload.put("amountIdx", amountIdx);
+            payload.put("dateIdx", dateIdx);
+            payload.put("receiptIdx", receiptIdx);
+
+            AsyncJob job = AsyncJob.builder()
+                    .jobId(UUID.randomUUID().toString())
+                    .jobType(AsyncJob.JobType.BULK_UPLOAD_PROCESSING)
+                    .payload(payload)
+                    .build();
+
+            asyncTaskQueueService.submitJob(job);
+
+            return BulkUploadResponseDto.builder()
+                    .totalRows(totalRows)
+                    .successCount(0)
+                    .failedCount(0)
+                    .duplicateCount(0)
+                    .newCategoriesCount(0)
+                    .rows(Collections.emptyList())
+                    .errors(Collections.singletonList(Map.of("status", "QUEUED", "message", "Background processing started.")))
+                    .build();
+        }
+
         List<BulkUploadRowDto> rowDtos = new ArrayList<>();
         List<Map<String, Object>> errorsList = new ArrayList<>();
 
-        int totalRows = rawRows.size() - 1; // subtract header
         int successCount = 0;
         int failedCount = 0;
         int duplicateCount = 0;
@@ -663,7 +697,7 @@ public class ExpenseServiceImpl implements ExpenseService {
                 .build();
     }
 
-    private String generateRandomColor() {
+    public String generateRandomColor() {
         String[] palette = {"#4F46E5", "#06B6D4", "#10B981", "#F59E0B", "#EF4444", "#EC4899", "#8B5CF6", "#14B8A6", "#3B82F6", "#F43F5E"};
         int idx = new java.util.Random().nextInt(palette.length);
         return palette[idx];

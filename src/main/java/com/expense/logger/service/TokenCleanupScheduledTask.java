@@ -15,11 +15,14 @@ public class TokenCleanupScheduledTask {
 
     private final PasswordResetTokenRepository passwordResetTokenRepository;
     private final RefreshTokenRepository refreshTokenRepository;
+    private final com.expense.logger.repository.VerificationOtpRepository verificationOtpRepository;
 
     public TokenCleanupScheduledTask(PasswordResetTokenRepository passwordResetTokenRepository,
-                                     RefreshTokenRepository refreshTokenRepository) {
+                                     RefreshTokenRepository refreshTokenRepository,
+                                     com.expense.logger.repository.VerificationOtpRepository verificationOtpRepository) {
         this.passwordResetTokenRepository = passwordResetTokenRepository;
         this.refreshTokenRepository = refreshTokenRepository;
+        this.verificationOtpRepository = verificationOtpRepository;
     }
 
     @Scheduled(cron = "${app.cleanup.cron:0 0 2 * * *}")
@@ -31,6 +34,7 @@ public class TokenCleanupScheduledTask {
             LocalDateTime now = LocalDateTime.now();
             passwordResetTokenRepository.deleteByExpiresAtBefore(now);
             refreshTokenRepository.deleteByExpiresAtBefore(now);
+            verificationOtpRepository.deleteByExpiresAtBefore(now);
             long duration = System.currentTimeMillis() - startTime;
             log.info("Scheduled token cleanup successfully finished in {} ms.", duration);
         } catch (Exception e) {

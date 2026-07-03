@@ -8,6 +8,10 @@ import com.expense.logger.dto.UserRegisterRequestDto;
 import com.expense.logger.dto.UserResponseDto;
 import com.expense.logger.exception.BadRequestException;
 import com.expense.logger.exception.ResourceNotFoundException;
+import com.expense.logger.exception.RateLimitExceededException;
+import com.expense.logger.exception.OtpBlockedException;
+import com.expense.logger.exception.InvalidOtpException;
+import com.expense.logger.exception.ExpiredOtpException;
 import com.expense.logger.model.AuditLog;
 import com.expense.logger.model.RefreshToken;
 import com.expense.logger.model.PasswordResetToken;
@@ -61,6 +65,11 @@ public class AuthServiceImpl implements AuthService {
     private final PendingRegistrationRepository pendingRegistrationRepository;
     private final EmailService emailService;
     private final RoleRepository roleRepository;
+    private final JwtBlacklistService blacklistService;
+    private final OtpRateLimitService otpRateLimitService;
+    private final OtpAttemptTrackerService otpAttemptTrackerService;
+    private final RedisOtpSecurityService redisOtpSecurityService;
+    private final LoginAttemptService loginAttemptService;
 
     @Value("${app.jwt.accessTokenExpirationMs}")
     private long accessTokenExpirationMs;
@@ -78,7 +87,12 @@ public class AuthServiceImpl implements AuthService {
                            VerificationOtpRepository verificationOtpRepository,
                            PendingRegistrationRepository pendingRegistrationRepository,
                            EmailService emailService,
-                           RoleRepository roleRepository) {
+                           RoleRepository roleRepository,
+                           JwtBlacklistService blacklistService,
+                           OtpRateLimitService otpRateLimitService,
+                           OtpAttemptTrackerService otpAttemptTrackerService,
+                           RedisOtpSecurityService redisOtpSecurityService,
+                           LoginAttemptService loginAttemptService) {
         this.userRepository = userRepository;
         this.refreshTokenRepository = refreshTokenRepository;
         this.auditLogRepository = auditLogRepository;
@@ -90,6 +104,11 @@ public class AuthServiceImpl implements AuthService {
         this.pendingRegistrationRepository = pendingRegistrationRepository;
         this.emailService = emailService;
         this.roleRepository = roleRepository;
+        this.blacklistService = blacklistService;
+        this.otpRateLimitService = otpRateLimitService;
+        this.otpAttemptTrackerService = otpAttemptTrackerService;
+        this.redisOtpSecurityService = redisOtpSecurityService;
+        this.loginAttemptService = loginAttemptService;
     }
 
     @Override
@@ -128,6 +147,12 @@ public class AuthServiceImpl implements AuthService {
             throw new BadRequestException("Email is already registered");
         }
 
+        // Rate limit check before sending OTP
+        if (!otpRateLimitService.canSendOtp(registerDto.getEmail())) {
+            long remaining = otpRateLimitService.getCooldownRemainingSeconds(registerDto.getEmail());
+            throw new RateLimitExceededException("OTP resend limit exceeded or cooldown active. Remaining cooldown: " + remaining + " seconds.");
+        }
+
         // Clean up any existing pending registrations for the same credentials to prevent conflicts
         pendingRegistrationRepository.deleteByEmail(registerDto.getEmail());
         pendingRegistrationRepository.deleteByUsername(registerDto.getUsername());
@@ -147,6 +172,7 @@ public class AuthServiceImpl implements AuthService {
                 "Daily Expense Logger - Verify Your Email",
                 buildVerificationEmailHtml(registerDto.getFirstName(), otpCode)
             );
+            otpRateLimitService.recordOtpSent(registerDto.getEmail());
         } catch (Exception e) {
             log.warn("Asynchronous trigger of email dispatch failed for {}: {}", registerDto.getEmail(), e.getMessage());
         }
@@ -168,7 +194,6 @@ public class AuthServiceImpl implements AuthService {
         log.info("====================================================");
         log.info("PENDING REGISTRATION EMAIL OTP FOR {}: {}", registerDto.getEmail(), otpCode);
         log.info("====================================================");
-        System.out.println("PENDING REGISTRATION EMAIL OTP FOR " + registerDto.getEmail() + ": " + otpCode);
 
         return AuthResponseDto.builder()
                 .username(registerDto.getUsername())
@@ -185,9 +210,13 @@ public class AuthServiceImpl implements AuthService {
         String identifier = loginDto.getUsernameOrEmail();
         User user = userRepository.findByUsernameAndDeletedAtIsNull(identifier)
                 .or(() -> userRepository.findByEmailAndDeletedAtIsNull(identifier))
-                .orElseThrow(() -> new BadRequestException("Invalid username or password"));
+                .orElseGet(() -> {
+                    loginAttemptService.recordFailedLoginAttempt(identifier);
+                    throw new BadRequestException("Invalid username or password");
+                });
 
         if (!user.isVerified()) {
+            loginAttemptService.recordFailedLoginAttempt(identifier);
             throw new BadRequestException("Email is not verified. Please verify your email first.");
         }
 
@@ -205,11 +234,29 @@ public class AuthServiceImpl implements AuthService {
             user.setFailedLoginAttempts(0);
             user.setLockoutUntil(null);
             userRepository.save(user);
+
+            java.util.Set<String> uniqueKeys = new java.util.HashSet<>();
+            if (user.getUsername() != null) uniqueKeys.add(user.getUsername());
+            if (user.getEmail() != null) uniqueKeys.add(user.getEmail());
+            if (identifier != null) uniqueKeys.add(identifier);
+            for (String key : uniqueKeys) {
+                loginAttemptService.resetUserAttempts(key);
+            }
         } catch (Exception e) {
+            java.util.Set<String> uniqueKeys = new java.util.HashSet<>();
+            if (user.getUsername() != null) uniqueKeys.add(user.getUsername());
+            if (user.getEmail() != null) uniqueKeys.add(user.getEmail());
+            if (identifier != null) uniqueKeys.add(identifier);
+            for (String key : uniqueKeys) {
+                loginAttemptService.recordFailedLoginAttempt(key);
+            }
+
             int attempts = user.getFailedLoginAttempts() + 1;
             user.setFailedLoginAttempts(attempts);
+            log.warn("Failed login attempt #{} for user: {}", attempts, user.getUsername());
             if (attempts >= 5) {
                 user.setLockoutUntil(LocalDateTime.now().plusMinutes(15));
+                log.error("Account locked for user: {} due to consecutive failed login attempts.", user.getUsername());
             }
             userRepository.save(user);
 
@@ -309,16 +356,24 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public void logoutUser(String refreshTokenVal) {
+    public void logoutUser(String refreshTokenVal, String accessTokenVal) {
+        if (accessTokenVal != null && !accessTokenVal.trim().isEmpty()) {
+            blacklistService.blacklistToken(accessTokenVal);
+        }
+
         if (refreshTokenVal == null || refreshTokenVal.trim().isEmpty()) {
             return;
         }
         String tokenHash = hashToken(refreshTokenVal);
-        refreshTokenRepository.findByTokenHash(tokenHash).ifPresent(token -> {
+        List<RefreshToken> tokens = refreshTokenRepository.findAllByTokenHash(tokenHash);
+        if (!tokens.isEmpty()) {
+            RefreshToken token = tokens.get(0);
             // Audit Log logout
             logEvent("USER_LOGOUT", "User logged out", token.getUser());
-            refreshTokenRepository.delete(token);
-        });
+            for (RefreshToken t : tokens) {
+                refreshTokenRepository.delete(t);
+            }
+        }
     }
 
     @Override
@@ -458,6 +513,9 @@ public class AuthServiceImpl implements AuthService {
         
         // Invalidate all active refresh tokens for the user
         refreshTokenRepository.deleteByUser(user);
+
+        // Blacklist user session in Redis to revoke active stateless JWTs immediately
+        blacklistService.blacklistUser(user.getUsername(), accessTokenExpirationMs);
         
         // Mark reset token as used
         resetToken.setUsed(true);
@@ -470,13 +528,27 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public AuthResponseDto verifyOtp(com.expense.logger.dto.OtpVerificationRequestDto verifyDto, String userAgent, String ipAddress) {
-        PendingRegistration pending = pendingRegistrationRepository.findFirstByEmailAndOtpCodeOrderByCreatedAtDesc(
-                verifyDto.getEmail(),
-                verifyDto.getOtpCode()
-        ).orElseThrow(() -> new BadRequestException("Invalid or expired OTP verification code"));
+        // 1. Check account lockout state
+        if (otpAttemptTrackerService.isBlocked(verifyDto.getEmail(), ipAddress)) {
+            throw new OtpBlockedException("OTP verification blocked due to too many failed attempts.");
+        }
 
+        // 2. Fetch pending registration
+        PendingRegistration pending = pendingRegistrationRepository.findFirstByEmailOrderByCreatedAtDesc(verifyDto.getEmail())
+                .orElseThrow(() -> new BadRequestException("No pending registration found for this email address"));
+
+        // 3. Verify OTP code match
+        if (!pending.getOtpCode().equals(verifyDto.getOtpCode())) {
+            otpAttemptTrackerService.recordFailedAttempt(verifyDto.getEmail(), ipAddress);
+            loginAttemptService.recordFailedOtp(verifyDto.getEmail(), ipAddress);
+            throw new InvalidOtpException("Invalid OTP verification code");
+        }
+
+        // 4. Verify OTP expiration
         if (pending.getExpiresAt().isBefore(LocalDateTime.now())) {
-            throw new BadRequestException("OTP verification code has expired");
+            otpAttemptTrackerService.recordFailedAttempt(verifyDto.getEmail(), ipAddress);
+            loginAttemptService.recordFailedOtp(verifyDto.getEmail(), ipAddress);
+            throw new ExpiredOtpException("OTP verification code has expired");
         }
 
         // Prevent duplicate user registrations (in case someone else registered this email/username in parallel)
@@ -507,6 +579,9 @@ public class AuthServiceImpl implements AuthService {
         // Delete the temporary pending registration payload
         pendingRegistrationRepository.delete(pending);
 
+        // Reset/clear attempts on successful verification
+        otpAttemptTrackerService.recordSuccessfulAttempt(verifyDto.getEmail(), ipAddress);
+
         // Audit Log registration & verification
         logEvent("USER_REGISTER", "New user registered: username=" + user.getUsername(), user);
         logEvent("USER_EMAIL_VERIFIED", "User email verified via OTP: email=" + user.getEmail(), user);
@@ -534,6 +609,11 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public void resendOtp(com.expense.logger.dto.OtpResendRequestDto resendDto) {
+        if (!otpRateLimitService.canSendOtp(resendDto.getEmail())) {
+            long remaining = otpRateLimitService.getCooldownRemainingSeconds(resendDto.getEmail());
+            throw new RateLimitExceededException("OTP resend limit exceeded or cooldown active. Remaining cooldown: " + remaining + " seconds.");
+        }
+
         PendingRegistration pending = pendingRegistrationRepository.findFirstByEmailOrderByCreatedAtDesc(resendDto.getEmail())
                 .orElseThrow(() -> new BadRequestException("No pending registration found for this email address"));
 
@@ -556,6 +636,7 @@ public class AuthServiceImpl implements AuthService {
                 "Daily Expense Logger - Verify Your Email",
                 buildVerificationEmailHtml(pending.getFirstName(), otpCode)
             );
+            otpRateLimitService.recordOtpSent(resendDto.getEmail());
         } catch (Exception e) {
             log.warn("Asynchronous trigger of email dispatch failed for {}: {}", pending.getEmail(), e.getMessage());
         }
@@ -564,7 +645,6 @@ public class AuthServiceImpl implements AuthService {
         log.info("====================================================");
         log.info("RESENT PENDING REGISTRATION EMAIL OTP FOR {}: {}", pending.getEmail(), otpCode);
         log.info("====================================================");
-        System.out.println("RESENT PENDING REGISTRATION EMAIL OTP FOR " + pending.getEmail() + ": " + otpCode);
     }
 
     private String buildVerificationEmailHtml(String firstName, String otpCode) {

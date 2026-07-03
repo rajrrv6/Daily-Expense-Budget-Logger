@@ -80,15 +80,6 @@ CREATE TABLE IF NOT EXISTS refresh_tokens (
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
--- Indexing Optimization Plan
--- 1. Index on User Expenses Search (Active records sorted by transaction date)
-CREATE INDEX IF NOT EXISTS idx_expenses_user_date ON expenses(user_id, transaction_date DESC) WHERE deleted_at IS NULL;
-
--- 2. Index on Active Users (Login lookup validation)
-CREATE UNIQUE INDEX IF NOT EXISTS idx_users_active_email ON users(email) WHERE deleted_at IS NULL;
-
--- 3. Index on Active Categories (Unique active category names)
-CREATE UNIQUE INDEX IF NOT EXISTS idx_categories_active_name ON categories(category_name) WHERE deleted_at IS NULL;
 
 -- Table: password_reset_tokens
 CREATE TABLE IF NOT EXISTS password_reset_tokens (
@@ -117,9 +108,7 @@ CREATE TABLE IF NOT EXISTS budgets (
     deleted_at TIMESTAMP NULL
 );
 
--- Indexes for reset tokens & budgets optimization
-CREATE UNIQUE INDEX IF NOT EXISTS idx_password_reset_tokens_hash ON password_reset_tokens(token_hash);
-CREATE INDEX IF NOT EXISTS idx_budgets_user ON budgets(user_id) WHERE deleted_at IS NULL;
+
 
 -- Table: notifications
 CREATE TABLE IF NOT EXISTS notifications (
@@ -145,8 +134,7 @@ CREATE TABLE IF NOT EXISTS notification_preferences (
     quiet_hours_end TIME NULL
 );
 
--- Indexes for notifications
-CREATE INDEX IF NOT EXISTS idx_notifications_user ON notifications(user_id, created_at DESC) WHERE deleted_at IS NULL;
+
 
 -- Table: verification_otps
 CREATE TABLE IF NOT EXISTS verification_otps (
@@ -199,5 +187,53 @@ CREATE TABLE IF NOT EXISTS role_permissions (
     permission_id BIGINT NOT NULL REFERENCES permissions(permission_id) ON DELETE CASCADE,
     PRIMARY KEY (role_id, permission_id)
 );
+
+-- =========================================================================
+-- ENTERPRISE-GRADE DATABASE INDEX OPTIMIZATION
+-- =========================================================================
+
+-- 1. User Authentication & Profile Lookups
+CREATE UNIQUE INDEX IF NOT EXISTS idx_users_username ON users(username) WHERE deleted_at IS NULL;
+CREATE UNIQUE INDEX IF NOT EXISTS idx_users_email ON users(email) WHERE deleted_at IS NULL;
+CREATE INDEX IF NOT EXISTS idx_users_lockout ON users(lockout_until) WHERE deleted_at IS NULL;
+
+-- 2. Refresh Token Rotation (RTR) & Cleanup
+CREATE INDEX IF NOT EXISTS idx_refresh_tokens_hash ON refresh_tokens(token_hash);
+CREATE INDEX IF NOT EXISTS idx_refresh_tokens_user ON refresh_tokens(user_id);
+CREATE INDEX IF NOT EXISTS idx_refresh_tokens_family ON refresh_tokens(family_id);
+CREATE INDEX IF NOT EXISTS idx_refresh_tokens_expiry ON refresh_tokens(expires_at);
+
+-- 3. Password Recovery Optimization
+CREATE UNIQUE INDEX IF NOT EXISTS idx_password_reset_tokens_hash ON password_reset_tokens(token_hash);
+
+-- 4. Audit Log Reporting & Filtering
+CREATE INDEX IF NOT EXISTS idx_audit_logs_user ON audit_logs(user_id);
+CREATE INDEX IF NOT EXISTS idx_audit_logs_action_created ON audit_logs(action_type, created_at DESC);
+
+-- 5. Expense Management & Pagination (Composite & Covering Indexes)
+CREATE INDEX IF NOT EXISTS idx_expenses_user ON expenses(user_id) WHERE deleted_at IS NULL;
+CREATE INDEX IF NOT EXISTS idx_expenses_date ON expenses(transaction_date);
+CREATE INDEX IF NOT EXISTS idx_expenses_user_date ON expenses(user_id, transaction_date DESC) WHERE deleted_at IS NULL;
+CREATE INDEX IF NOT EXISTS idx_expenses_category ON expenses(category_id) WHERE deleted_at IS NULL;
+CREATE INDEX IF NOT EXISTS idx_expenses_duplicate_check ON expenses(user_id, transaction_date, amount, expense_name) WHERE deleted_at IS NULL;
+
+-- 6. Budget Tracking Optimization
+CREATE INDEX IF NOT EXISTS idx_budgets_user ON budgets(user_id) WHERE deleted_at IS NULL;
+
+-- 7. Notification Aggregations
+CREATE INDEX IF NOT EXISTS idx_notifications_user ON notifications(user_id, created_at DESC) WHERE deleted_at IS NULL;
+
+-- 8. Verification OTP & Pending Registrations (Fast OTP and cleanups)
+CREATE INDEX IF NOT EXISTS idx_verification_otps_active ON verification_otps(email, otp_code) WHERE used = false;
+CREATE INDEX IF NOT EXISTS idx_pending_registrations_email ON pending_registrations(email);
+CREATE INDEX IF NOT EXISTS idx_pending_registrations_username ON pending_registrations(username);
+
+-- 9. Role-Based Access Control (RBAC) Cascades & Joins
+CREATE INDEX IF NOT EXISTS idx_user_roles_role ON user_roles(role_id);
+CREATE INDEX IF NOT EXISTS idx_role_permissions_permission ON role_permissions(permission_id);
+
+-- 10. Categories Optimization
+CREATE UNIQUE INDEX IF NOT EXISTS idx_categories_active_name ON categories(category_name) WHERE deleted_at IS NULL;
+
 
 

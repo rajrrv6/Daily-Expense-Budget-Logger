@@ -16,6 +16,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Component
@@ -41,38 +42,31 @@ public class JwtTokenProvider {
 
     public String generateAccessToken(Authentication authentication) {
         UserDetails userPrincipal = (UserDetails) authentication.getPrincipal();
-        return generateTokenFromUsername(userPrincipal.getUsername(), accessTokenExpirationMs);
+        return generateTokenFromUsernameAndAuthorities(userPrincipal.getUsername(), userPrincipal.getAuthorities(), accessTokenExpirationMs);
     }
 
     public String generateRefreshToken(Authentication authentication) {
         UserDetails userPrincipal = (UserDetails) authentication.getPrincipal();
-        return generateTokenFromUsername(userPrincipal.getUsername(), refreshTokenExpirationMs);
+        return generateTokenFromUsernameAndAuthorities(userPrincipal.getUsername(), userPrincipal.getAuthorities(), refreshTokenExpirationMs);
     }
 
-    public String generateTokenFromUsername(String username, long expirationMs) {
+    public String generateTokenFromUsernameAndAuthorities(String username, java.util.Collection<? extends GrantedAuthority> authorities, long expirationMs) {
         Date now = new Date();
         Date expiryDate = new Date(now.getTime() + expirationMs);
 
-        List<String> roles = new ArrayList<>();
-        List<String> permissions = new ArrayList<>();
+        List<String> roles = authorities.stream()
+                .map(GrantedAuthority::getAuthority)
+                .filter(auth -> auth.startsWith("ROLE_"))
+                .map(auth -> auth.substring(5)) // e.g. ROLE_ADMIN -> ADMIN
+                .collect(Collectors.toList());
 
-        try {
-            UserDetails userDetails = userDetailsService.loadUserByUsername(username);
-            roles = userDetails.getAuthorities().stream()
-                    .map(GrantedAuthority::getAuthority)
-                    .filter(auth -> auth.startsWith("ROLE_"))
-                    .map(auth -> auth.substring(5)) // e.g. ROLE_ADMIN -> ADMIN
-                    .collect(Collectors.toList());
-
-            permissions = userDetails.getAuthorities().stream()
-                    .map(GrantedAuthority::getAuthority)
-                    .filter(auth -> !auth.startsWith("ROLE_"))
-                    .collect(Collectors.toList());
-        } catch (Exception e) {
-            log.warn("Could not load authorities for user: {} during token generation", username, e);
-        }
+        List<String> permissions = authorities.stream()
+                .map(GrantedAuthority::getAuthority)
+                .filter(auth -> !auth.startsWith("ROLE_"))
+                .collect(Collectors.toList());
 
         return Jwts.builder()
+                .id(UUID.randomUUID().toString())
                 .subject(username)
                 .claim("roles", roles)
                 .claim("permissions", permissions)
@@ -80,6 +74,16 @@ public class JwtTokenProvider {
                 .expiration(expiryDate)
                 .signWith(key)
                 .compact();
+    }
+
+    public String generateTokenFromUsername(String username, long expirationMs) {
+        try {
+            UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+            return generateTokenFromUsernameAndAuthorities(username, userDetails.getAuthorities(), expirationMs);
+        } catch (Exception e) {
+            log.warn("Could not load authorities for user: {} during token generation", username, e);
+            return generateTokenFromUsernameAndAuthorities(username, new ArrayList<>(), expirationMs);
+        }
     }
 
     public String getUsernameFromJwt(String token) {
@@ -119,5 +123,23 @@ public class JwtTokenProvider {
                 .parseSignedClaims(token)
                 .getPayload()
                 .get("permissions", List.class);
+    }
+
+    public String getJtiFromJwt(String token) {
+        return Jwts.parser()
+                .verifyWith(key)
+                .build()
+                .parseSignedClaims(token)
+                .getPayload()
+                .getId();
+    }
+
+    public Date getExpirationFromJwt(String token) {
+        return Jwts.parser()
+                .verifyWith(key)
+                .build()
+                .parseSignedClaims(token)
+                .getPayload()
+                .getExpiration();
     }
 }

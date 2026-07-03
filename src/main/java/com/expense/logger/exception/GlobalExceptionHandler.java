@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @ControllerAdvice
+@lombok.extern.slf4j.Slf4j
 public class GlobalExceptionHandler {
 
     private static final String CORRELATION_ID_KEY = "correlation_id";
@@ -40,6 +41,26 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(BadRequestException.class)
     public ResponseEntity<ErrorResponse> handleBadRequest(BadRequestException ex, WebRequest request) {
+        return buildResponse(HttpStatus.BAD_REQUEST, "Bad Request", ex.getMessage(), request);
+    }
+
+    @ExceptionHandler(RateLimitExceededException.class)
+    public ResponseEntity<ErrorResponse> handleRateLimitExceeded(RateLimitExceededException ex, WebRequest request) {
+        return buildResponse(HttpStatus.TOO_MANY_REQUESTS, "Too Many Requests", ex.getMessage(), request);
+    }
+
+    @ExceptionHandler(OtpBlockedException.class)
+    public ResponseEntity<ErrorResponse> handleOtpBlocked(OtpBlockedException ex, WebRequest request) {
+        return buildResponse(HttpStatus.FORBIDDEN, "Forbidden", ex.getMessage(), request);
+    }
+
+    @ExceptionHandler(InvalidOtpException.class)
+    public ResponseEntity<ErrorResponse> handleInvalidOtp(InvalidOtpException ex, WebRequest request) {
+        return buildResponse(HttpStatus.UNAUTHORIZED, "Unauthorized", ex.getMessage(), request);
+    }
+
+    @ExceptionHandler(ExpiredOtpException.class)
+    public ResponseEntity<ErrorResponse> handleExpiredOtp(ExpiredOtpException ex, WebRequest request) {
         return buildResponse(HttpStatus.BAD_REQUEST, "Bad Request", ex.getMessage(), request);
     }
 
@@ -68,6 +89,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(org.springframework.security.access.AccessDeniedException.class)
     public ResponseEntity<ErrorResponse> handleAccessDenied(org.springframework.security.access.AccessDeniedException ex, WebRequest request) {
+        log.warn("Access Denied (403 Forbidden) on path: {}. Message: {}", request.getDescription(false), ex.getMessage());
         return buildResponse(HttpStatus.FORBIDDEN, "Forbidden", "Access Denied: " + ex.getMessage(), request);
     }
 

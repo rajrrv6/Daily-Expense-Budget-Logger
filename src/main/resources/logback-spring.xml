@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <appender name="JSON" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>{"timestamp":"%d{yyyy-MM-dd'T'HH:mm:ss.SSS}","level":"%level","correlationId":"%X{correlationId}","thread":"%thread","logger":"%logger{36}","message":"%msg"}%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- Configure logs from Spring Boot and our application to use JSON -->
+    <root level="INFO">
+        <appender-ref ref="JSON" />
+    </root>
+</configuration>

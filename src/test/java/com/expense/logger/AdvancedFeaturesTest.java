@@ -29,6 +29,9 @@ import com.expense.logger.repository.PasswordResetTokenRepository;
 import com.expense.logger.repository.BudgetRepository;
 import com.expense.logger.repository.RefreshTokenRepository;
 import java.util.List;
+import java.util.Map;
+import com.expense.logger.service.LoginAttemptService;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
@@ -83,6 +86,16 @@ public class AdvancedFeaturesTest {
     @Autowired
     private com.expense.logger.repository.NotificationPreferencesRepository notificationPreferencesRepository;
 
+    @Autowired
+    private com.expense.logger.config.ApiRateLimitFilter rateLimitFilter;
+
+    @Autowired
+    private LoginAttemptService loginAttemptService;
+
+    @Autowired
+    @Qualifier("inMemoryRedis")
+    private Map<String, String> inMemoryRedis;
+
     private User testUser;
     private User otherUser;
     private Category categoryFood;
@@ -90,6 +103,10 @@ public class AdvancedFeaturesTest {
 
     @BeforeEach
     public void setup() {
+        rateLimitFilter.clearBuckets();
+        if (inMemoryRedis != null) {
+            inMemoryRedis.clear();
+        }
         // Clear repositories to ensure isolated test runs
         notificationRepository.deleteAll();
         notificationPreferencesRepository.deleteAll();
@@ -440,13 +457,17 @@ public class AdvancedFeaturesTest {
         mockMvc.perform(post("/api/v1/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(correctLoginDto)))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message", containsString("Account is locked due to multiple failed login attempts")));
+                .andExpect(status().isTooManyRequests())
+                .andExpect(jsonPath("$.message", containsString("Rate limit exceeded. Account is locked. Please retry later.")));
 
         // 7. Reset failed login attempts and unlock user to verify successful login
         userAfterLockout.setLockoutUntil(null);
         userAfterLockout.setFailedLoginAttempts(3);
         userRepository.save(userAfterLockout);
+        loginAttemptService.resetUserAttempts("testuser");
+        loginAttemptService.resetUserAttempts("user@example.com");
+        inMemoryRedis.remove("login:ip:127.0.0.1");
+        rateLimitFilter.clearBuckets();
 
         mockMvc.perform(post("/api/v1/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -1018,8 +1039,11 @@ public class AdvancedFeaturesTest {
         mockMvc.perform(post("/api/v1/auth/verify-otp")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(invalidVerifyDto)))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message", containsString("Invalid or expired OTP")));
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.message", containsString("Invalid OTP")));
+
+        // Clear cooldown key in test Redis to allow immediate resend
+        inMemoryRedis.remove("otp:cooldown:otpuser@example.com");
 
         // 4. Resend OTP code
         com.expense.logger.dto.OtpResendRequestDto resendDto = new com.expense.logger.dto.OtpResendRequestDto();

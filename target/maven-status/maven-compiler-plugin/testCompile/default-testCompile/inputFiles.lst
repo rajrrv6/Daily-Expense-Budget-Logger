@@ -1,3 +1,8 @@
 /Users/local34/Desktop/Daily Expense & Budget Logger /Daily Expense & Budget Logger/backend/src/test/java/com/expense/logger/AdvancedFeaturesTest.java
+/Users/local34/Desktop/Daily Expense & Budget Logger /Daily Expense & Budget Logger/backend/src/test/java/com/expense/logger/ApiRateLimitIntegrationTest.java
 /Users/local34/Desktop/Daily Expense & Budget Logger /Daily Expense & Budget Logger/backend/src/test/java/com/expense/logger/EncryptionServiceTest.java
+/Users/local34/Desktop/Daily Expense & Budget Logger /Daily Expense & Budget Logger/backend/src/test/java/com/expense/logger/JwtBlacklistIntegrationTest.java
+/Users/local34/Desktop/Daily Expense & Budget Logger /Daily Expense & Budget Logger/backend/src/test/java/com/expense/logger/OtpRateLimitIntegrationTest.java
 /Users/local34/Desktop/Daily Expense & Budget Logger /Daily Expense & Budget Logger/backend/src/test/java/com/expense/logger/RbacSecurityIntegrationTest.java
+/Users/local34/Desktop/Daily Expense & Budget Logger /Daily Expense & Budget Logger/backend/src/test/java/com/expense/logger/SecurityHeadersIntegrationTest.java
+/Users/local34/Desktop/Daily Expense & Budget Logger /Daily Expense & Budget Logger/backend/src/test/java/com/expense/logger/config/TestRedisConfig.java
