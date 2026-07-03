@@ -522,7 +522,7 @@ export default function CategoriesPage() {
       >
         <div className="space-y-4">
           <p className="text-sm font-semibold text-slate-600 dark:text-slate-300 leading-relaxed">
-            Are you sure you want to delete the category <span className="font-extrabold text-slate-900 dark:text-slate-100">"{deleteTargetName}"</span>?
+            Are you sure you want to delete the category <span className="font-extrabold text-slate-900 dark:text-slate-100">&quot;{deleteTargetName}&quot;</span>?
           </p>
           <div className="p-3 bg-amber-50 dark:bg-amber-950/20 border border-amber-250/20 rounded-xl">
             <p className="text-xs text-amber-655 dark:text-amber-450 leading-relaxed font-semibold">

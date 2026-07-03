@@ -19,8 +19,6 @@ import {
   Trash2, 
   Download, 
   Plus, 
-  Eye, 
-  Edit3, 
   Calendar,
   Filter,
   UploadCloud
@@ -62,8 +60,7 @@ export default function ExpensesPage() {
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
   const [viewingExpense, setViewingExpense] = useState(null);
 
-  // Kebab menu active state per row
-  const [activeMenuId, setActiveMenuId] = useState(null);
+
 
   // Bulk action selection state
   const [selectedIds, setSelectedIds] = useState(new Set());
@@ -276,7 +273,6 @@ export default function ExpensesPage() {
   const handleEdit = (expense) => {
     setSelectedExpense(expense);
     setIsDrawerOpen(true);
-    setActiveMenuId(null);
   };
 
   const handleViewDetails = (expense) => {
@@ -320,12 +316,7 @@ export default function ExpensesPage() {
     setIsDrawerOpen(true);
   };
 
-  // Close menus on outside click
-  useEffect(() => {
-    const handleOutsideClick = () => setActiveMenuId(null);
-    document.addEventListener('click', handleOutsideClick);
-    return () => document.removeEventListener('click', handleOutsideClick);
-  }, []);
+
 
   return (
     <div className="space-y-6">
@@ -409,12 +400,12 @@ export default function ExpensesPage() {
             <label className="block text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
               Start Date
             </label>
-            <input
+             <input
               type="date"
               value={params.startDate}
               onChange={handleStartDateChange}
               max={todayStr}
-              onClick={(e) => { try { e.target.showPicker(); } catch (err) {} }}
+              onClick={(e) => { try { e.target.showPicker(); } catch (err) { console.debug(err); } }}
               className="w-full px-3 py-2 text-xs text-slate-800 dark:text-slate-200 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl focus:outline-none focus:border-brand-500"
             />
           </div>
@@ -424,12 +415,12 @@ export default function ExpensesPage() {
             <label className="block text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
               End Date
             </label>
-            <input
+             <input
               type="date"
               value={params.endDate}
               onChange={handleEndDateChange}
               max={todayStr}
-              onClick={(e) => { try { e.target.showPicker(); } catch (err) {} }}
+              onClick={(e) => { try { e.target.showPicker(); } catch (err) { console.debug(err); } }}
               className="w-full px-3 py-2 text-xs text-slate-800 dark:text-slate-200 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl focus:outline-none focus:border-brand-500"
             />
           </div>

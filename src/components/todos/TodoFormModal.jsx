@@ -207,7 +207,7 @@ export default function TodoFormModal({ isOpen, onClose, todo, onSubmitSuccess }
               value={targetDate}
               onChange={handleDateChange}
               onBlur={handleDateChange}
-              onClick={(e) => { try { e.target.showPicker(); } catch (err) {} }}
+              onClick={(e) => { try { e.target.showPicker(); } catch (err) { console.debug(err); } }}
               className={`w-full px-4 py-3 text-sm text-slate-900 dark:text-slate-205 bg-slate-50 dark:bg-slate-950 border rounded-xl focus:outline-none focus:border-brand-500 transition-colors font-semibold ${
                 dateError ? 'border-red-500 focus:border-red-500' : 'border-slate-200 dark:border-slate-800'
               }`}

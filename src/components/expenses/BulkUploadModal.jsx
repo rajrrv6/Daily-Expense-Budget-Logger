@@ -8,11 +8,9 @@ import {
   FileText, 
   CheckCircle, 
   AlertTriangle, 
-  HelpCircle, 
   Download, 
   RefreshCw,
   AlertCircle,
-  Plus,
   Sparkles
 } from 'lucide-react';
 

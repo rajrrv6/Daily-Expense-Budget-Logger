@@ -218,7 +218,7 @@ export default function BudgetFormModal({ isOpen, onClose, onSubmit, budget }) {
             <input
               type="date"
               {...register('startDate')}
-              onClick={(e) => { try { e.target.showPicker(); } catch (err) {} }}
+              onClick={(e) => { try { e.target.showPicker(); } catch (err) { console.debug(err); } }}
               className="w-full px-4 py-3 text-sm text-slate-855 dark:text-slate-205 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl focus:outline-none focus:border-brand-500 transition-colors"
             />
             {errors.startDate && (
@@ -233,7 +233,7 @@ export default function BudgetFormModal({ isOpen, onClose, onSubmit, budget }) {
             <input
               type="date"
               {...register('endDate')}
-              onClick={(e) => { try { e.target.showPicker(); } catch (err) {} }}
+              onClick={(e) => { try { e.target.showPicker(); } catch (err) { console.debug(err); } }}
               className={`w-full px-4 py-3 text-sm text-slate-805 dark:text-slate-205 bg-slate-50 dark:bg-slate-950 border ${
                 errors.endDate ? 'border-red-500' : 'border-slate-200 dark:border-slate-800'
               } rounded-xl focus:outline-none focus:border-brand-500 transition-colors`}

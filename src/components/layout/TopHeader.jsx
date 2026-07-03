@@ -6,7 +6,7 @@ import NotificationCenter from './NotificationCenter';
 import { globalSearch } from '../../services/searchService';
 import { Sun, Moon, Monitor, Settings, LogOut, Search, ChevronRight, Home, Shield, X, Menu } from 'lucide-react';
 
-export default function TopHeader({ onSearch, onToggleMobileSidebar }) {
+export default function TopHeader({ _onSearch, onToggleMobileSidebar }) {
   const { user, logout } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
@@ -269,7 +269,7 @@ export default function TopHeader({ onSearch, onToggleMobileSidebar }) {
                   </div>
                 ) : flatResults.length === 0 ? (
                   <div className="px-4 py-6 text-center text-xs text-slate-400 dark:text-slate-500 font-semibold">
-                    No results found for "{searchQuery}"
+                    No results found for &quot;{searchQuery}&quot;
                   </div>
                 ) : (
                   <div className="flex flex-col">

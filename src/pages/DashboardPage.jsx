@@ -120,7 +120,6 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true);
   const [todoLoading, setTodoLoading] = useState(true);
   const [error, setError] = useState('');
-  const [togglingIds, setTogglingIds] = useState(new Set());
 
   // Checklist Completion Modal State
   const [completeItem, setCompleteItem] = useState(null);

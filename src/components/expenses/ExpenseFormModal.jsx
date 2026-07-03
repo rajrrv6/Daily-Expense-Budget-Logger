@@ -263,7 +263,7 @@ export default function ExpenseFormModal({ isOpen, onClose, expense, onSubmitSuc
               type="date"
               max={todayStr}
               {...register('transactionDate')}
-              onClick={(e) => { try { e.target.showPicker(); } catch (err) {} }}
+              onClick={(e) => { try { e.target.showPicker(); } catch (err) { console.debug(err); } }}
               className="w-full px-4 py-2.5 text-sm text-slate-900 dark:text-slate-100 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg focus:outline-none focus:border-brand-500 transition-colors"
             />
             {errors.transactionDate && (

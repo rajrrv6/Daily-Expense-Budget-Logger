@@ -413,7 +413,7 @@ export default function AnalyticsPage() {
                     type="date"
                     value={startDate}
                     onChange={(e) => setStartDate(e.target.value)}
-                    onClick={(e) => { try { e.target.showPicker(); } catch (err) {} }}
+                    onClick={(e) => { try { e.target.showPicker(); } catch (err) { console.debug(err); } }}
                     className="px-3 py-2 text-sm text-slate-800 dark:text-slate-200 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-900 rounded-lg outline-none focus:border-brand-500"
                   />
                 </div>
@@ -426,7 +426,7 @@ export default function AnalyticsPage() {
                     type="date"
                     value={endDate}
                     onChange={(e) => setEndDate(e.target.value)}
-                    onClick={(e) => { try { e.target.showPicker(); } catch (err) {} }}
+                    onClick={(e) => { try { e.target.showPicker(); } catch (err) { console.debug(err); } }}
                     className="px-3 py-2 text-sm text-slate-800 dark:text-slate-200 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-900 rounded-lg outline-none focus:border-brand-500"
                   />
                 </div>
